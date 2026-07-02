@@ -22,7 +22,11 @@
   label{font-size:13px;color:var(--sub);display:block;margin-bottom:3px;}
   input[type=text],input[type=number],input[type=date]{
     width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:15px;background:#fbfaf7;color:var(--ink);
+    box-sizing:border-box;min-height:42px;
   }
+  input[type=date]{-webkit-appearance:none;appearance:none;display:block;}
+  .grid2 > div{min-width:0;}
+  .dim-group input,.pair-item input,input.plan-coverage,input.plan-color{min-height:0;}
   .field{flex:1;min-width:90px;}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
@@ -63,7 +67,7 @@
   .breakdown div{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--line);}
   .breakdown div:last-child{border-bottom:none;font-weight:700;padding-top:8px;}
   .plan-line{display:flex;align-items:center;gap:4px;padding:4px 0;border-bottom:1px solid var(--line);}
-  .plan-badge{font-size:10px;font-weight:700;color:var(--accent);width:34px;flex-shrink:0;}
+  .plan-badge{font-size:10px;font-weight:700;color:var(--accent);width:34px;display:inline-block;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   input.plan-coverage{width:34px;padding:4px 2px;border:1px solid var(--line);border-radius:5px;font-size:11px;text-align:center;flex-shrink:0;flex-grow:0;}
   input.plan-color{flex:1 1 0%;min-width:0;padding:4px 6px;border:1px solid var(--line);border-radius:5px;font-size:11px;}
   .plan-litres{font-size:11px;font-weight:700;width:40px;text-align:right;flex-shrink:0;}
@@ -72,17 +76,20 @@
   .mini-row{display:flex;gap:16px;margin-top:6px;}
   .mini-field label{font-size:10px;margin-bottom:2px;}
   .mini-field input{width:56px;padding:5px 4px;font-size:12px;text-align:center;border:1px solid var(--line);border-radius:6px;background:#fff;}
-  .dim-row{display:flex;gap:6px;align-items:stretch;justify-content:space-between;}
-  .dim-group{display:flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:8px;padding:4px 5px;background:#fff;flex:1;min-width:0;justify-content:center;flex-wrap:wrap;}
-  .dim-title{font-size:10px;font-weight:600;color:var(--sub);margin-right:2px;text-transform:uppercase;flex-basis:100%;text-align:center;}
-  .dim-group input{width:38px;padding:5px 2px;font-size:12px;text-align:center;border:1px solid var(--line);border-radius:5px;background:#fbfaf7;}
-  .dim-group input.qty-in{width:30px;background:#f2efe6;font-weight:600;}
-  .dim-lbl{font-size:9px;color:var(--sub);margin-right:2px;}
-  .pair-row{display:flex;gap:4px;flex-wrap:nowrap;}
-  .pair{flex:1;min-width:0;text-align:center;}
-  .pair label{font-size:9px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;}
-  .pair span{display:flex;align-items:center;justify-content:center;gap:1px;font-size:12px;color:var(--sub);}
-  .pair input{width:38px;padding:5px 2px;font-size:12px;text-align:center;border:1px solid var(--line);border-radius:5px;background:#fff;}
+  .dim-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+  .dim-group{display:flex;flex-direction:column;align-items:center;gap:4px;border:1px solid var(--line);border-radius:8px;padding:8px 6px;background:#fff;min-width:0;}
+  .dim-title{font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;}
+  .dim-vals{display:flex;gap:8px;justify-content:center;flex-wrap:nowrap;}
+  .dim-pair{display:flex;align-items:center;gap:3px;flex-shrink:0;}
+  .dim-group input{width:56px;padding:7px 4px;font-size:14px;text-align:center;border:1px solid var(--line);border-radius:6px;background:#fbfaf7;flex-shrink:0;}
+  .dim-qty{display:flex;align-items:center;gap:5px;padding-top:4px;border-top:1px dashed var(--line);width:100%;justify-content:center;}
+  .dim-group input.qty-in{width:48px;background:#f2efe6;font-weight:600;}
+  .dim-lbl{font-size:10px;color:var(--sub);white-space:nowrap;}
+  .pair-stack{display:flex;flex-direction:column;gap:4px;}
+  .pair-item{display:flex;align-items:center;gap:6px;}
+  .pair-label{width:52px;flex-shrink:0;font-size:11px;color:var(--sub);}
+  .pair-item input{width:44px;padding:6px 2px;font-size:13px;text-align:center;border:1px solid var(--line);border-radius:6px;background:#fff;}
+  .pair-sep{font-size:12px;color:var(--sub);}
   .area-line{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;padding:6px 0 2px;border-top:1px dashed var(--line);margin-top:8px;}
   .area-line > span{display:flex;align-items:center;gap:4px;}
   .area-check{display:flex;align-items:center;gap:2px;font-size:10px;color:var(--sub);cursor:pointer;}
@@ -106,7 +113,10 @@
       <h1>Paint Job Calculator</h1>
       <p id="saveStatus">Quote auto-saves on this device as you type</p>
     </div>
-    <button id="newQuoteBtn" onclick="newQuote()" style="background:none;border:1px solid #555;color:#c9c7bf;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;">New quote</button>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+      <span style="font-size:10px;color:#8a8880;">v1.0</span>
+      <button id="newQuoteBtn" onclick="newQuote()" style="background:none;border:1px solid #555;color:#c9c7bf;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;">New quote</button>
+    </div>
   </div>
 </header>
 
@@ -123,6 +133,14 @@
       <div><label>Date</label><input type="date" id="jobdate"></div>
       <div><label>Quotation number</label><input type="text" id="quoteNumber" placeholder="Q-0001"></div>
     </div>
+    <div class="grid2" style="margin-top:8px;">
+      <div><label>Job start date</label><input type="date" id="jobStartDate"></div>
+      <div><label>Job finish date</label><input type="date" id="jobFinishDate"></div>
+    </div>
+    <div style="margin-top:8px;">
+      <label>Job notes</label>
+      <textarea id="jobNotes" rows="3" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:#fbfaf7;color:var(--ink);font-family:inherit;resize:vertical;" placeholder="Overarching notes for the whole job — access, parking, special requests, anything that doesn't belong to one room"></textarea>
+    </div>
   </section>
 
   <section>
@@ -133,7 +151,7 @@
 
   <section>
     <h2>Paint needed (estimate)</h2>
-    <p class="hint">Each paint type can have multiple items (products/colours). On every room card, each surface has a "Paint item # / Primer item #" pair — the room's area flows to those items only. Ceiling/wall primer needs its "prime" box ticked; door/frame/window primer counts when that section's Primer coat is toggled on. Litres use the coats toggled in the work sections below.</p>
+    <p class="hint">Each paint type can have multiple items (products/colours). On every room card, each surface has a "Paint item # / Primer item #" pair. Leave Primer item # at 0 if that surface doesn't need priming — any number 1+ routes its primer to that item. Door/frame/window primer also needs that section's Primer coat toggled on in the work sections below (controls how many coats, not whether it happens). Litres use the coats toggled there too.</p>
     <div class="group-label">Ceiling paint</div>
     <div id="planCeilingFinal"></div>
     <div class="group-label">Primer / sealer undercoat</div>
@@ -158,7 +176,7 @@
     <h2>Paint & materials</h2>
     <div id="paintGroups"></div>
     <div class="row" style="margin-top:8px;">
-      <div class="field"><label>Roller price each ($)</label><input type="number" id="rollerPrice" value="10"></div>
+      <div class="field"><label>Roller price each ($)</label><input type="number" id="rollerPrice"></div>
     </div>
   </section>
 
@@ -234,30 +252,30 @@ const CEILING_PREP = [
 const CEILING_COATS = [
   {name:'Primer / Undercoat 1st Coat', sqmPerHr:40, matSource:'ceilingPrimer', defaultOn:false},
   {name:'Primer / Undercoat 2nd Coat', sqmPerHr:40, matSource:'ceilingPrimer', defaultOn:false},
-  {name:'Paint Final 1st Coat', sqmPerHr:60, matSource:'ceilingFinal', defaultOn:true},
+  {name:'Paint Final 1st Coat', sqmPerHr:60, matSource:'ceilingFinal', defaultOn:false},
   {name:'Paint Final 2nd Coat', sqmPerHr:60, matSource:'ceilingFinal', defaultOn:false},
   {name:'Paint Final 3rd Coat', sqmPerHr:60, matSource:'ceilingFinal', defaultOn:false},
 ];
 const WALL_PREP = [
-  {name:'Call Out and Setup', matPerSqm:0, flatHours:1, defaultOn:true},
-  {name:'Spacial Setup (drop sheets)', matPerSqm:0, sqmPerHr:60, defaultOn:true},
-  {name:'Wash Walls', matPerSqm:0.1, sqmPerHr:40, defaultOn:true},
-  {name:'Patch repair small holes', matPerSqm:0.1, sqmPerHr:40, defaultOn:true},
+  {name:'Call Out and Setup', matPerSqm:0, flatHours:1, defaultOn:false},
+  {name:'Spacial Setup (drop sheets)', matPerSqm:0, sqmPerHr:60, defaultOn:false},
+  {name:'Wash Walls', matPerSqm:0.1, sqmPerHr:40, defaultOn:false},
+  {name:'Patch repair small holes', matPerSqm:0.1, sqmPerHr:40, defaultOn:false},
   {name:'Patch repair large holes', matPerSqm:0.1, sqmPerHr:5, defaultOn:false},
   {name:'Patch plaster small cracks', matPerSqm:0.1, sqmPerHr:50, defaultOn:false},
   {name:'Patch plaster large cracks', matPerSqm:0.1, sqmPerHr:10, defaultOn:false},
   {name:'Flushing simple', matPerSqm:0.1, sqmPerHr:60, defaultOn:false},
   {name:'Flushing complex', matPerSqm:0.2, sqmPerHr:10, defaultOn:false},
-  {name:'Sanding', matPerSqm:0.2, sqmPerHr:40, defaultOn:true},
-  {name:'Boarder tapping', matPerSqm:0.2, sqmPerHr:40, defaultOn:true},
-  {name:'Miscellaneous Consumables', matPerSqm:0.1, sqmPerHr:0, defaultOn:true},
+  {name:'Sanding', matPerSqm:0.2, sqmPerHr:40, defaultOn:false},
+  {name:'Boarder tapping', matPerSqm:0.2, sqmPerHr:40, defaultOn:false},
+  {name:'Miscellaneous Consumables', matPerSqm:0.1, sqmPerHr:0, defaultOn:false},
   {name:'Spacial Pack down and Clean up', matPerSqm:0, sqmPerHr:60, defaultOn:false},
 ];
 const WALL_COATS = [
-  {name:'Primer / Undercoat 1st Coat', sqmPerHr:50, matSource:'wallPrimer', defaultOn:true},
+  {name:'Primer / Undercoat 1st Coat', sqmPerHr:50, matSource:'wallPrimer', defaultOn:false},
   {name:'Primer / Undercoat 2nd Coat', sqmPerHr:50, matSource:'wallPrimer', defaultOn:false},
-  {name:'Paint Final 1st Coat', sqmPerHr:70, matSource:'wallFinal', defaultOn:true},
-  {name:'Paint Final 2nd Coat', sqmPerHr:70, matSource:'wallFinal', defaultOn:true},
+  {name:'Paint Final 1st Coat', sqmPerHr:70, matSource:'wallFinal', defaultOn:false},
+  {name:'Paint Final 2nd Coat', sqmPerHr:70, matSource:'wallFinal', defaultOn:false},
   {name:'Paint Final 3rd Coat', sqmPerHr:70, matSource:'wallFinal', defaultOn:false},
 ];
 
@@ -309,7 +327,7 @@ const PLAN_EL_ID = { ceilingFinal:'planCeilingFinal', primer:'planPrimer', wallF
 const PLAN_LABELS = { ceilingFinal: 'Ceiling', primer: 'Primer', wallFinal: 'Wall', doorPaint: 'Door', doorFrame: 'Frame', windowFrame: 'Wndw' };
 function addPlanLine(cat){
   planIdCounter++;
-  paintPlan[cat].push({id:planIdCounter, coverage:10, color:''});
+  paintPlan[cat].push({id:planIdCounter, coverage:0, color:''});
   renderPlan();
   calculate();
 }
@@ -330,7 +348,7 @@ function renderPlan(){
     el.innerHTML = paintPlan[cat].map((l,i) => `
       <div class="plan-line">
         <span class="plan-badge">${PLAN_LABELS[cat]}${i+1}</span>
-        <input type="number" step="0.5" min="0.1" class="plan-coverage" value="${l.coverage}" title="Coverage sqm/L" oninput="updatePlanLine('${cat}',${l.id},'coverage',this.value)">
+        <input type="number" step="0.5" min="0.1" class="plan-coverage" value="${l.coverage || ''}" title="Coverage sqm/L" oninput="updatePlanLine('${cat}',${l.id},'coverage',this.value)">
         <input type="text" class="plan-color" placeholder="colour" value="${l.color}" oninput="updatePlanLine('${cat}',${l.id},'color',this.value)">
         <span class="plan-litres" id="planLitres_${cat}_${l.id}">0.0L</span>
         <button class="del-btn plan-del" onclick="removePlanLine('${cat}',${l.id})">✕</button>
@@ -347,15 +365,14 @@ let readyToCalculate = false;
 function addRoom(name){
   roomIdCounter++;
   rooms.push({id:roomIdCounter, name: name || ('Room ' + roomIdCounter),
-    ceilLength:0, ceilWidth:0, qtyCeil:1,
-    wallHeight:2.4, wallLength:0, qtyWall:1,
-    doorH:2.04, doorW:0.82, qtyDoors:0,
-    frameL:5.0, frameW:0.1, qtyFrames:0,
-    wndwL:6.0, wndwW:0.1, qtyWindows:0,
+    ceilLength:0, ceilWidth:0, qtyCeil:0,
+    wallHeight:0, wallLength:0, qtyWall:0,
+    doorH:0, doorW:0, qtyDoors:0,
+    frameL:0, frameW:0, qtyFrames:0,
+    wndwL:0, wndwW:0, qtyWindows:0,
     furnPct:0,
-    lineCeiling:1, lineWall:1, lineDoorPaint:1, lineDoorFrame:1, lineWindowFrame:1,
-    primCeil:1, primWall:1, primDoor:1, primFrame:1, primWndw:1,
-    primerCeiling:false, primerWall:false, notes:''});
+    lineCeiling:0, lineWall:0, lineDoorPaint:0, lineDoorFrame:0, lineWindowFrame:0,
+    primCeil:0, primWall:0, primDoor:0, primFrame:0, primWndw:0, notes:''});
   renderRooms();
   if (readyToCalculate) calculate();
 }
@@ -374,49 +391,59 @@ function renderRooms(){
         <input class="room-name" list="roomNames" value="${r.name}" oninput="updateRoom(${r.id},'name',this.value)">
         <button class="del-btn" onclick="removeRoom(${r.id})">Remove</button>
       </div>
-      <div class="dim-row">
+      <div class="dim-grid">
         <div class="dim-group"><span class="dim-title">Ceiling</span>
-          <input type="number" step="0.1" value="${r.ceilLength}" title="Length m" oninput="updateRoom(${r.id},'ceilLength',this.value)"><span class="dim-lbl">L</span>
-          <input type="number" step="0.1" value="${r.ceilWidth}" title="Width m" oninput="updateRoom(${r.id},'ceilWidth',this.value)"><span class="dim-lbl">W</span>
-          <input type="number" step="1" min="0" class="qty-in" value="${r.qtyCeil}" title="How many of this ceiling" oninput="updateRoom(${r.id},'qtyCeil',this.value)"><span class="dim-lbl">×</span>
+          <div class="dim-vals">
+            <span class="dim-pair"><input type="number" step="0.1" value="${r.ceilLength || ''}" title="Length m" oninput="updateRoom(${r.id},'ceilLength',this.value)"><span class="dim-lbl">L</span></span>
+            <span class="dim-pair"><input type="number" step="0.1" value="${r.ceilWidth || ''}" title="Width m" oninput="updateRoom(${r.id},'ceilWidth',this.value)"><span class="dim-lbl">W</span></span>
+          </div>
+          <div class="dim-qty"><span class="dim-lbl">Count ×</span><input type="number" step="1" min="0" class="qty-in" value="${r.qtyCeil || ''}" title="How many of this ceiling" oninput="updateRoom(${r.id},'qtyCeil',this.value)"></div>
         </div>
         <div class="dim-group"><span class="dim-title">Wall</span>
-          <input type="number" step="0.1" value="${r.wallHeight}" title="Height m" oninput="updateRoom(${r.id},'wallHeight',this.value)"><span class="dim-lbl">H</span>
-          <input type="number" step="0.1" value="${r.wallLength}" title="Run m" oninput="updateRoom(${r.id},'wallLength',this.value)"><span class="dim-lbl">L</span>
-          <input type="number" step="1" min="0" class="qty-in" value="${r.qtyWall}" title="How many of this wall" oninput="updateRoom(${r.id},'qtyWall',this.value)"><span class="dim-lbl">×</span>
+          <div class="dim-vals">
+            <span class="dim-pair"><input type="number" step="0.1" value="${r.wallHeight || ''}" title="Height m" oninput="updateRoom(${r.id},'wallHeight',this.value)"><span class="dim-lbl">H</span></span>
+            <span class="dim-pair"><input type="number" step="0.1" value="${r.wallLength || ''}" title="Run m" oninput="updateRoom(${r.id},'wallLength',this.value)"><span class="dim-lbl">L</span></span>
+          </div>
+          <div class="dim-qty"><span class="dim-lbl">Count ×</span><input type="number" step="1" min="0" class="qty-in" value="${r.qtyWall || ''}" title="How many of this wall" oninput="updateRoom(${r.id},'qtyWall',this.value)"></div>
         </div>
-        <div class="dim-group"><span class="dim-title">Furnished</span>
-          <input type="number" step="1" min="0" value="${r.furnPct}" title="0% empty, 100% fully furnished, 200% cluttered" oninput="updateRoom(${r.id},'furnPct',this.value)"><span class="dim-lbl">%</span>
-        </div>
-      </div>
-      <div class="dim-row" style="margin-top:6px;">
         <div class="dim-group"><span class="dim-title">Door</span>
-          <input type="number" step="0.01" value="${r.doorH}" title="Height m" oninput="updateRoom(${r.id},'doorH',this.value)"><span class="dim-lbl">H</span>
-          <input type="number" step="0.01" value="${r.doorW}" title="Width m" oninput="updateRoom(${r.id},'doorW',this.value)"><span class="dim-lbl">W</span>
-          <input type="number" step="1" min="0" class="qty-in" value="${r.qtyDoors}" title="Number of doors" oninput="updateRoom(${r.id},'qtyDoors',this.value)"><span class="dim-lbl">×</span>
+          <div class="dim-vals">
+            <span class="dim-pair"><input type="number" step="0.01" value="${r.doorH || ''}" title="Height m" oninput="updateRoom(${r.id},'doorH',this.value)"><span class="dim-lbl">H</span></span>
+            <span class="dim-pair"><input type="number" step="0.01" value="${r.doorW || ''}" title="Width m" oninput="updateRoom(${r.id},'doorW',this.value)"><span class="dim-lbl">W</span></span>
+          </div>
+          <div class="dim-qty"><span class="dim-lbl">Count ×</span><input type="number" step="1" min="0" class="qty-in" value="${r.qtyDoors || ''}" title="Number of doors" oninput="updateRoom(${r.id},'qtyDoors',this.value)"></div>
         </div>
         <div class="dim-group"><span class="dim-title">D Frame</span>
-          <input type="number" step="0.1" value="${r.frameL}" title="Total frame length m" oninput="updateRoom(${r.id},'frameL',this.value)"><span class="dim-lbl">L</span>
-          <input type="number" step="0.01" value="${r.frameW}" title="Face width m" oninput="updateRoom(${r.id},'frameW',this.value)"><span class="dim-lbl">W</span>
-          <input type="number" step="1" min="0" class="qty-in" value="${r.qtyFrames}" title="Number of door frames" oninput="updateRoom(${r.id},'qtyFrames',this.value)"><span class="dim-lbl">×</span>
+          <div class="dim-vals">
+            <span class="dim-pair"><input type="number" step="0.1" value="${r.frameL || ''}" title="Total frame length m" oninput="updateRoom(${r.id},'frameL',this.value)"><span class="dim-lbl">L</span></span>
+            <span class="dim-pair"><input type="number" step="0.01" value="${r.frameW || ''}" title="Face width m" oninput="updateRoom(${r.id},'frameW',this.value)"><span class="dim-lbl">W</span></span>
+          </div>
+          <div class="dim-qty"><span class="dim-lbl">Count ×</span><input type="number" step="1" min="0" class="qty-in" value="${r.qtyFrames || ''}" title="Number of door frames" oninput="updateRoom(${r.id},'qtyFrames',this.value)"></div>
         </div>
         <div class="dim-group"><span class="dim-title">Window</span>
-          <input type="number" step="0.1" value="${r.wndwL}" title="Total frame length m" oninput="updateRoom(${r.id},'wndwL',this.value)"><span class="dim-lbl">L</span>
-          <input type="number" step="0.01" value="${r.wndwW}" title="Face width m" oninput="updateRoom(${r.id},'wndwW',this.value)"><span class="dim-lbl">W</span>
-          <input type="number" step="1" min="0" class="qty-in" value="${r.qtyWindows}" title="Number of window frames" oninput="updateRoom(${r.id},'qtyWindows',this.value)"><span class="dim-lbl">×</span>
+          <div class="dim-vals">
+            <span class="dim-pair"><input type="number" step="0.1" value="${r.wndwL || ''}" title="Total frame length m" oninput="updateRoom(${r.id},'wndwL',this.value)"><span class="dim-lbl">L</span></span>
+            <span class="dim-pair"><input type="number" step="0.01" value="${r.wndwW || ''}" title="Face width m" oninput="updateRoom(${r.id},'wndwW',this.value)"><span class="dim-lbl">W</span></span>
+          </div>
+          <div class="dim-qty"><span class="dim-lbl">Count ×</span><input type="number" step="1" min="0" class="qty-in" value="${r.qtyWindows || ''}" title="Number of window frames" oninput="updateRoom(${r.id},'qtyWindows',this.value)"></div>
+        </div>
+        <div class="dim-group"><span class="dim-title">Furnished</span>
+          <div class="dim-vals">
+            <span class="dim-pair"><input type="number" step="1" min="0" value="${r.furnPct || ''}" title="0% empty, 100% fully furnished, 200% cluttered" oninput="updateRoom(${r.id},'furnPct',this.value)"><span class="dim-lbl">%</span></span>
+          </div>
         </div>
       </div>
       <p class="hint" style="margin:6px 0 2px;">Paint item # / Primer item #</p>
-      <div class="pair-row">
-        <div class="pair"><label>Ceiling</label><span><input type="number" min="1" step="1" value="${r.lineCeiling}" oninput="updateRoom(${r.id},'lineCeiling',this.value)">/<input type="number" min="1" step="1" value="${r.primCeil}" oninput="updateRoom(${r.id},'primCeil',this.value)"></span></div>
-        <div class="pair"><label>Wall</label><span><input type="number" min="1" step="1" value="${r.lineWall}" oninput="updateRoom(${r.id},'lineWall',this.value)">/<input type="number" min="1" step="1" value="${r.primWall}" oninput="updateRoom(${r.id},'primWall',this.value)"></span></div>
-        <div class="pair"><label>Door</label><span><input type="number" min="1" step="1" value="${r.lineDoorPaint}" oninput="updateRoom(${r.id},'lineDoorPaint',this.value)">/<input type="number" min="1" step="1" value="${r.primDoor}" oninput="updateRoom(${r.id},'primDoor',this.value)"></span></div>
-        <div class="pair"><label>D Frame</label><span><input type="number" min="1" step="1" value="${r.lineDoorFrame}" oninput="updateRoom(${r.id},'lineDoorFrame',this.value)">/<input type="number" min="1" step="1" value="${r.primFrame}" oninput="updateRoom(${r.id},'primFrame',this.value)"></span></div>
-        <div class="pair"><label>Window</label><span><input type="number" min="1" step="1" value="${r.lineWindowFrame}" oninput="updateRoom(${r.id},'lineWindowFrame',this.value)">/<input type="number" min="1" step="1" value="${r.primWndw}" oninput="updateRoom(${r.id},'primWndw',this.value)"></span></div>
+      <div class="pair-stack">
+        <div class="pair-item"><span class="pair-label">Ceiling</span><input type="number" min="1" step="1" value="${r.lineCeiling || ''}" oninput="updateRoom(${r.id},'lineCeiling',this.value)"><span class="pair-sep">/</span><input type="number" min="0" step="1" value="${r.primCeil || ''}" oninput="updateRoom(${r.id},'primCeil',this.value)"></div>
+        <div class="pair-item"><span class="pair-label">Wall</span><input type="number" min="1" step="1" value="${r.lineWall || ''}" oninput="updateRoom(${r.id},'lineWall',this.value)"><span class="pair-sep">/</span><input type="number" min="0" step="1" value="${r.primWall || ''}" oninput="updateRoom(${r.id},'primWall',this.value)"></div>
+        <div class="pair-item"><span class="pair-label">Door</span><input type="number" min="1" step="1" value="${r.lineDoorPaint || ''}" oninput="updateRoom(${r.id},'lineDoorPaint',this.value)"><span class="pair-sep">/</span><input type="number" min="0" step="1" value="${r.primDoor || ''}" oninput="updateRoom(${r.id},'primDoor',this.value)"></div>
+        <div class="pair-item"><span class="pair-label">D Frame</span><input type="number" min="1" step="1" value="${r.lineDoorFrame || ''}" oninput="updateRoom(${r.id},'lineDoorFrame',this.value)"><span class="pair-sep">/</span><input type="number" min="0" step="1" value="${r.primFrame || ''}" oninput="updateRoom(${r.id},'primFrame',this.value)"></div>
+        <div class="pair-item"><span class="pair-label">Window</span><input type="number" min="1" step="1" value="${r.lineWindowFrame || ''}" oninput="updateRoom(${r.id},'lineWindowFrame',this.value)"><span class="pair-sep">/</span><input type="number" min="0" step="1" value="${r.primWndw || ''}" oninput="updateRoom(${r.id},'primWndw',this.value)"></div>
       </div>
       <div class="area-line">
-        <span>Ceiling = <b id="areaCeil_${r.id}">${aCeil.toFixed(1)}</b> m²<label class="area-check"><input type="checkbox" ${r.primerCeiling?'checked':''} onchange="updateRoomBool(${r.id},'primerCeiling',this.checked)">prime</label></span>
-        <span>Wall = <b id="areaWall_${r.id}">${aWall.toFixed(1)}</b> m²<label class="area-check"><input type="checkbox" ${r.primerWall?'checked':''} onchange="updateRoomBool(${r.id},'primerWall',this.checked)">prime</label></span>
+        <span>Ceiling = <b id="areaCeil_${r.id}">${aCeil.toFixed(1)}</b> m²</span>
+        <span>Wall = <b id="areaWall_${r.id}">${aWall.toFixed(1)}</b> m²</span>
         <span>Door = <b id="areaDoor_${r.id}">${aDoor.toFixed(1)}</b> m²</span>
         <span>D Frame = <b id="areaFrame_${r.id}">${aFrame.toFixed(1)}</b> m²</span>
         <span>Window = <b id="areaWndw_${r.id}">${aWndw.toFixed(1)}</b> m²</span>
@@ -444,7 +471,7 @@ function updateRoomBool(id, field, checked){
 
 function addPaint(groupKey, preset){
   paintIdCounter++;
-  paints[groupKey].push(Object.assign({id:paintIdCounter, numReq:1, tinSize:10, coverage:10, priceEach:100}, preset||{}));
+  paints[groupKey].push(Object.assign({id:paintIdCounter, numReq:0, tinSize:0, coverage:0, priceEach:0}, preset||{}));
   renderPaints();
   calculate();
 }
@@ -471,10 +498,10 @@ function renderPaints(){
             <button class="del-btn" onclick="removePaint('${g.key}',${p.id})">Remove</button>
           </div>
           <div class="grid4">
-            <div><label>Qty</label><input type="number" value="${p.numReq}" oninput="updatePaint('${g.key}',${p.id},'numReq',this.value)"></div>
-            <div><label>Tin size (L)</label><input type="number" value="${p.tinSize}" oninput="updatePaint('${g.key}',${p.id},'tinSize',this.value)"></div>
-            <div><label>Coverage (sqm)</label><input type="number" value="${p.coverage}" oninput="updatePaint('${g.key}',${p.id},'coverage',this.value)"></div>
-            <div><label>Price ea ($)</label><input type="number" value="${p.priceEach}" oninput="updatePaint('${g.key}',${p.id},'priceEach',this.value)"></div>
+            <div><label>Qty</label><input type="number" value="${p.numReq || ''}" oninput="updatePaint('${g.key}',${p.id},'numReq',this.value)"></div>
+            <div><label>Tin size (L)</label><input type="number" value="${p.tinSize || ''}" oninput="updatePaint('${g.key}',${p.id},'tinSize',this.value)"></div>
+            <div><label>Coverage (sqm)</label><input type="number" value="${p.coverage || ''}" oninput="updatePaint('${g.key}',${p.id},'coverage',this.value)"></div>
+            <div><label>Price ea ($)</label><input type="number" value="${p.priceEach || ''}" oninput="updatePaint('${g.key}',${p.id},'priceEach',this.value)"></div>
           </div>
         </div>
       `).join('')}
@@ -545,7 +572,7 @@ function calcPaintProduct(slots){
   let totalCost = 0, sumCostPerSqm = 0, numReqTotal = 0;
   slots.forEach(s => {
     const cost = s.numReq * s.priceEach;
-    const costPerSqm = (s.numReq === 0 || s.tinSize === 0 || s.priceEach === 0 || cost === 0) ? 0 : (s.priceEach / s.coverage / s.tinSize);
+    const costPerSqm = (s.numReq === 0 || s.tinSize === 0 || s.coverage === 0 || s.priceEach === 0 || cost === 0) ? 0 : (s.priceEach / s.coverage / s.tinSize);
     totalCost += cost;
     numReqTotal += s.numReq;
     if (s.numReq !== 0) sumCostPerSqm += costPerSqm;
@@ -616,8 +643,8 @@ function calculate(){
     wallArea += wArea;
     ceilingFurnishedArea += cArea * f;
     wallFurnishedArea += wArea * f;
-    if (r.primerCeiling) { primerCeilingArea += cArea; primerCeilingFurnishedArea += cArea * f; }
-    if (r.primerWall) { primerWallArea += wArea; primerWallFurnishedArea += wArea * f; }
+    if (r.primCeil > 0) { primerCeilingArea += cArea; primerCeilingFurnishedArea += cArea * f; }
+    if (r.primWall > 0) { primerWallArea += wArea; primerWallFurnishedArea += wArea * f; }
   });
 
   let totalQtyDoors = 0, furnishedQtyDoors = 0, totalQtyFrames = 0, furnishedQtyFrames = 0, totalQtyWindows = 0, furnishedQtyWindows = 0;
@@ -721,21 +748,22 @@ function calculate(){
     if (elx) elx.textContent = litres.toFixed(1) + 'L';
   });
 
-  // Primer: every surface routes to its own primer item # (ceiling, wall, door, door frame, window frame).
-  // Ceiling/wall need their "prime" box ticked; door/frame/window contribute when their Primer coat task is on.
+  // Primer: every surface routes to its own primer item #. A primer item of 0 (or blank) means
+  // that surface gets no primer at all — this is the sole on/off control, no separate checkbox.
   const doorPrimerOn = taskState.doorCoats[0].on ? 1 : 0;
   const framePrimerOn = taskState.doorFrameCoats[0].on ? 1 : 0;
   const wndwPrimerOn = taskState.windowFrameCoats[0].on ? 1 : 0;
   const nPrimer = paintPlan.primer.length;
   const primerSums = new Array(nPrimer).fill(0);
   function routePrimer(itemField, amount, r){
-    if (nPrimer === 0 || amount <= 0) return;
-    const idx = Math.max(1, Math.min(Math.round(r[itemField]) || 1, nPrimer)) - 1;
+    const raw = Math.round(r[itemField]) || 0;
+    if (nPrimer === 0 || amount <= 0 || raw <= 0) return;
+    const idx = Math.max(1, Math.min(raw, nPrimer)) - 1;
     primerSums[idx] += amount;
   }
   rooms.forEach(r => {
-    if (r.primerCeiling) routePrimer('primCeil', ceilAreaOf(r) * ceilingPrimerCoats, r);
-    if (r.primerWall) routePrimer('primWall', wallAreaOf(r) * wallPrimerCoats, r);
+    routePrimer('primCeil', ceilAreaOf(r) * ceilingPrimerCoats, r);
+    routePrimer('primWall', wallAreaOf(r) * wallPrimerCoats, r);
     routePrimer('primDoor', doorAreaOf(r) * doorPrimerOn, r);
     routePrimer('primFrame', frameAreaOf(r) * framePrimerOn, r);
     routePrimer('primWndw', wndwAreaOf(r) * wndwPrimerOn, r);
@@ -793,7 +821,7 @@ function calculate(){
 }
 
 // ===================== SAVE / LOAD (localStorage) =====================
-const SAVE_KEY = 'paintcalc_quote_v3';
+const SAVE_KEY = 'paintcalc_quote_v5';
 let suppressSave = false;
 let saveTimer = null;
 
@@ -806,6 +834,9 @@ function collectState(){
       address: document.getElementById('address').value,
       jobdate: document.getElementById('jobdate').value,
       quoteNumber: document.getElementById('quoteNumber').value,
+      jobNotes: document.getElementById('jobNotes').value,
+      jobStartDate: document.getElementById('jobStartDate').value,
+      jobFinishDate: document.getElementById('jobFinishDate').value,
       rollerPrice: document.getElementById('rollerPrice').value,
     },
     rooms, paints, paintPlan, taskState,
@@ -850,7 +881,10 @@ function loadState(){
     document.getElementById('address').value = j.address || '';
     document.getElementById('jobdate').value = j.jobdate || '';
     document.getElementById('quoteNumber').value = j.quoteNumber || '';
-    document.getElementById('rollerPrice').value = j.rollerPrice || 10;
+    document.getElementById('jobNotes').value = j.jobNotes || '';
+    document.getElementById('jobStartDate').value = j.jobStartDate || '';
+    document.getElementById('jobFinishDate').value = j.jobFinishDate || '';
+    document.getElementById('rollerPrice').value = j.rollerPrice || '';
     renderRooms();
     renderPaints();
     renderPlan();
@@ -870,16 +904,16 @@ function newQuote(){
 // =======================================================================
 
 document.getElementById('rollerPrice').addEventListener('input', calculate);
-['clientName','clientPhone','address','jobdate','quoteNumber'].forEach(id => {
+['clientName','clientPhone','address','jobdate','quoteNumber','jobNotes','jobStartDate','jobFinishDate'].forEach(id => {
   document.getElementById(id).addEventListener('input', saveState);
 });
 
 initTasks();
 const restored = loadState();
 if (!restored) {
-  paints.ceilingFinal.push({id:++paintIdCounter, numReq:1, tinSize:10, coverage:10, priceEach:100});
-  paints.wallPrimer.push({id:++paintIdCounter, numReq:1, tinSize:4, coverage:10, priceEach:100});
-  paints.wallFinal.push({id:++paintIdCounter, numReq:1, tinSize:4, coverage:10, priceEach:100});
+  paints.ceilingFinal.push({id:++paintIdCounter, numReq:0, tinSize:0, coverage:0, priceEach:0});
+  paints.wallPrimer.push({id:++paintIdCounter, numReq:0, tinSize:0, coverage:0, priceEach:0});
+  paints.wallFinal.push({id:++paintIdCounter, numReq:0, tinSize:0, coverage:0, priceEach:0});
   renderPaints();
   renderTasks();
   addPlanLine('ceilingFinal');
