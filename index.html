@@ -66,13 +66,20 @@
   .breakdown{font-size:13px;}
   .breakdown div{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--line);}
   .breakdown div:last-child{border-bottom:none;font-weight:700;padding-top:8px;}
-  .plan-line{display:flex;align-items:center;gap:4px;padding:4px 0;border-bottom:1px solid var(--line);}
-  .plan-badge{font-size:10px;font-weight:700;color:var(--accent);width:34px;display:inline-block;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  input.plan-coverage{width:34px;padding:4px 2px;border:1px solid var(--line);border-radius:5px;font-size:11px;text-align:center;flex-shrink:0;flex-grow:0;}
-  input.plan-color{flex:1 1 0%;min-width:0;padding:4px 6px;border:1px solid var(--line);border-radius:5px;font-size:11px;}
-  .plan-litres{font-size:11px;font-weight:700;width:40px;text-align:right;flex-shrink:0;}
+  .plan-item{border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin-bottom:8px;background:#fbfaf7;}
+  .plan-line{display:flex;align-items:center;gap:5px;}
+  .plan-badge{font-size:10px;font-weight:700;color:var(--accent);width:44px;display:inline-block;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  input.plan-coverage{width:40px;padding:5px 2px;border:1px solid var(--line);border-radius:5px;font-size:12px;text-align:center;flex-shrink:0;flex-grow:0;min-height:0;background:#fff;}
+  .plan-suffix{font-size:9px;color:var(--sub);flex-shrink:0;}
+  input.plan-color{flex:1 1 0%;min-width:0;padding:5px 6px;border:1px solid var(--line);border-radius:5px;font-size:12px;min-height:0;background:#fff;}
   .plan-del{padding:2px 4px;font-size:12px;flex-shrink:0;}
   .plan-add{padding:6px;font-size:12px;margin-top:2px;}
+  .plan-buy{display:flex;align-items:center;gap:10px;margin-top:5px;flex-wrap:wrap;}
+  .plan-buy-field{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--sub);}
+  .plan-buy-field input{width:48px;padding:5px 3px;border:1px solid var(--line);border-radius:5px;font-size:12px;text-align:center;min-height:0;background:#fff;}
+  .plan-status{margin-top:5px;font-size:11px;font-weight:600;padding:3px 6px;border-radius:5px;background:#efede6;color:var(--sub);}
+  .plan-status.ok{background:#e4efe7;color:#31663f;}
+  .plan-status.short{background:#f7e4e0;color:#9c3320;}
   .mini-row{display:flex;gap:16px;margin-top:6px;}
   .mini-field label{font-size:10px;margin-bottom:2px;}
   .mini-field input{width:56px;padding:5px 4px;font-size:12px;text-align:center;border:1px solid var(--line);border-radius:6px;background:#fff;}
@@ -150,8 +157,8 @@
   </section>
 
   <section>
-    <h2>Paint needed (estimate)</h2>
-    <p class="hint">Each paint type can have multiple items (products/colours). On every room card, each surface has a "Paint item # / Primer item #" pair. Leave Primer item # at 0 if that surface doesn't need priming — any number 1+ routes its primer to that item. Door/frame/window primer also needs that section's Primer coat toggled on in the work sections below (controls how many coats, not whether it happens). Litres use the coats toggled there too.</p>
+    <h2>Paint needed & purchase</h2>
+    <p class="hint">Each paint type can have multiple items (products/colours). Rooms route their areas to items via the "Paint item # / Primer item #" pairs on each room card (0 = no primer for that surface). <b>Needed</b> comes from room areas × the coats toggled in the work sections below. Fill in tin size, tins bought, and price on each item and it'll tell you if you're buying enough.</p>
     <div class="group-label">Ceiling paint</div>
     <div id="planCeilingFinal"></div>
     <div class="group-label">Primer / sealer undercoat</div>
@@ -170,13 +177,8 @@
       <summary>Window frame paint</summary>
       <div id="planWindowFrame"></div>
     </details>
-  </section>
-
-  <section>
-    <h2>Paint & materials</h2>
-    <div id="paintGroups"></div>
-    <div class="row" style="margin-top:8px;">
-      <div class="field"><label>Roller price each ($)</label><input type="number" id="rollerPrice"></div>
+    <div class="row" style="margin-top:10px;">
+      <div class="field"><label>Roller price each ($) — one roller per tin bought</label><input type="number" id="rollerPrice"></div>
     </div>
   </section>
 
@@ -313,11 +315,6 @@ const WINDOWFRAME_COATS = [
   {name:'Final Coat 2', flatHoursPerUnit:0.15, matPerUnit:1, defaultOn:false},
 ];
 
-const PAINT_GROUPS = [
-  {key:'ceilingFinal', title:'Ceiling paint'},
-  {key:'wallPrimer', title:'Wall primer / undercoat'},
-  {key:'wallFinal', title:'Wall final paint'},
-];
 const ROOM_NAME_SUGGESTIONS = ['Bedroom 1','Bedroom 2','Bedroom 3','Main bedroom','Ensuite','Bathroom','Kitchen','Living room','Dining room','Hallway','Laundry','Study','Garage','Door','Door frame'];
 
 let planIdCounter = 0;
@@ -327,7 +324,7 @@ const PLAN_EL_ID = { ceilingFinal:'planCeilingFinal', primer:'planPrimer', wallF
 const PLAN_LABELS = { ceilingFinal: 'Ceiling', primer: 'Primer', wallFinal: 'Wall', doorPaint: 'Door', doorFrame: 'Frame', windowFrame: 'Wndw' };
 function addPlanLine(cat){
   planIdCounter++;
-  paintPlan[cat].push({id:planIdCounter, coverage:0, color:''});
+  paintPlan[cat].push({id:planIdCounter, coverage:0, color:'', tinSize:0, qty:0, price:0});
   renderPlan();
   calculate();
 }
@@ -346,20 +343,26 @@ function renderPlan(){
   PLAN_CATS.forEach(cat => {
     const el = document.getElementById(PLAN_EL_ID[cat]);
     el.innerHTML = paintPlan[cat].map((l,i) => `
-      <div class="plan-line">
-        <span class="plan-badge">${PLAN_LABELS[cat]}${i+1}</span>
-        <input type="number" step="0.5" min="0.1" class="plan-coverage" value="${l.coverage || ''}" title="Coverage sqm/L" oninput="updatePlanLine('${cat}',${l.id},'coverage',this.value)">
-        <input type="text" class="plan-color" placeholder="colour" value="${l.color}" oninput="updatePlanLine('${cat}',${l.id},'color',this.value)">
-        <span class="plan-litres" id="planLitres_${cat}_${l.id}">0.0L</span>
-        <button class="del-btn plan-del" onclick="removePlanLine('${cat}',${l.id})">✕</button>
+      <div class="plan-item">
+        <div class="plan-line">
+          <span class="plan-badge">${PLAN_LABELS[cat]}${i+1}</span>
+          <input type="number" step="0.5" min="0.1" class="plan-coverage" value="${l.coverage || ''}" title="Coverage sqm per litre" oninput="updatePlanLine('${cat}',${l.id},'coverage',this.value)">
+          <span class="plan-suffix">sqm/L</span>
+          <input type="text" class="plan-color" placeholder="colour / product" value="${l.color}" oninput="updatePlanLine('${cat}',${l.id},'color',this.value)">
+          <button class="del-btn plan-del" onclick="removePlanLine('${cat}',${l.id})">✕</button>
+        </div>
+        <div class="plan-buy">
+          <span class="plan-buy-field"><input type="number" step="0.5" min="0" value="${l.tinSize || ''}" title="Tin size litres" oninput="updatePlanLine('${cat}',${l.id},'tinSize',this.value)"><span>L tin</span></span>
+          <span class="plan-buy-field"><span>×</span><input type="number" step="1" min="0" value="${l.qty || ''}" title="Tins bought" oninput="updatePlanLine('${cat}',${l.id},'qty',this.value)"><span>tins</span></span>
+          <span class="plan-buy-field"><span>@$</span><input type="number" step="0.01" min="0" value="${l.price || ''}" title="Price per tin" oninput="updatePlanLine('${cat}',${l.id},'price',this.value)"></span>
+        </div>
+        <div class="plan-status" id="planStatus_${cat}_${l.id}">Needed 0.0L</div>
       </div>`).join('') + `<button class="add-btn plan-add" onclick="addPlanLine('${cat}')">+ Add item</button>`;
   });
 }
 
 let roomIdCounter = 0;
 let rooms = [];
-let paints = { ceilingFinal: [], wallPrimer: [], wallFinal: [] };
-let paintIdCounter = 0;
 
 let readyToCalculate = false;
 function addRoom(name){
@@ -469,46 +472,6 @@ function updateRoomBool(id, field, checked){
   calculate();
 }
 
-function addPaint(groupKey, preset){
-  paintIdCounter++;
-  paints[groupKey].push(Object.assign({id:paintIdCounter, numReq:0, tinSize:0, coverage:0, priceEach:0}, preset||{}));
-  renderPaints();
-  calculate();
-}
-function removePaint(groupKey, id){
-  paints[groupKey] = paints[groupKey].filter(p => p.id !== id);
-  renderPaints();
-  calculate();
-}
-function updatePaint(groupKey, id, field, value){
-  const p = paints[groupKey].find(x => x.id === id);
-  if (!p) return;
-  p[field] = parseFloat(value) || 0;
-  calculate();
-}
-function renderPaints(){
-  const el = document.getElementById('paintGroups');
-  el.innerHTML = PAINT_GROUPS.map(g => `
-    <div style="margin-bottom:14px;">
-      <div class="paint-title">${g.title}</div>
-      ${paints[g.key].map(p => `
-        <div class="paint-card">
-          <div class="row" style="justify-content:space-between;">
-            <span class="hint">Tin / can</span>
-            <button class="del-btn" onclick="removePaint('${g.key}',${p.id})">Remove</button>
-          </div>
-          <div class="grid4">
-            <div><label>Qty</label><input type="number" value="${p.numReq || ''}" oninput="updatePaint('${g.key}',${p.id},'numReq',this.value)"></div>
-            <div><label>Tin size (L)</label><input type="number" value="${p.tinSize || ''}" oninput="updatePaint('${g.key}',${p.id},'tinSize',this.value)"></div>
-            <div><label>Coverage (sqm)</label><input type="number" value="${p.coverage || ''}" oninput="updatePaint('${g.key}',${p.id},'coverage',this.value)"></div>
-            <div><label>Price ea ($)</label><input type="number" value="${p.priceEach || ''}" oninput="updatePaint('${g.key}',${p.id},'priceEach',this.value)"></div>
-          </div>
-        </div>
-      `).join('')}
-      ${paints[g.key].length < 3 ? `<button class="add-btn" onclick="addPaint('${g.key}')">+ Add another ${g.title.toLowerCase()}</button>` : ''}
-    </div>
-  `).join('');
-}
 
 let taskState = { ceilingPrep:[], ceilingCoats:[], wallPrep:[], wallCoats:[],
   doorPrep:[], doorCoats:[], doorFramePrep:[], doorFrameCoats:[], windowFramePrep:[], windowFrameCoats:[] };
@@ -568,18 +531,6 @@ function renderTasks(){
   renderTaskGroup('windowFrameCoatTasks','windowFrameCoats', WINDOWFRAME_COATS);
 }
 
-function calcPaintProduct(slots){
-  let totalCost = 0, sumCostPerSqm = 0, numReqTotal = 0;
-  slots.forEach(s => {
-    const cost = s.numReq * s.priceEach;
-    const costPerSqm = (s.numReq === 0 || s.tinSize === 0 || s.coverage === 0 || s.priceEach === 0 || cost === 0) ? 0 : (s.priceEach / s.coverage / s.tinSize);
-    totalCost += cost;
-    numReqTotal += s.numReq;
-    if (s.numReq !== 0) sumCostPerSqm += costPerSqm;
-  });
-  const avgCostPerSqm = numReqTotal === 0 ? 0 : sumCostPerSqm / numReqTotal;
-  return { totalCost, avgCostPerSqm, numReqTotal };
-}
 
 // ============================================================================
 // SETTINGS PAGE — NOT BUILT YET. Every value below should eventually be
@@ -658,30 +609,31 @@ function calculate(){
     furnishedQtyWindows += (r.qtyWindows || 0) * f;
   });
 
-  const ceilingPaintProd = calcPaintProduct(paints.ceilingFinal);
-  const wallPrimerProd = calcPaintProduct(paints.wallPrimer);
-  const wallFinalProd = calcPaintProduct(paints.wallFinal);
+  // Paint purchase outlay comes from the plan items themselves (tins bought × price),
+  // plus one roller per tin. Coat material rates are 0: paint cost lives in the purchase,
+  // not per-sqm on the labour lines (matching how the original sheet's outlay logic worked).
   const rollerPrice = parseFloat(document.getElementById('rollerPrice').value) || 0;
-  const rollerCount = ceilingPaintProd.numReqTotal + wallPrimerProd.numReqTotal + wallFinalProd.numReqTotal;
-  const materialsOutlay = ceilingPaintProd.totalCost + wallPrimerProd.totalCost + wallFinalProd.totalCost + rollerCount * rollerPrice;
+  let tinsTotal = 0, paintPurchaseCost = 0;
+  PLAN_CATS.forEach(cat => paintPlan[cat].forEach(l => {
+    tinsTotal += (l.qty || 0);
+    paintPurchaseCost += (l.qty || 0) * (l.price || 0);
+  }));
+  const rollerCount = tinsTotal;
+  const materialsOutlay = paintPurchaseCost + rollerCount * rollerPrice;
 
   const ceilingPrepLines = CEILING_PREP.map((t,i) => taskLine(t, ceilingArea, ceilingFurnishedArea, taskState.ceilingPrep[i].on, taskState.ceilingPrep[i].pct, hourlyRate));
   const wallPrepLines = WALL_PREP.map((t,i) => taskLine(t, wallArea, wallFurnishedArea, taskState.wallPrep[i].on, taskState.wallPrep[i].pct, hourlyRate));
-  // Ceiling coats: index 0-1 are primer coats (drawn from Wall Primer product, matching the original sheet
-  // which has no separate ceiling-primer tin), index 2-4 are final coats (drawn from Ceiling Paint product).
-  const ceilingCoatMatRates = [wallPrimerProd.avgCostPerSqm, wallPrimerProd.avgCostPerSqm, ceilingPaintProd.avgCostPerSqm, ceilingPaintProd.avgCostPerSqm, ceilingPaintProd.avgCostPerSqm];
-  const wallCoatMatRates = [wallPrimerProd.avgCostPerSqm, wallPrimerProd.avgCostPerSqm, wallFinalProd.avgCostPerSqm, wallFinalProd.avgCostPerSqm, wallFinalProd.avgCostPerSqm];
   const ceilingCoatLines = CEILING_COATS.map((t,i) => {
     const isPrimer = i < 2;
     const a = isPrimer ? primerCeilingArea : ceilingArea;
     const fa = isPrimer ? primerCeilingFurnishedArea : ceilingFurnishedArea;
-    return taskLine(t, a, fa, taskState.ceilingCoats[i].on, taskState.ceilingCoats[i].pct, hourlyRate, ceilingCoatMatRates[i]);
+    return taskLine(t, a, fa, taskState.ceilingCoats[i].on, taskState.ceilingCoats[i].pct, hourlyRate, 0);
   });
   const wallCoatLines = WALL_COATS.map((t,i) => {
     const isPrimer = i < 2;
     const a = isPrimer ? primerWallArea : wallArea;
     const fa = isPrimer ? primerWallFurnishedArea : wallFurnishedArea;
-    return taskLine(t, a, fa, taskState.wallCoats[i].on, taskState.wallCoats[i].pct, hourlyRate, wallCoatMatRates[i]);
+    return taskLine(t, a, fa, taskState.wallCoats[i].on, taskState.wallCoats[i].pct, hourlyRate, 0);
   });
 
   const sumMat = arr => arr.reduce((a,l)=>a+l.materialCost,0);
@@ -727,9 +679,12 @@ function calculate(){
   const ceilingFinalCoats = [2,3,4].filter(i => taskState.ceilingCoats[i].on).length;
   const wallPrimerCoats = [0,1].filter(i => taskState.wallCoats[i].on).length;
   const wallFinalCoats = [2,3,4].filter(i => taskState.wallCoats[i].on).length;
+  const doorFinalCoats = [1,2].filter(i => taskState.doorCoats[i].on).length;
+  const frameFinalCoats = [1,2].filter(i => taskState.doorFrameCoats[i].on).length;
+  const wndwFinalCoats = [1,2].filter(i => taskState.windowFrameCoats[i].on).length;
 
-  // Generic splitter: sums each room's contribution into whichever line # it's assigned for that
-  // paint category (clamped to however many lines actually exist for that category).
+  // Generic splitter: sums each room's contribution into whichever item # it's assigned for that
+  // paint category (clamped to however many items exist for that category).
   function splitByLine(lineField, totalLines, contributionFn){
     const sums = new Array(Math.max(totalLines,0)).fill(0);
     rooms.forEach(r => {
@@ -739,17 +694,19 @@ function calculate(){
     });
     return sums;
   }
-  // (door/window per-unit area constants are defined at top level)
 
-  const ceilSums = splitByLine('lineCeiling', paintPlan.ceilingFinal.length, r => ceilAreaOf(r));
-  paintPlan.ceilingFinal.forEach((l,i) => {
-    const litres = l.coverage > 0 ? (ceilSums[i] * ceilingFinalCoats) / l.coverage : 0;
-    const elx = document.getElementById(`planLitres_ceilingFinal_${l.id}`);
-    if (elx) elx.textContent = litres.toFixed(1) + 'L';
-  });
+  // Needed sqm per item, per category (coats included in the contribution)
+  const neededSqm = {
+    ceilingFinal: splitByLine('lineCeiling', paintPlan.ceilingFinal.length, r => ceilAreaOf(r) * ceilingFinalCoats),
+    wallFinal: splitByLine('lineWall', paintPlan.wallFinal.length, r => wallAreaOf(r) * wallFinalCoats),
+    doorPaint: splitByLine('lineDoorPaint', paintPlan.doorPaint.length, r => doorAreaOf(r) * doorFinalCoats),
+    doorFrame: splitByLine('lineDoorFrame', paintPlan.doorFrame.length, r => frameAreaOf(r) * frameFinalCoats),
+    windowFrame: splitByLine('lineWindowFrame', paintPlan.windowFrame.length, r => wndwAreaOf(r) * wndwFinalCoats),
+    primer: [],
+  };
 
   // Primer: every surface routes to its own primer item #. A primer item of 0 (or blank) means
-  // that surface gets no primer at all — this is the sole on/off control, no separate checkbox.
+  // that surface gets no primer at all — this is the sole on/off control.
   const doorPrimerOn = taskState.doorCoats[0].on ? 1 : 0;
   const framePrimerOn = taskState.doorFrameCoats[0].on ? 1 : 0;
   const wndwPrimerOn = taskState.windowFrameCoats[0].on ? 1 : 0;
@@ -768,44 +725,36 @@ function calculate(){
     routePrimer('primFrame', frameAreaOf(r) * framePrimerOn, r);
     routePrimer('primWndw', wndwAreaOf(r) * wndwPrimerOn, r);
   });
-  paintPlan.primer.forEach((l,i) => {
-    const litres = l.coverage > 0 ? primerSums[i] / l.coverage : 0;
-    const elx = document.getElementById(`planLitres_primer_${l.id}`);
-    if (elx) elx.textContent = litres.toFixed(1) + 'L';
-  });
+  neededSqm.primer = primerSums;
 
-  const wallSums = splitByLine('lineWall', paintPlan.wallFinal.length, r => wallAreaOf(r));
-  paintPlan.wallFinal.forEach((l,i) => {
-    const litres = l.coverage > 0 ? (wallSums[i] * wallFinalCoats) / l.coverage : 0;
-    const elx = document.getElementById(`planLitres_wallFinal_${l.id}`);
-    if (elx) elx.textContent = litres.toFixed(1) + 'L';
-  });
-
-  const doorPaintSums = splitByLine('lineDoorPaint', paintPlan.doorPaint.length, r => doorAreaOf(r));
-  paintPlan.doorPaint.forEach((l,i) => {
-    const litres = l.coverage > 0 ? doorPaintSums[i] / l.coverage : 0;
-    const elx = document.getElementById(`planLitres_doorPaint_${l.id}`);
-    if (elx) elx.textContent = litres.toFixed(1) + 'L';
-  });
-
-  const doorFrameSums = splitByLine('lineDoorFrame', paintPlan.doorFrame.length, r => frameAreaOf(r));
-  paintPlan.doorFrame.forEach((l,i) => {
-    const litres = l.coverage > 0 ? doorFrameSums[i] / l.coverage : 0;
-    const elx = document.getElementById(`planLitres_doorFrame_${l.id}`);
-    if (elx) elx.textContent = litres.toFixed(1) + 'L';
-  });
-
-  const windowFrameSums = splitByLine('lineWindowFrame', paintPlan.windowFrame.length, r => wndwAreaOf(r));
-  paintPlan.windowFrame.forEach((l,i) => {
-    const litres = l.coverage > 0 ? windowFrameSums[i] / l.coverage : 0;
-    const elx = document.getElementById(`planLitres_windowFrame_${l.id}`);
-    if (elx) elx.textContent = litres.toFixed(1) + 'L';
+  // Update every item's status: needed litres (sqm/coverage) vs purchased litres (qty × tin size)
+  PLAN_CATS.forEach(cat => {
+    paintPlan[cat].forEach((l,i) => {
+      const sqm = (neededSqm[cat] && neededSqm[cat][i]) || 0;
+      const needed = l.coverage > 0 ? sqm / l.coverage : 0;
+      const bought = (l.qty || 0) * (l.tinSize || 0);
+      const elx = document.getElementById(`planStatus_${cat}_${l.id}`);
+      if (!elx) return;
+      if (sqm > 0 && !(l.coverage > 0)) {
+        elx.className = 'plan-status';
+        elx.textContent = `${sqm.toFixed(1)} sqm assigned — enter coverage to get litres`;
+      } else if (needed <= 0 && bought <= 0) {
+        elx.className = 'plan-status';
+        elx.textContent = 'Needed 0.0L — nothing assigned to this item yet';
+      } else if (bought + 0.0001 >= needed) {
+        elx.className = 'plan-status ok';
+        elx.textContent = `Needed ${needed.toFixed(1)}L · Buying ${bought.toFixed(1)}L ✓ enough` + (bought - needed >= 0.05 ? ` (+${(bought-needed).toFixed(1)}L spare)` : '');
+      } else {
+        elx.className = 'plan-status short';
+        elx.textContent = `Needed ${needed.toFixed(1)}L · Buying ${bought.toFixed(1)}L ✗ SHORT ${(needed-bought).toFixed(1)}L`;
+      }
+    });
   });
 
   document.getElementById('breakdown').innerHTML = `
     <div><span>Ceiling area</span><span>${ceilingArea.toFixed(2)} sqm</span></div>
     <div><span>Wall area</span><span>${wallArea.toFixed(2)} sqm</span></div>
-    <div><span>Paint & materials outlay</span><span>$${materialsOutlay.toFixed(2)}</span></div>
+    <div><span>Paint purchase outlay</span><span>$${materialsOutlay.toFixed(2)}</span></div>
     <div><span>Ceiling prep materials</span><span>$${nonPaintMaterialsCeiling.toFixed(2)}</span></div>
     <div><span>Wall prep materials</span><span>$${nonPaintMaterialsWalls.toFixed(2)}</span></div>
     <div><span>Ceiling prep labour</span><span>$${labourPrepCeiling.toFixed(2)}</span></div>
@@ -821,7 +770,7 @@ function calculate(){
 }
 
 // ===================== SAVE / LOAD (localStorage) =====================
-const SAVE_KEY = 'paintcalc_quote_v5';
+const SAVE_KEY = 'paintcalc_quote_v6';
 let suppressSave = false;
 let saveTimer = null;
 
@@ -839,8 +788,8 @@ function collectState(){
       jobFinishDate: document.getElementById('jobFinishDate').value,
       rollerPrice: document.getElementById('rollerPrice').value,
     },
-    rooms, paints, paintPlan, taskState,
-    counters: { roomIdCounter, paintIdCounter, planIdCounter },
+    rooms, paintPlan, taskState,
+    counters: { roomIdCounter, planIdCounter },
   };
 }
 function saveState(){
@@ -864,7 +813,6 @@ function loadState(){
   try {
     suppressSave = true;
     rooms = st.rooms;
-    paints = st.paints;
     paintPlan = st.paintPlan;
     // Merge saved task toggles onto current task definitions (handles future task-list changes safely)
     Object.keys(taskState).forEach(k => {
@@ -873,7 +821,6 @@ function loadState(){
       }
     });
     roomIdCounter = st.counters?.roomIdCounter || 100;
-    paintIdCounter = st.counters?.paintIdCounter || 100;
     planIdCounter = st.counters?.planIdCounter || 100;
     const j = st.job || {};
     document.getElementById('clientName').value = j.clientName || '';
@@ -886,7 +833,6 @@ function loadState(){
     document.getElementById('jobFinishDate').value = j.jobFinishDate || '';
     document.getElementById('rollerPrice').value = j.rollerPrice || '';
     renderRooms();
-    renderPaints();
     renderPlan();
     renderTasks();
     suppressSave = false;
@@ -911,10 +857,6 @@ document.getElementById('rollerPrice').addEventListener('input', calculate);
 initTasks();
 const restored = loadState();
 if (!restored) {
-  paints.ceilingFinal.push({id:++paintIdCounter, numReq:0, tinSize:0, coverage:0, priceEach:0});
-  paints.wallPrimer.push({id:++paintIdCounter, numReq:0, tinSize:0, coverage:0, priceEach:0});
-  paints.wallFinal.push({id:++paintIdCounter, numReq:0, tinSize:0, coverage:0, priceEach:0});
-  renderPaints();
   renderTasks();
   addPlanLine('ceilingFinal');
   addPlanLine('primer');
