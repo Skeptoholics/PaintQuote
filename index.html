@@ -26,21 +26,18 @@
   }
   input[type=date]{-webkit-appearance:none;appearance:none;display:block;}
   .grid2 > div{min-width:0;}
-  .dim-group input,.pair-item input,input.plan-coverage,input.plan-color{min-height:0;}
   .field{flex:1;min-width:90px;}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
-  .grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;}
-  .grid5 label{font-size:10px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .grid5 input{padding:6px 3px;font-size:12px;text-align:center;}
   .room-card,.paint-card{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:#fbfaf7;}
-  .room-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-  input.room-name{font-weight:600;font-size:15px;border:1px solid var(--line);background:#fff;padding:8px 10px;border-radius:8px;width:68%;color:var(--ink);}
+  .room-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:6px;}
+  input.room-name{font-weight:600;font-size:15px;border:1px solid var(--line);background:#fff;padding:8px 10px;border-radius:8px;flex:1;min-width:0;color:var(--ink);}
   input.room-name:focus{outline:none;border-color:var(--accent);}
-  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
-  .chip{font-size:11px;padding:3px 8px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--sub);cursor:pointer;}
+  .room-actions{display:flex;gap:2px;flex-shrink:0;}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 4px;}
+  .chip{font-size:12px;padding:6px 10px;border:1px solid var(--accent);border-radius:999px;background:none;color:var(--accent);cursor:pointer;font-weight:600;}
   .chip:active{background:var(--line);}
   .del-btn{background:none;border:none;color:var(--danger);font-size:13px;cursor:pointer;padding:4px;}
+  .dup-btn{background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;padding:4px;}
   .add-btn{width:100%;padding:10px;border:1px dashed var(--accent);border-radius:10px;background:none;color:var(--accent);font-weight:600;font-size:14px;cursor:pointer;margin-top:4px;}
   .task-row{padding:8px 0;border-bottom:1px solid var(--line);}
   .task-row:last-child{border-bottom:none;}
@@ -57,9 +54,6 @@
   .stepper .val-label{font-size:11px;color:var(--sub);font-weight:400;}
   .group-label{font-size:12px;font-weight:600;color:var(--accent);margin:12px 0 2px;text-transform:uppercase;letter-spacing:.03em;}
   .group-label:first-child{margin-top:0;}
-  .paint-card .row{margin-bottom:6px;}
-  .paint-card label{font-size:11px;}
-  .paint-title{font-size:13px;font-weight:600;margin-bottom:6px;}
   .summary-bar{position:fixed;bottom:0;left:0;right:0;background:var(--ink);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;z-index:10;}
   .summary-bar .total{font-size:22px;font-weight:700;}
   .summary-bar .label{font-size:11px;color:#c9c7bf;text-transform:uppercase;letter-spacing:.04em;}
@@ -77,30 +71,29 @@
   .plan-buy{display:flex;align-items:center;gap:10px;margin-top:5px;flex-wrap:wrap;}
   .plan-buy-field{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--sub);}
   .plan-buy-field input{width:48px;padding:5px 3px;border:1px solid var(--line);border-radius:5px;font-size:12px;text-align:center;min-height:0;background:#fff;}
-  .plan-status{margin-top:5px;font-size:11px;font-weight:600;padding:3px 6px;border-radius:5px;background:#efede6;color:var(--sub);}
+  .plan-status{margin-top:6px;margin-bottom:6px;font-size:13.5px;font-weight:700;padding:7px 9px;border-radius:6px;background:#efede6;color:var(--ink);}
   .plan-status.ok{background:#e4efe7;color:#31663f;}
   .plan-status.short{background:#f7e4e0;color:#9c3320;}
-  .mini-row{display:flex;gap:16px;margin-top:6px;}
+  /* ---- object cards ---- */
+  .obj-card{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:8px;background:#fff;}
+  .obj-top{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+  .obj-kind{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;flex-shrink:0;width:58px;}
+  input.obj-label{flex:1;min-width:0;padding:6px 8px;font-size:13px;border:1px solid var(--line);border-radius:6px;background:#fbfaf7;min-height:0;}
+  .obj-dims{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+  .obj-dims input{width:52px;padding:6px 3px;font-size:13px;text-align:center;border:1px solid var(--line);border-radius:6px;background:#fbfaf7;min-height:0;}
+  .obj-dims input.qty-in{width:44px;background:#f2efe6;font-weight:600;}
+  .obj-lbl{font-size:10px;color:var(--sub);white-space:nowrap;}
+  .obj-area{font-size:11px;color:var(--sub);margin-left:auto;font-weight:600;white-space:nowrap;}
+  .obj-paint{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+  .obj-paint input{width:40px;padding:6px 2px;font-size:13px;text-align:center;border:1px solid var(--line);border-radius:6px;background:#fff;min-height:0;}
+  .obj-paint input.coats-in{width:34px;background:#fbf7ef;}
+  .pair-x{font-size:11px;color:var(--sub);}
+  .pair-sep{font-size:12px;color:var(--sub);padding:0 2px;}
+  .obj-paint .obj-lbl{width:auto;}
+  .area-line{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;padding:6px 0 2px;border-top:1px dashed var(--line);margin-top:6px;}
+  .mini-row{display:flex;gap:16px;margin-top:6px;align-items:flex-end;}
   .mini-field label{font-size:10px;margin-bottom:2px;}
-  .mini-field input{width:56px;padding:5px 4px;font-size:12px;text-align:center;border:1px solid var(--line);border-radius:6px;background:#fff;}
-  .dim-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-  .dim-group{display:flex;flex-direction:column;align-items:center;gap:4px;border:1px solid var(--line);border-radius:8px;padding:8px 6px;background:#fff;min-width:0;}
-  .dim-title{font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;}
-  .dim-vals{display:flex;gap:8px;justify-content:center;flex-wrap:nowrap;}
-  .dim-pair{display:flex;align-items:center;gap:3px;flex-shrink:0;}
-  .dim-group input{width:56px;padding:7px 4px;font-size:14px;text-align:center;border:1px solid var(--line);border-radius:6px;background:#fbfaf7;flex-shrink:0;}
-  .dim-qty{display:flex;align-items:center;gap:5px;padding-top:4px;border-top:1px dashed var(--line);width:100%;justify-content:center;}
-  .dim-group input.qty-in{width:48px;background:#f2efe6;font-weight:600;}
-  .dim-lbl{font-size:10px;color:var(--sub);white-space:nowrap;}
-  .pair-stack{display:flex;flex-direction:column;gap:4px;}
-  .pair-item{display:flex;align-items:center;gap:6px;}
-  .pair-label{width:52px;flex-shrink:0;font-size:11px;color:var(--sub);}
-  .pair-item input{width:44px;padding:6px 2px;font-size:13px;text-align:center;border:1px solid var(--line);border-radius:6px;background:#fff;}
-  .pair-sep{font-size:12px;color:var(--sub);}
-  .area-line{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;padding:6px 0 2px;border-top:1px dashed var(--line);margin-top:8px;}
-  .area-line > span{display:flex;align-items:center;gap:4px;}
-  .area-check{display:flex;align-items:center;gap:2px;font-size:10px;color:var(--sub);cursor:pointer;}
-  .area-check input{width:14px;height:14px;margin:0;}
+  .mini-field input{width:56px;padding:5px 4px;font-size:12px;text-align:center;border:1px solid var(--line);border-radius:6px;background:#fff;min-height:0;}
   .hint{font-size:11px;color:var(--sub);margin-top:2px;}
   .collapse-group{margin:8px 0 0;}
   .collapse-group summary{font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.03em;cursor:pointer;padding:6px 0;list-style:none;}
@@ -108,8 +101,7 @@
   .collapse-group summary::before{content:'▸ ';display:inline-block;}
   .collapse-group[open] summary::before{content:'▾ ';}
   .collapse-group > div{padding-top:2px;}
-  .hint{font-size:11px;color:var(--sub);margin-top:2px;}
-  select{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:#fbfaf7;}
+  textarea.notes{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#fbfaf7;color:var(--ink);font-family:inherit;resize:vertical;}
 </style>
 </head>
 <body>
@@ -121,7 +113,7 @@
       <p id="saveStatus">Quote auto-saves on this device as you type</p>
     </div>
     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-      <span style="font-size:10px;color:#8a8880;">v1.0</span>
+      <span style="font-size:10px;color:#8a8880;">v2.0</span>
       <button id="newQuoteBtn" onclick="newQuote()" style="background:none;border:1px solid #555;color:#c9c7bf;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;">New quote</button>
     </div>
   </div>
@@ -137,28 +129,30 @@
     </div>
     <div style="margin-top:8px;"><label>Job address</label><input type="text" id="address" placeholder="123 Example St"></div>
     <div class="grid2" style="margin-top:8px;">
-      <div><label>Date</label><input type="date" id="jobdate"></div>
-      <div><label>Quotation number</label><input type="text" id="quoteNumber" placeholder="Q-0001"></div>
+      <div><label>Quote date</label><input type="date" id="jobdate"></div>
+      <div><label>Valid until</label><input type="date" id="quoteExpiry" title="Quote expiry — auto-set to 30 days after quote date, edit to override"></div>
     </div>
+    <div style="margin-top:8px;"><label>Quotation number</label><input type="text" id="quoteNumber" placeholder="Q-0001"></div>
     <div class="grid2" style="margin-top:8px;">
       <div><label>Job start date</label><input type="date" id="jobStartDate"></div>
       <div><label>Job finish date</label><input type="date" id="jobFinishDate"></div>
     </div>
     <div style="margin-top:8px;">
       <label>Job notes</label>
-      <textarea id="jobNotes" rows="3" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:#fbfaf7;color:var(--ink);font-family:inherit;resize:vertical;" placeholder="Overarching notes for the whole job — access, parking, special requests, anything that doesn't belong to one room"></textarea>
+      <textarea id="jobNotes" rows="3" class="notes" placeholder="Overarching notes for the whole job — access, parking, special requests, anything that doesn't belong to one room"></textarea>
     </div>
   </section>
 
   <section>
     <h2>Rooms</h2>
+    <p class="hint">Each room holds the objects being painted — add walls, ceilings, doors etc as needed. Each object carries its own dimensions, count, paint type # × coats, and primer type # × coats (0 = no primer). Two doors with different paint? Add two door objects.</p>
     <div id="roomsList"></div>
     <button class="add-btn" onclick="addRoom()">+ Add room</button>
   </section>
 
   <section>
-    <h2>Paint needed & purchase</h2>
-    <p class="hint">Each paint type can have multiple items (products/colours). Rooms route their areas to items via the "Paint item # / Primer item #" pairs on each room card (0 = no primer for that surface). <b>Needed</b> comes from room areas × the coats toggled in the work sections below. Fill in tin size, tins bought, and price on each item and it'll tell you if you're buying enough.</p>
+    <h2>Paint needed &amp; purchase</h2>
+    <p class="hint">This section is the output of the rooms above. Each paint category can hold multiple paint types (distinct products/colours). Referencing a type # on any object creates its line here automatically, and every object across every room using the same type # accumulates into that one line. Coats are set per object — the same paint can get 1 coat in one room and 3 in another. <b>NEEDED</b> = each object's area × its coats, summed per type. Fill in tin size, tins bought, and price beneath it to satisfy it, and it'll tell you if you're buying enough.</p>
     <div class="group-label">Ceiling paint</div>
     <div id="planCeilingFinal"></div>
     <div class="group-label">Primer / sealer undercoat</div>
@@ -186,16 +180,12 @@
     <h2>Ceiling work</h2>
     <div class="group-label">Preparation</div>
     <div id="ceilingPrepTasks"></div>
-    <div class="group-label">Paint coats</div>
-    <div id="ceilingCoatTasks"></div>
   </section>
 
   <section>
     <h2>Wall work</h2>
     <div class="group-label">Preparation</div>
     <div id="wallPrepTasks"></div>
-    <div class="group-label">Paint coats</div>
-    <div id="wallCoatTasks"></div>
   </section>
 
   <section>
@@ -203,24 +193,18 @@
       <summary style="font-size:14px;text-transform:none;">Door work</summary>
       <div class="group-label">Preparation (per door)</div>
       <div id="doorPrepTasks"></div>
-      <div class="group-label">Paint coats (per door)</div>
-      <div id="doorCoatTasks"></div>
     </details>
     <details class="collapse-group">
       <summary style="font-size:14px;text-transform:none;">Door frame work</summary>
       <div class="group-label">Preparation (per frame)</div>
       <div id="doorFramePrepTasks"></div>
-      <div class="group-label">Paint coats (per frame)</div>
-      <div id="doorFrameCoatTasks"></div>
     </details>
     <details class="collapse-group">
       <summary style="font-size:14px;text-transform:none;">Window frame work</summary>
       <div class="group-label">Preparation (per frame)</div>
       <div id="windowFramePrepTasks"></div>
-      <div class="group-label">Paint coats (per frame)</div>
-      <div id="windowFrameCoatTasks"></div>
     </details>
-    <p class="hint">Rates for these three are rough placeholders (hours + $ per door/frame) — no real-world data behind them yet. Adjustable once the settings page exists; flag if you want them tuned sooner.</p>
+    <p class="hint">Prep is still job-wide in this build (applies across all objects of that kind by %) — per-object prep add-ons are the next chunk. Unit rates are rough placeholders until the settings page exists.</p>
   </section>
 
   <section>
@@ -235,7 +219,45 @@
   <div class="total" id="totalOut">$0.00</div>
 </div>
 
+<datalist id="roomNames"></datalist>
+
 <script>
+'use strict';
+// ============================================================================
+// PAINT JOB CALCULATOR v2 — object-model core
+//
+// Structure: Job → Rooms → Objects → (paint type × coats / primer type × coats)
+//   - A room is a container: name, notes, furnished %, and a list of OBJECTS.
+//   - An object is one paintable thing: a wall group, a ceiling, a door, a door
+//     frame, or a window frame. It carries its own dims, count, paint type #,
+//     coats, primer type # (0 = none) and primer coats.
+//   - Paint Needed & Purchase is pure OUTPUT: type lines auto-create when an
+//     object references them and accumulate area × coats across the whole job.
+//   - Prep is still job-wide per kind (per-object prep add-ons = next chunk).
+//
+// SETTINGS PAGE — NOT BUILT YET. Everything in the rate tables below should
+// eventually be user-editable there. Logged per Mark, 2026-07.
+// ============================================================================
+
+// ---------------------------------------------------------------------------
+// RATE TABLES (placeholders — the settings page will make these editable)
+// ---------------------------------------------------------------------------
+const DEFAULT_HOURLY_RATE = 65;
+
+// Per-coat application rates. sqm kinds: sqm applied per hour per coat.
+// Unit kinds: hours + sundry $ per unit per coat.
+const COAT_RATES = {
+  ceilPaint:{sqmPerHr:60}, ceilPrimer:{sqmPerHr:40},
+  wallPaint:{sqmPerHr:70}, wallPrimer:{sqmPerHr:50},
+  door:{hrsPerUnit:0.25, matPerUnit:2},
+  frame:{hrsPerUnit:0.15, matPerUnit:1},
+  wndw:{hrsPerUnit:0.15, matPerUnit:1},
+};
+
+// Prep task catalogues. sqm kinds use matPerSqm + sqmPerHr (or flatHours);
+// unit kinds use flatHoursPerUnit + matPerUnit. Rates live ONLY here — prep
+// instances reference the catalogue so a future settings change reprices
+// every quote live.
 const CEILING_PREP = [
   {name:'Call Out and Setup', matPerSqm:0, flatHours:1, defaultOn:false},
   {name:'Spacial Setup (drop sheets)', matPerSqm:0, sqmPerHr:60, defaultOn:false},
@@ -250,13 +272,6 @@ const CEILING_PREP = [
   {name:'Boarder tapping', matPerSqm:0.2, sqmPerHr:40, defaultOn:false},
   {name:'Miscellaneous Consumables', matPerSqm:0.01, sqmPerHr:0, defaultOn:false},
   {name:'Spacial Pack down and Clean up', matPerSqm:0, sqmPerHr:60, defaultOn:false},
-];
-const CEILING_COATS = [
-  {name:'Primer / Undercoat 1st Coat', sqmPerHr:40, matSource:'ceilingPrimer', defaultOn:false},
-  {name:'Primer / Undercoat 2nd Coat', sqmPerHr:40, matSource:'ceilingPrimer', defaultOn:false},
-  {name:'Paint Final 1st Coat', sqmPerHr:60, matSource:'ceilingFinal', defaultOn:false},
-  {name:'Paint Final 2nd Coat', sqmPerHr:60, matSource:'ceilingFinal', defaultOn:false},
-  {name:'Paint Final 3rd Coat', sqmPerHr:60, matSource:'ceilingFinal', defaultOn:false},
 ];
 const WALL_PREP = [
   {name:'Call Out and Setup', matPerSqm:0, flatHours:1, defaultOn:false},
@@ -273,55 +288,186 @@ const WALL_PREP = [
   {name:'Miscellaneous Consumables', matPerSqm:0.1, sqmPerHr:0, defaultOn:false},
   {name:'Spacial Pack down and Clean up', matPerSqm:0, sqmPerHr:60, defaultOn:false},
 ];
-const WALL_COATS = [
-  {name:'Primer / Undercoat 1st Coat', sqmPerHr:50, matSource:'wallPrimer', defaultOn:false},
-  {name:'Primer / Undercoat 2nd Coat', sqmPerHr:50, matSource:'wallPrimer', defaultOn:false},
-  {name:'Paint Final 1st Coat', sqmPerHr:70, matSource:'wallFinal', defaultOn:false},
-  {name:'Paint Final 2nd Coat', sqmPerHr:70, matSource:'wallFinal', defaultOn:false},
-  {name:'Paint Final 3rd Coat', sqmPerHr:70, matSource:'wallFinal', defaultOn:false},
-];
-
-// Doors/frames are counted per-unit, not per-sqm, so these use flatHoursPerUnit + matPerUnit instead of
-// sqmPerHr/matPerSqm. All rates below are rough placeholders with no real-world data behind them yet —
-// tune once you've timed a few doors/frames for real.
 const DOOR_PREP = [
   {name:'Remove & re-hang door', flatHoursPerUnit:0.25, matPerUnit:0, defaultOn:false},
   {name:'Fill & sand', flatHoursPerUnit:0.33, matPerUnit:1, defaultOn:false},
   {name:'Clean / wipe down', flatHoursPerUnit:0.1, matPerUnit:0, defaultOn:false},
-];
-const DOOR_COATS = [
-  {name:'Primer / Undercoat Coat', flatHoursPerUnit:0.25, matPerUnit:2, defaultOn:false},
-  {name:'Final Coat 1', flatHoursPerUnit:0.25, matPerUnit:2, defaultOn:false},
-  {name:'Final Coat 2', flatHoursPerUnit:0.25, matPerUnit:2, defaultOn:false},
 ];
 const DOORFRAME_PREP = [
   {name:'Sand / prep frame', flatHoursPerUnit:0.2, matPerUnit:0, defaultOn:false},
   {name:'Fill / caulk gaps', flatHoursPerUnit:0.15, matPerUnit:0.5, defaultOn:false},
   {name:'Clean / wipe down', flatHoursPerUnit:0.05, matPerUnit:0, defaultOn:false},
 ];
-const DOORFRAME_COATS = [
-  {name:'Primer / Undercoat Coat', flatHoursPerUnit:0.15, matPerUnit:1, defaultOn:false},
-  {name:'Final Coat 1', flatHoursPerUnit:0.15, matPerUnit:1, defaultOn:false},
-  {name:'Final Coat 2', flatHoursPerUnit:0.15, matPerUnit:1, defaultOn:false},
-];
 const WINDOWFRAME_PREP = [
   {name:'Sand / prep frame', flatHoursPerUnit:0.2, matPerUnit:0, defaultOn:false},
   {name:'Fill / caulk gaps', flatHoursPerUnit:0.15, matPerUnit:0.5, defaultOn:false},
   {name:'Clean / wipe down', flatHoursPerUnit:0.05, matPerUnit:0, defaultOn:false},
 ];
-const WINDOWFRAME_COATS = [
-  {name:'Primer / Undercoat Coat', flatHoursPerUnit:0.15, matPerUnit:1, defaultOn:false},
-  {name:'Final Coat 1', flatHoursPerUnit:0.15, matPerUnit:1, defaultOn:false},
-  {name:'Final Coat 2', flatHoursPerUnit:0.15, matPerUnit:1, defaultOn:false},
-];
 
-const ROOM_NAME_SUGGESTIONS = ['Bedroom 1','Bedroom 2','Bedroom 3','Main bedroom','Ensuite','Bathroom','Kitchen','Living room','Dining room','Hallway','Laundry','Study','Garage','Door','Door frame'];
+// ---------------------------------------------------------------------------
+// OBJECT KINDS — one row per paintable thing. Everything kind-specific hangs
+// off this table so adding a future kind (e.g. fence, trim) is one entry.
+//   dims: input labels. area = d1 × d2 × count for every kind.
+//   unitKind: true → per-unit coat labour/sundries + per-unit prep.
+// ---------------------------------------------------------------------------
+const KINDS = {
+  wall:    {label:'Wall',      d1:'H', d2:'L', unitKind:false, paintCat:'wallFinal',   paintRate:'wallPaint', primerRate:'wallPrimer', prep:'wallPrep',        defD1:0,    defD2:0,   defCount:1},
+  ceiling: {label:'Ceiling',   d1:'L', d2:'W', unitKind:false, paintCat:'ceilingFinal',paintRate:'ceilPaint', primerRate:'ceilPrimer', prep:'ceilingPrep',     defD1:0,    defD2:0,   defCount:1},
+  door:    {label:'Door',      d1:'H', d2:'W', unitKind:true,  paintCat:'doorPaint',   unitRate:'door',                                prep:'doorPrep',        defD1:2.04, defD2:0.82, defCount:1},
+  frame:   {label:'D Frame',   d1:'L', d2:'W', unitKind:true,  paintCat:'doorFrame',   unitRate:'frame',                               prep:'doorFramePrep',   defD1:5.0,  defD2:0.1, defCount:1},
+  window:  {label:'Window',    d1:'L', d2:'W', unitKind:true,  paintCat:'windowFrame', unitRate:'wndw',                                prep:'windowFramePrep', defD1:6.0,  defD2:0.1, defCount:1},
+};
+const KIND_ORDER = ['wall','ceiling','door','frame','window'];
 
+const ROOM_NAME_SUGGESTIONS = ['Bedroom 1','Bedroom 2','Bedroom 3','Main bedroom','Ensuite','Bathroom','Kitchen','Living room','Dining room','Hallway','Laundry','Study','Garage'];
+
+// ---------------------------------------------------------------------------
+// STATE
+// ---------------------------------------------------------------------------
+let roomIdCounter = 0;
+let objIdCounter = 0;
 let planIdCounter = 0;
+let rooms = [];
+let readyToCalculate = false;
+
 let paintPlan = { ceilingFinal: [], primer: [], wallFinal: [], doorPaint: [], doorFrame: [], windowFrame: [] };
 const PLAN_CATS = ['ceilingFinal','primer','wallFinal','doorPaint','doorFrame','windowFrame'];
 const PLAN_EL_ID = { ceilingFinal:'planCeilingFinal', primer:'planPrimer', wallFinal:'planWallFinal', doorPaint:'planDoorPaint', doorFrame:'planDoorFrame', windowFrame:'planWindowFrame' };
-const PLAN_LABELS = { ceilingFinal: 'Ceiling', primer: 'Primer', wallFinal: 'Wall', doorPaint: 'Door', doorFrame: 'Frame', windowFrame: 'Wndw' };
+const PLAN_LABELS = { ceilingFinal:'Ceiling', primer:'Primer', wallFinal:'Wall', doorPaint:'Door', doorFrame:'D Frame', windowFrame:'Window' };
+
+let taskState = { ceilingPrep:[], wallPrep:[], doorPrep:[], doorFramePrep:[], windowFramePrep:[] };
+const PREP_DEFS = { ceilingPrep:CEILING_PREP, wallPrep:WALL_PREP, doorPrep:DOOR_PREP, doorFramePrep:DOORFRAME_PREP, windowFramePrep:WINDOWFRAME_PREP };
+function initTasks(){
+  Object.keys(PREP_DEFS).forEach(k => { taskState[k] = PREP_DEFS[k].map(t => ({on:t.defaultOn, pct:100})); });
+}
+
+// ---------------------------------------------------------------------------
+// ROOMS & OBJECTS
+// ---------------------------------------------------------------------------
+function newObject(kind){
+  const K = KINDS[kind];
+  objIdCounter++;
+  return { id:objIdCounter, kind, label:'', d1:K.defD1, d2:K.defD2, count:K.defCount,
+           type:0, coats:2, prim:0, primCoats:1 };
+}
+function addRoom(name){
+  roomIdCounter++;
+  // A fresh room starts with the two objects every room has, ready to measure.
+  rooms.push({ id:roomIdCounter, name: name || ('Room ' + roomIdCounter), notes:'', furnPct:0,
+               objects: [newObject('ceiling'), newObject('wall')] });
+  renderRooms();
+  if (readyToCalculate) calculate();
+}
+function removeRoom(id){
+  rooms = rooms.filter(r => r.id !== id);
+  renderRooms();
+  calculate();
+}
+function duplicateRoom(id){
+  const src = rooms.find(r => r.id === id);
+  if (!src) return;
+  roomIdCounter++;
+  const copy = JSON.parse(JSON.stringify(src));
+  copy.id = roomIdCounter;
+  copy.name = src.name + ' copy';
+  copy.objects.forEach(o => { objIdCounter++; o.id = objIdCounter; });
+  rooms.splice(rooms.indexOf(src) + 1, 0, copy);
+  renderRooms();
+  calculate();
+}
+function updateRoom(id, field, value){
+  const r = rooms.find(x => x.id === id);
+  if (!r) return;
+  r[field] = (field === 'name' || field === 'notes') ? value : (parseFloat(value) || 0);
+  calculate();
+}
+function addObject(roomId, kind){
+  const r = rooms.find(x => x.id === roomId);
+  if (!r) return;
+  r.objects.push(newObject(kind));
+  renderRooms();
+  calculate();
+}
+function removeObject(roomId, objId){
+  const r = rooms.find(x => x.id === roomId);
+  if (!r) return;
+  r.objects = r.objects.filter(o => o.id !== objId);
+  renderRooms();
+  calculate();
+}
+function updateObject(roomId, objId, field, value){
+  const r = rooms.find(x => x.id === roomId);
+  if (!r) return;
+  const o = r.objects.find(x => x.id === objId);
+  if (!o) return;
+  o[field] = (field === 'label') ? value : (parseFloat(value) || 0);
+  calculate();
+}
+function objArea(o){ return (o.d1 || 0) * (o.d2 || 0) * (o.count || 0); }
+
+// ---------------------------------------------------------------------------
+// RENDER — rooms & objects. Field edits update in place (no re-render, keeps
+// keyboard focus); structural changes (add/remove/duplicate) re-render.
+// ---------------------------------------------------------------------------
+function renderRooms(){
+  const el = document.getElementById('roomsList');
+  el.innerHTML = rooms.map(r => `
+    <div class="room-card" data-id="${r.id}">
+      <div class="top">
+        <input class="room-name" list="roomNames" value="${r.name}" oninput="updateRoom(${r.id},'name',this.value)">
+        <div class="room-actions">
+          <button class="dup-btn" onclick="duplicateRoom(${r.id})" title="Duplicate this room">Duplicate</button>
+          <button class="del-btn" onclick="removeRoom(${r.id})">Remove</button>
+        </div>
+      </div>
+      ${r.objects.map(o => renderObject(r, o)).join('')}
+      <div class="chips">
+        ${KIND_ORDER.map(k => `<button class="chip" onclick="addObject(${r.id},'${k}')">+ ${KINDS[k].label}</button>`).join('')}
+      </div>
+      <div class="mini-row">
+        <div class="mini-field"><label>Furnished %</label><input type="number" min="0" step="10" value="${r.furnPct || ''}" title="0 = empty room, 100 = fully furnished (×1.5 labour), 200 = cluttered (×2)" oninput="updateRoom(${r.id},'furnPct',this.value)"></div>
+      </div>
+      <div class="area-line" id="roomAreas_${r.id}"></div>
+      <label style="margin-top:6px;">Notes</label>
+      <textarea class="notes" rows="2" placeholder="e.g. water damage on north wall" oninput="updateRoom(${r.id},'notes',this.value)">${r.notes || ''}</textarea>
+    </div>`).join('');
+  const dl = document.getElementById('roomNames');
+  dl.innerHTML = ROOM_NAME_SUGGESTIONS.map(n => `<option value="${n}">`).join('');
+}
+function renderObject(r, o){
+  const K = KINDS[o.kind];
+  return `
+    <div class="obj-card" data-oid="${o.id}">
+      <div class="obj-top">
+        <span class="obj-kind">${K.label}</span>
+        <input class="obj-label" type="text" placeholder="label (optional) — e.g. north wall" value="${o.label || ''}" oninput="updateObject(${r.id},${o.id},'label',this.value)">
+        <button class="del-btn plan-del" onclick="removeObject(${r.id},${o.id})">✕</button>
+      </div>
+      <div class="obj-dims">
+        <input type="number" step="0.01" min="0" value="${o.d1 || ''}" oninput="updateObject(${r.id},${o.id},'d1',this.value)"><span class="obj-lbl">${K.d1}</span>
+        <span class="pair-x">×</span>
+        <input type="number" step="0.01" min="0" value="${o.d2 || ''}" oninput="updateObject(${r.id},${o.id},'d2',this.value)"><span class="obj-lbl">${K.d2}</span>
+        <span class="pair-x">×</span>
+        <input type="number" step="1" min="0" class="qty-in" value="${o.count ?? ''}" oninput="updateObject(${r.id},${o.id},'count',this.value)"><span class="obj-lbl">count</span>
+        <span class="obj-area" id="objArea_${o.id}"></span>
+      </div>
+      <div class="obj-paint">
+        <span class="obj-lbl">paint</span>
+        <input type="number" min="1" step="1" value="${o.type || ''}" title="Paint type #" oninput="updateObject(${r.id},${o.id},'type',this.value)">
+        <span class="pair-x">×</span>
+        <input type="number" min="0" step="1" class="coats-in" value="${o.coats ?? ''}" title="Paint coats" oninput="updateObject(${r.id},${o.id},'coats',this.value)">
+        <span class="pair-sep">/</span>
+        <span class="obj-lbl">primer</span>
+        <input type="number" min="0" step="1" value="${o.prim || ''}" title="Primer type # (0 = none)" oninput="updateObject(${r.id},${o.id},'prim',this.value)">
+        <span class="pair-x">×</span>
+        <input type="number" min="0" step="1" class="coats-in" value="${o.primCoats ?? ''}" title="Primer coats" oninput="updateObject(${r.id},${o.id},'primCoats',this.value)">
+      </div>
+    </div>`;
+}
+
+// ---------------------------------------------------------------------------
+// PAINT PLAN — type lines per category (unchanged card, object-fed demand)
+// ---------------------------------------------------------------------------
 function addPlanLine(cat){
   planIdCounter++;
   paintPlan[cat].push({id:planIdCounter, coverage:0, color:'', tinSize:0, qty:0, price:0});
@@ -339,167 +485,75 @@ function updatePlanLine(cat, id, field, value){
   l[field] = field === 'color' ? value : (parseFloat(value) || 0);
   calculate();
 }
+
+// Auto-create paint type lines: if any object references a type # that doesn't
+// exist yet in its category, create it. Trailing auto-created, never-filled,
+// no-longer-referenced lines get pruned (self-heals typos). Manually added or
+// filled lines are never touched.
+const MAX_TYPES = 8;
+function ensurePlanLines(){
+  const wants = {ceilingFinal:0, primer:0, wallFinal:0, doorPaint:0, doorFrame:0, windowFrame:0};
+  const bump = (cat,v) => { const n = Math.round(v)||0; if (n > wants[cat]) wants[cat] = Math.min(n, MAX_TYPES); };
+  rooms.forEach(r => r.objects.forEach(o => {
+    bump(KINDS[o.kind].paintCat, o.type);
+    bump('primer', o.prim);
+  }));
+  let changed = false;
+  PLAN_CATS.forEach(cat => {
+    while (paintPlan[cat].length < wants[cat]) {
+      planIdCounter++;
+      paintPlan[cat].push({id:planIdCounter, coverage:0, color:'', tinSize:0, qty:0, price:0, auto:true});
+      changed = true;
+    }
+    while (paintPlan[cat].length > wants[cat]) {
+      const last = paintPlan[cat][paintPlan[cat].length-1];
+      if (!(last.auto && !last.coverage && !last.color && !last.tinSize && !last.qty && !last.price)) break;
+      paintPlan[cat].pop();
+      changed = true;
+    }
+  });
+  if (changed) renderPlan();
+}
+
 function renderPlan(){
   PLAN_CATS.forEach(cat => {
     const el = document.getElementById(PLAN_EL_ID[cat]);
     el.innerHTML = paintPlan[cat].map((l,i) => `
       <div class="plan-item">
         <div class="plan-line">
-          <span class="plan-badge">${PLAN_LABELS[cat]}${i+1}</span>
+          <span class="plan-badge">${PLAN_LABELS[cat]} ${i+1}</span>
           <input type="number" step="0.5" min="0.1" class="plan-coverage" value="${l.coverage || ''}" title="Coverage sqm per litre" oninput="updatePlanLine('${cat}',${l.id},'coverage',this.value)">
           <span class="plan-suffix">sqm/L</span>
           <input type="text" class="plan-color" placeholder="colour / product" value="${l.color}" oninput="updatePlanLine('${cat}',${l.id},'color',this.value)">
           <button class="del-btn plan-del" onclick="removePlanLine('${cat}',${l.id})">✕</button>
         </div>
+        <div class="plan-status" id="planStatus_${cat}_${l.id}">Needed 0.0L</div>
         <div class="plan-buy">
           <span class="plan-buy-field"><input type="number" step="0.5" min="0" value="${l.tinSize || ''}" title="Tin size litres" oninput="updatePlanLine('${cat}',${l.id},'tinSize',this.value)"><span>L tin</span></span>
           <span class="plan-buy-field"><span>×</span><input type="number" step="1" min="0" value="${l.qty || ''}" title="Tins bought" oninput="updatePlanLine('${cat}',${l.id},'qty',this.value)"><span>tins</span></span>
           <span class="plan-buy-field"><span>@$</span><input type="number" step="0.01" min="0" value="${l.price || ''}" title="Price per tin" oninput="updatePlanLine('${cat}',${l.id},'price',this.value)"></span>
         </div>
-        <div class="plan-status" id="planStatus_${cat}_${l.id}">Needed 0.0L</div>
-      </div>`).join('') + `<button class="add-btn plan-add" onclick="addPlanLine('${cat}')">+ Add item</button>`;
+      </div>`).join('') + `<button class="add-btn plan-add" onclick="addPlanLine('${cat}')">+ Add type</button>`;
   });
 }
 
-let roomIdCounter = 0;
-let rooms = [];
-
-let readyToCalculate = false;
-function addRoom(name){
-  roomIdCounter++;
-  rooms.push({id:roomIdCounter, name: name || ('Room ' + roomIdCounter),
-    ceilLength:0, ceilWidth:0, qtyCeil:0,
-    wallHeight:0, wallLength:0, qtyWall:0,
-    doorH:0, doorW:0, qtyDoors:0,
-    frameL:0, frameW:0, qtyFrames:0,
-    wndwL:0, wndwW:0, qtyWindows:0,
-    furnPct:0,
-    lineCeiling:0, lineWall:0, lineDoorPaint:0, lineDoorFrame:0, lineWindowFrame:0,
-    primCeil:0, primWall:0, primDoor:0, primFrame:0, primWndw:0, notes:''});
-  renderRooms();
-  if (readyToCalculate) calculate();
-}
-function removeRoom(id){
-  rooms = rooms.filter(r => r.id !== id);
-  renderRooms();
-  calculate();
-}
-function renderRooms(){
-  const el = document.getElementById('roomsList');
-  el.innerHTML = rooms.map(r => {
-    const aCeil = ceilAreaOf(r), aWall = wallAreaOf(r), aDoor = doorAreaOf(r), aFrame = frameAreaOf(r), aWndw = wndwAreaOf(r);
-    return `
-    <div class="room-card" data-id="${r.id}">
-      <div class="top">
-        <input class="room-name" list="roomNames" value="${r.name}" oninput="updateRoom(${r.id},'name',this.value)">
-        <button class="del-btn" onclick="removeRoom(${r.id})">Remove</button>
-      </div>
-      <div class="dim-grid">
-        <div class="dim-group"><span class="dim-title">Ceiling</span>
-          <div class="dim-vals">
-            <span class="dim-pair"><input type="number" step="0.1" value="${r.ceilLength || ''}" title="Length m" oninput="updateRoom(${r.id},'ceilLength',this.value)"><span class="dim-lbl">L</span></span>
-            <span class="dim-pair"><input type="number" step="0.1" value="${r.ceilWidth || ''}" title="Width m" oninput="updateRoom(${r.id},'ceilWidth',this.value)"><span class="dim-lbl">W</span></span>
-          </div>
-          <div class="dim-qty"><span class="dim-lbl">Count ×</span><input type="number" step="1" min="0" class="qty-in" value="${r.qtyCeil || ''}" title="How many of this ceiling" oninput="updateRoom(${r.id},'qtyCeil',this.value)"></div>
-        </div>
-        <div class="dim-group"><span class="dim-title">Wall</span>
-          <div class="dim-vals">
-            <span class="dim-pair"><input type="number" step="0.1" value="${r.wallHeight || ''}" title="Height m" oninput="updateRoom(${r.id},'wallHeight',this.value)"><span class="dim-lbl">H</span></span>
-            <span class="dim-pair"><input type="number" step="0.1" value="${r.wallLength || ''}" title="Run m" oninput="updateRoom(${r.id},'wallLength',this.value)"><span class="dim-lbl">L</span></span>
-          </div>
-          <div class="dim-qty"><span class="dim-lbl">Count ×</span><input type="number" step="1" min="0" class="qty-in" value="${r.qtyWall || ''}" title="How many of this wall" oninput="updateRoom(${r.id},'qtyWall',this.value)"></div>
-        </div>
-        <div class="dim-group"><span class="dim-title">Door</span>
-          <div class="dim-vals">
-            <span class="dim-pair"><input type="number" step="0.01" value="${r.doorH || ''}" title="Height m" oninput="updateRoom(${r.id},'doorH',this.value)"><span class="dim-lbl">H</span></span>
-            <span class="dim-pair"><input type="number" step="0.01" value="${r.doorW || ''}" title="Width m" oninput="updateRoom(${r.id},'doorW',this.value)"><span class="dim-lbl">W</span></span>
-          </div>
-          <div class="dim-qty"><span class="dim-lbl">Count ×</span><input type="number" step="1" min="0" class="qty-in" value="${r.qtyDoors || ''}" title="Number of doors" oninput="updateRoom(${r.id},'qtyDoors',this.value)"></div>
-        </div>
-        <div class="dim-group"><span class="dim-title">D Frame</span>
-          <div class="dim-vals">
-            <span class="dim-pair"><input type="number" step="0.1" value="${r.frameL || ''}" title="Total frame length m" oninput="updateRoom(${r.id},'frameL',this.value)"><span class="dim-lbl">L</span></span>
-            <span class="dim-pair"><input type="number" step="0.01" value="${r.frameW || ''}" title="Face width m" oninput="updateRoom(${r.id},'frameW',this.value)"><span class="dim-lbl">W</span></span>
-          </div>
-          <div class="dim-qty"><span class="dim-lbl">Count ×</span><input type="number" step="1" min="0" class="qty-in" value="${r.qtyFrames || ''}" title="Number of door frames" oninput="updateRoom(${r.id},'qtyFrames',this.value)"></div>
-        </div>
-        <div class="dim-group"><span class="dim-title">Window</span>
-          <div class="dim-vals">
-            <span class="dim-pair"><input type="number" step="0.1" value="${r.wndwL || ''}" title="Total frame length m" oninput="updateRoom(${r.id},'wndwL',this.value)"><span class="dim-lbl">L</span></span>
-            <span class="dim-pair"><input type="number" step="0.01" value="${r.wndwW || ''}" title="Face width m" oninput="updateRoom(${r.id},'wndwW',this.value)"><span class="dim-lbl">W</span></span>
-          </div>
-          <div class="dim-qty"><span class="dim-lbl">Count ×</span><input type="number" step="1" min="0" class="qty-in" value="${r.qtyWindows || ''}" title="Number of window frames" oninput="updateRoom(${r.id},'qtyWindows',this.value)"></div>
-        </div>
-        <div class="dim-group"><span class="dim-title">Furnished</span>
-          <div class="dim-vals">
-            <span class="dim-pair"><input type="number" step="1" min="0" value="${r.furnPct || ''}" title="0% empty, 100% fully furnished, 200% cluttered" oninput="updateRoom(${r.id},'furnPct',this.value)"><span class="dim-lbl">%</span></span>
-          </div>
-        </div>
-      </div>
-      <p class="hint" style="margin:6px 0 2px;">Paint item # / Primer item #</p>
-      <div class="pair-stack">
-        <div class="pair-item"><span class="pair-label">Ceiling</span><input type="number" min="1" step="1" value="${r.lineCeiling || ''}" oninput="updateRoom(${r.id},'lineCeiling',this.value)"><span class="pair-sep">/</span><input type="number" min="0" step="1" value="${r.primCeil || ''}" oninput="updateRoom(${r.id},'primCeil',this.value)"></div>
-        <div class="pair-item"><span class="pair-label">Wall</span><input type="number" min="1" step="1" value="${r.lineWall || ''}" oninput="updateRoom(${r.id},'lineWall',this.value)"><span class="pair-sep">/</span><input type="number" min="0" step="1" value="${r.primWall || ''}" oninput="updateRoom(${r.id},'primWall',this.value)"></div>
-        <div class="pair-item"><span class="pair-label">Door</span><input type="number" min="1" step="1" value="${r.lineDoorPaint || ''}" oninput="updateRoom(${r.id},'lineDoorPaint',this.value)"><span class="pair-sep">/</span><input type="number" min="0" step="1" value="${r.primDoor || ''}" oninput="updateRoom(${r.id},'primDoor',this.value)"></div>
-        <div class="pair-item"><span class="pair-label">D Frame</span><input type="number" min="1" step="1" value="${r.lineDoorFrame || ''}" oninput="updateRoom(${r.id},'lineDoorFrame',this.value)"><span class="pair-sep">/</span><input type="number" min="0" step="1" value="${r.primFrame || ''}" oninput="updateRoom(${r.id},'primFrame',this.value)"></div>
-        <div class="pair-item"><span class="pair-label">Window</span><input type="number" min="1" step="1" value="${r.lineWindowFrame || ''}" oninput="updateRoom(${r.id},'lineWindowFrame',this.value)"><span class="pair-sep">/</span><input type="number" min="0" step="1" value="${r.primWndw || ''}" oninput="updateRoom(${r.id},'primWndw',this.value)"></div>
-      </div>
-      <div class="area-line">
-        <span>Ceiling = <b id="areaCeil_${r.id}">${aCeil.toFixed(1)}</b> m²</span>
-        <span>Wall = <b id="areaWall_${r.id}">${aWall.toFixed(1)}</b> m²</span>
-        <span>Door = <b id="areaDoor_${r.id}">${aDoor.toFixed(1)}</b> m²</span>
-        <span>D Frame = <b id="areaFrame_${r.id}">${aFrame.toFixed(1)}</b> m²</span>
-        <span>Window = <b id="areaWndw_${r.id}">${aWndw.toFixed(1)}</b> m²</span>
-      </div>
-      <div style="margin-top:8px;">
-        <label>Notes</label>
-        <textarea rows="2" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:#fbfaf7;color:var(--ink);font-family:inherit;resize:vertical;" placeholder="e.g. two coats needed, water damage on north wall" oninput="updateRoom(${r.id},'notes',this.value)">${r.notes}</textarea>
-      </div>
-    </div>
-  `;
-  }).join('') + `<datalist id="roomNames">${ROOM_NAME_SUGGESTIONS.map(n=>`<option value="${n}">`).join('')}</datalist>`;
-}
-function updateRoom(id, field, value){
-  const r = rooms.find(x => x.id === id);
-  if (!r) return;
-  r[field] = (field === 'name' || field === 'notes') ? value : parseFloat(value) || 0;
-  calculate();
-}
-function updateRoomBool(id, field, checked){
-  const r = rooms.find(x => x.id === id);
-  if (!r) return;
-  r[field] = checked;
-  calculate();
-}
-
-
-let taskState = { ceilingPrep:[], ceilingCoats:[], wallPrep:[], wallCoats:[],
-  doorPrep:[], doorCoats:[], doorFramePrep:[], doorFrameCoats:[], windowFramePrep:[], windowFrameCoats:[] };
-function initTasks(){
-  taskState.ceilingPrep = CEILING_PREP.map(t => ({on:t.defaultOn, pct:100}));
-  taskState.ceilingCoats = CEILING_COATS.map(t => ({on:t.defaultOn, pct:100}));
-  taskState.wallPrep = WALL_PREP.map(t => ({on:t.defaultOn, pct:100}));
-  taskState.wallCoats = WALL_COATS.map(t => ({on:t.defaultOn, pct:100}));
-  taskState.doorPrep = DOOR_PREP.map(t => ({on:t.defaultOn, pct:100}));
-  taskState.doorCoats = DOOR_COATS.map(t => ({on:t.defaultOn, pct:100}));
-  taskState.doorFramePrep = DOORFRAME_PREP.map(t => ({on:t.defaultOn, pct:100}));
-  taskState.doorFrameCoats = DOORFRAME_COATS.map(t => ({on:t.defaultOn, pct:100}));
-  taskState.windowFramePrep = WINDOWFRAME_PREP.map(t => ({on:t.defaultOn, pct:100}));
-  taskState.windowFrameCoats = WINDOWFRAME_COATS.map(t => ({on:t.defaultOn, pct:100}));
-}
+// ---------------------------------------------------------------------------
+// PREP TASK UI (job-wide per kind, unchanged behaviour)
+// ---------------------------------------------------------------------------
 function toggleTask(group, i){
   taskState[group][i].on = !taskState[group][i].on;
-  renderTasks();
+  renderTaskGroup(group + 'El', group, PREP_DEFS[group]);
   calculate();
 }
 function adjustPct(group, i, delta){
   const s = taskState[group][i];
-  s.pct = Math.min(300, Math.max(10, s.pct + delta));
-  renderTasks();
+  s.pct = Math.max(10, Math.min(300, s.pct + delta));
+  renderTaskGroup(group + 'El', group, PREP_DEFS[group]);
   calculate();
 }
-function renderTaskGroup(elId, group, defs){
-  const el = document.getElementById(elId);
+const PREP_EL_ID = { ceilingPrep:'ceilingPrepTasks', wallPrep:'wallPrepTasks', doorPrep:'doorPrepTasks', doorFramePrep:'doorFramePrepTasks', windowFramePrep:'windowFramePrepTasks' };
+function renderTaskGroup(_elIdIgnored, group, defs){
+  const el = document.getElementById(PREP_EL_ID[group]);
   el.innerHTML = defs.map((t,i) => {
     const s = taskState[group][i];
     return `
@@ -519,122 +573,90 @@ function renderTaskGroup(elId, group, defs){
   }).join('');
 }
 function renderTasks(){
-  renderTaskGroup('ceilingPrepTasks','ceilingPrep', CEILING_PREP);
-  renderTaskGroup('ceilingCoatTasks','ceilingCoats', CEILING_COATS);
-  renderTaskGroup('wallPrepTasks','wallPrep', WALL_PREP);
-  renderTaskGroup('wallCoatTasks','wallCoats', WALL_COATS);
-  renderTaskGroup('doorPrepTasks','doorPrep', DOOR_PREP);
-  renderTaskGroup('doorCoatTasks','doorCoats', DOOR_COATS);
-  renderTaskGroup('doorFramePrepTasks','doorFramePrep', DOORFRAME_PREP);
-  renderTaskGroup('doorFrameCoatTasks','doorFrameCoats', DOORFRAME_COATS);
-  renderTaskGroup('windowFramePrepTasks','windowFramePrep', WINDOWFRAME_PREP);
-  renderTaskGroup('windowFrameCoatTasks','windowFrameCoats', WINDOWFRAME_COATS);
+  Object.keys(PREP_DEFS).forEach(g => renderTaskGroup(null, g, PREP_DEFS[g]));
 }
 
-
-// ============================================================================
-// SETTINGS PAGE — NOT BUILT YET. Every value below should eventually be
-// user-editable there instead of hardcoded here. Logged per Mark, 2026-07.
-//   - DEFAULT_HOURLY_RATE
-//   - sqmPerHr on every task in CEILING_PREP / CEILING_COATS / WALL_PREP / WALL_COATS
-//     ("how many sqm of paint/prep can be applied per hour", per task)
-//   - matPerSqm on every prep task (material $ per sqm)
-//   - flatHoursPerUnit + matPerUnit on DOOR_PREP / DOOR_COATS / DOORFRAME_PREP /
-//     DOORFRAME_COATS / WINDOWFRAME_PREP / WINDOWFRAME_COATS — currently invented
-//     placeholders, no real timing data behind them yet
-//   - default door/frame/window dims on new rooms (doorH/doorW, frameL/frameW, wndwL/wndwW)
-//     (used only in the Paint Needed litres estimate)
-// Working with placeholder values until that page exists.
-// ============================================================================
-const DEFAULT_HOURLY_RATE = 65;
-// Per-room category areas: dims × count. Defaults on new rooms approximate the old fixed
-// constants (door 2.04×0.82≈1.67, frame 5.0×0.1=0.5, window 6.0×0.1=0.6 sqm per unit).
-function ceilAreaOf(r){ return (r.ceilLength||0) * (r.ceilWidth||0) * (r.qtyCeil ?? 1); }
-function wallAreaOf(r){ return (r.wallHeight||0) * (r.wallLength||0) * (r.qtyWall ?? 1); }
-function doorAreaOf(r){ return (r.doorH||0) * (r.doorW||0) * (r.qtyDoors||0); }
-function frameAreaOf(r){ return (r.frameL||0) * (r.frameW||0) * (r.qtyFrames||0); }
-function wndwAreaOf(r){ return (r.wndwL||0) * (r.wndwW||0) * (r.qtyWindows||0); }
-
-// Furnished % → labour multiplier. 0% empty = ×1.0, 100% fully furnished = ×1.5
-// (same as the old spreadsheet's 1.5 cap), 200% completely cluttered = ×2.0. Linear, uncapped.
+// ---------------------------------------------------------------------------
+// COSTING HELPERS
+// ---------------------------------------------------------------------------
 function furnMult(r){ return 1 + (r.furnPct || 0) / 200; }
 
-function taskLine(def, area, furnishedArea, on, pct, hourlyRate, matRateOverride){
+// Job-wide prep line for sqm kinds: catalogue rates × aggregate area
+function taskLine(def, area, furnishedArea, on, pct, hourlyRate){
   const D = on ? (pct/100) : 0;
   if (D === 0) return { hours:0, materialCost:0, timeCost:0 };
   let hours;
   if (def.flatHours != null) hours = def.flatHours * D;
   else hours = def.sqmPerHr === 0 ? 0 : (1/def.sqmPerHr) * furnishedArea * D;
-  const matRate = matRateOverride != null ? matRateOverride : (def.matPerSqm || 0);
-  const materialCost = D * matRate * area;
-  const timeCost = hours * hourlyRate;
-  return { hours, materialCost, timeCost };
+  const materialCost = D * (def.matPerSqm || 0) * area;
+  return { hours, materialCost, timeCost: hours * hourlyRate };
 }
-
-// Door/frame tasks are counted per-unit (per door, per frame) rather than per-sqm.
+// Job-wide prep line for unit kinds: catalogue rates × aggregate count
 function unitTaskLine(def, qty, furnishedQty, on, pct, hourlyRate){
   const D = on ? (pct/100) : 0;
   if (D === 0) return { hours:0, materialCost:0, timeCost:0 };
   const hours = def.flatHoursPerUnit * furnishedQty * D;
   const materialCost = def.matPerUnit * qty * D;
-  const timeCost = hours * hourlyRate;
-  return { hours, materialCost, timeCost };
+  return { hours, materialCost, timeCost: hours * hourlyRate };
 }
 
+// ---------------------------------------------------------------------------
+// CALCULATE — single pass over the object model
+// ---------------------------------------------------------------------------
 function calculate(){
+  ensurePlanLines();
   const hourlyRate = DEFAULT_HOURLY_RATE;
 
-  let ceilingArea = 0, wallArea = 0, ceilingFurnishedArea = 0, wallFurnishedArea = 0;
-  let primerCeilingArea = 0, primerCeilingFurnishedArea = 0, primerWallArea = 0, primerWallFurnishedArea = 0;
-  rooms.forEach(r => {
-    const cArea = ceilAreaOf(r);
-    const wArea = wallAreaOf(r);
-    const f = furnMult(r);
-    ceilingArea += cArea;
-    wallArea += wArea;
-    ceilingFurnishedArea += cArea * f;
-    wallFurnishedArea += wArea * f;
-    if (r.primCeil > 0) { primerCeilingArea += cArea; primerCeilingFurnishedArea += cArea * f; }
-    if (r.primWall > 0) { primerWallArea += wArea; primerWallFurnishedArea += wArea * f; }
-  });
+  // ---- aggregate per kind (feeds job-wide prep) + per-object coat labour ----
+  const agg = {};
+  KIND_ORDER.forEach(k => agg[k] = { area:0, furnArea:0, count:0, furnCount:0 });
+  let ceilCoatHrs = 0, wallCoatHrs = 0;
+  let doorCoatHrs = 0, doorCoatMat = 0, frameCoatHrs = 0, frameCoatMat = 0, wndwCoatHrs = 0, wndwCoatMat = 0;
 
-  let totalQtyDoors = 0, furnishedQtyDoors = 0, totalQtyFrames = 0, furnishedQtyFrames = 0, totalQtyWindows = 0, furnishedQtyWindows = 0;
   rooms.forEach(r => {
     const f = furnMult(r);
-    totalQtyDoors += (r.qtyDoors || 0);
-    furnishedQtyDoors += (r.qtyDoors || 0) * f;
-    totalQtyFrames += (r.qtyFrames || 0);
-    furnishedQtyFrames += (r.qtyFrames || 0) * f;
-    totalQtyWindows += (r.qtyWindows || 0);
-    furnishedQtyWindows += (r.qtyWindows || 0) * f;
+    r.objects.forEach(o => {
+      const K = KINDS[o.kind];
+      const a = objArea(o);
+      agg[o.kind].area += a;
+      agg[o.kind].furnArea += a * f;
+      agg[o.kind].count += (o.count || 0);
+      agg[o.kind].furnCount += (o.count || 0) * f;
+
+      if (!K.unitKind) {
+        // sqm kinds: labour = furnished area × coats ÷ rate, per paint and primer
+        const paintR = COAT_RATES[K.paintRate].sqmPerHr;
+        const primR = COAT_RATES[K.primerRate].sqmPerHr;
+        const hrs = a * f * (o.coats || 0) / paintR + (o.prim > 0 ? a * f * (o.primCoats || 0) / primR : 0);
+        if (o.kind === 'ceiling') ceilCoatHrs += hrs; else wallCoatHrs += hrs;
+      } else {
+        // unit kinds: labour + sundries per unit per coat (paint + primer coats)
+        const R = COAT_RATES[K.unitRate];
+        const totCoats = (o.coats || 0) + (o.prim > 0 ? (o.primCoats || 0) : 0);
+        const hrs = (o.count || 0) * f * totCoats * R.hrsPerUnit;
+        const mat = (o.count || 0) * totCoats * R.matPerUnit;
+        if (o.kind === 'door') { doorCoatHrs += hrs; doorCoatMat += mat; }
+        else if (o.kind === 'frame') { frameCoatHrs += hrs; frameCoatMat += mat; }
+        else { wndwCoatHrs += hrs; wndwCoatMat += mat; }
+      }
+    });
   });
 
-  // Paint purchase outlay comes from the plan items themselves (tins bought × price),
-  // plus one roller per tin. Coat material rates are 0: paint cost lives in the purchase,
-  // not per-sqm on the labour lines (matching how the original sheet's outlay logic worked).
+  // ---- paint purchase outlay: tins bought × price + one roller per tin ----
   const rollerPrice = parseFloat(document.getElementById('rollerPrice').value) || 0;
   let tinsTotal = 0, paintPurchaseCost = 0;
   PLAN_CATS.forEach(cat => paintPlan[cat].forEach(l => {
     tinsTotal += (l.qty || 0);
     paintPurchaseCost += (l.qty || 0) * (l.price || 0);
   }));
-  const rollerCount = tinsTotal;
-  const materialsOutlay = paintPurchaseCost + rollerCount * rollerPrice;
+  const materialsOutlay = paintPurchaseCost + tinsTotal * rollerPrice;
 
-  const ceilingPrepLines = CEILING_PREP.map((t,i) => taskLine(t, ceilingArea, ceilingFurnishedArea, taskState.ceilingPrep[i].on, taskState.ceilingPrep[i].pct, hourlyRate));
-  const wallPrepLines = WALL_PREP.map((t,i) => taskLine(t, wallArea, wallFurnishedArea, taskState.wallPrep[i].on, taskState.wallPrep[i].pct, hourlyRate));
-  const ceilingCoatLines = CEILING_COATS.map((t,i) => {
-    const isPrimer = i < 2;
-    const a = isPrimer ? primerCeilingArea : ceilingArea;
-    const fa = isPrimer ? primerCeilingFurnishedArea : ceilingFurnishedArea;
-    return taskLine(t, a, fa, taskState.ceilingCoats[i].on, taskState.ceilingCoats[i].pct, hourlyRate, 0);
-  });
-  const wallCoatLines = WALL_COATS.map((t,i) => {
-    const isPrimer = i < 2;
-    const a = isPrimer ? primerWallArea : wallArea;
-    const fa = isPrimer ? primerWallFurnishedArea : wallFurnishedArea;
-    return taskLine(t, a, fa, taskState.wallCoats[i].on, taskState.wallCoats[i].pct, hourlyRate, 0);
-  });
+  // ---- job-wide prep (per-object prep = next chunk) ----
+  const ceilingPrepLines = CEILING_PREP.map((t,i) => taskLine(t, agg.ceiling.area, agg.ceiling.furnArea, taskState.ceilingPrep[i].on, taskState.ceilingPrep[i].pct, hourlyRate));
+  const wallPrepLines = WALL_PREP.map((t,i) => taskLine(t, agg.wall.area, agg.wall.furnArea, taskState.wallPrep[i].on, taskState.wallPrep[i].pct, hourlyRate));
+  const doorPrepLines = DOOR_PREP.map((t,i) => unitTaskLine(t, agg.door.count, agg.door.furnCount, taskState.doorPrep[i].on, taskState.doorPrep[i].pct, hourlyRate));
+  const doorFramePrepLines = DOORFRAME_PREP.map((t,i) => unitTaskLine(t, agg.frame.count, agg.frame.furnCount, taskState.doorFramePrep[i].on, taskState.doorFramePrep[i].pct, hourlyRate));
+  const windowFramePrepLines = WINDOWFRAME_PREP.map((t,i) => unitTaskLine(t, agg.window.count, agg.window.furnCount, taskState.windowFramePrep[i].on, taskState.windowFramePrep[i].pct, hourlyRate));
 
   const sumMat = arr => arr.reduce((a,l)=>a+l.materialCost,0);
   const sumTime = arr => arr.reduce((a,l)=>a+l.timeCost,0);
@@ -642,118 +664,102 @@ function calculate(){
   const nonPaintMaterialsCeiling = sumMat(ceilingPrepLines);
   const nonPaintMaterialsWalls = sumMat(wallPrepLines);
   const labourPrepCeiling = sumTime(ceilingPrepLines);
-  const labourPaintCeiling = sumTime(ceilingCoatLines);
   const labourPrepWalls = sumTime(wallPrepLines);
-  const labourPaintWalls = sumTime(wallCoatLines);
+  const labourPaintCeiling = ceilCoatHrs * hourlyRate;
+  const labourPaintWalls = wallCoatHrs * hourlyRate;
 
-  const doorPrepLines = DOOR_PREP.map((t,i) => unitTaskLine(t, totalQtyDoors, furnishedQtyDoors, taskState.doorPrep[i].on, taskState.doorPrep[i].pct, hourlyRate));
-  const doorCoatLines = DOOR_COATS.map((t,i) => unitTaskLine(t, totalQtyDoors, furnishedQtyDoors, taskState.doorCoats[i].on, taskState.doorCoats[i].pct, hourlyRate));
-  const doorFramePrepLines = DOORFRAME_PREP.map((t,i) => unitTaskLine(t, totalQtyFrames, furnishedQtyFrames, taskState.doorFramePrep[i].on, taskState.doorFramePrep[i].pct, hourlyRate));
-  const doorFrameCoatLines = DOORFRAME_COATS.map((t,i) => unitTaskLine(t, totalQtyFrames, furnishedQtyFrames, taskState.doorFrameCoats[i].on, taskState.doorFrameCoats[i].pct, hourlyRate));
-  const windowFramePrepLines = WINDOWFRAME_PREP.map((t,i) => unitTaskLine(t, totalQtyWindows, furnishedQtyWindows, taskState.windowFramePrep[i].on, taskState.windowFramePrep[i].pct, hourlyRate));
-  const windowFrameCoatLines = WINDOWFRAME_COATS.map((t,i) => unitTaskLine(t, totalQtyWindows, furnishedQtyWindows, taskState.windowFrameCoats[i].on, taskState.windowFrameCoats[i].pct, hourlyRate));
+  const doorMaterials = sumMat(doorPrepLines) + doorCoatMat;
+  const doorLabour = sumTime(doorPrepLines) + doorCoatHrs * hourlyRate;
+  const doorFrameMaterials = sumMat(doorFramePrepLines) + frameCoatMat;
+  const doorFrameLabour = sumTime(doorFramePrepLines) + frameCoatHrs * hourlyRate;
+  const windowFrameMaterials = sumMat(windowFramePrepLines) + wndwCoatMat;
+  const windowFrameLabour = sumTime(windowFramePrepLines) + wndwCoatHrs * hourlyRate;
 
-  const doorMaterials = sumMat(doorPrepLines) + sumMat(doorCoatLines);
-  const doorLabour = sumTime(doorPrepLines) + sumTime(doorCoatLines);
-  const doorFrameMaterials = sumMat(doorFramePrepLines) + sumMat(doorFrameCoatLines);
-  const doorFrameLabour = sumTime(doorFramePrepLines) + sumTime(doorFrameCoatLines);
-  const windowFrameMaterials = sumMat(windowFramePrepLines) + sumMat(windowFrameCoatLines);
-  const windowFrameLabour = sumTime(windowFramePrepLines) + sumTime(windowFrameCoatLines);
-
-  const total = materialsOutlay + nonPaintMaterialsCeiling + nonPaintMaterialsWalls + labourPrepCeiling + labourPaintCeiling + labourPrepWalls + labourPaintWalls
+  const total = materialsOutlay + nonPaintMaterialsCeiling + nonPaintMaterialsWalls
+    + labourPrepCeiling + labourPaintCeiling + labourPrepWalls + labourPaintWalls
     + doorMaterials + doorLabour + doorFrameMaterials + doorFrameLabour + windowFrameMaterials + windowFrameLabour;
 
   document.getElementById('totalOut').textContent = '$' + total.toFixed(2);
 
-  // Live-update each room's m² readouts (typing dims doesn't re-render the card, so update in place)
-  rooms.forEach(r => {
-    const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v.toFixed(1); };
-    set('areaCeil_'+r.id, ceilAreaOf(r));
-    set('areaWall_'+r.id, wallAreaOf(r));
-    set('areaDoor_'+r.id, doorAreaOf(r));
-    set('areaFrame_'+r.id, frameAreaOf(r));
-    set('areaWndw_'+r.id, wndwAreaOf(r));
+  // ---- demand per paint type: walk objects, split raw area / coat-m² / refs ----
+  const split = {};
+  PLAN_CATS.forEach(cat => {
+    const n = paintPlan[cat].length;
+    split[cat] = { areas:new Array(n).fill(0), coatSqm:new Array(n).fill(0), refs:new Array(n).fill(0) };
   });
+  rooms.forEach(r => r.objects.forEach(o => {
+    const a = objArea(o);
+    // paint routing (blank type defaults into type 1 of its category, matching v1 behaviour)
+    const cat = KINDS[o.kind].paintCat;
+    const nP = paintPlan[cat].length;
+    if (nP > 0) {
+      const idx = Math.max(1, Math.min(Math.round(o.type) || 1, nP)) - 1;
+      split[cat].areas[idx] += a;
+      split[cat].coatSqm[idx] += a * (o.coats || 0);
+      if ((Math.round(o.type) || 0) > 0) split[cat].refs[idx]++;
+    }
+    // primer routing (0/blank = no primer at all)
+    const nPr = paintPlan.primer.length;
+    const rawPrim = Math.round(o.prim) || 0;
+    if (nPr > 0 && rawPrim > 0) {
+      const idx = Math.max(1, Math.min(rawPrim, nPr)) - 1;
+      split.primer.areas[idx] += a;
+      split.primer.coatSqm[idx] += a * (o.primCoats || 0);
+      split.primer.refs[idx]++;
+    }
+  }));
 
-  const ceilingPrimerCoats = [0,1].filter(i => taskState.ceilingCoats[i].on).length;
-  const ceilingFinalCoats = [2,3,4].filter(i => taskState.ceilingCoats[i].on).length;
-  const wallPrimerCoats = [0,1].filter(i => taskState.wallCoats[i].on).length;
-  const wallFinalCoats = [2,3,4].filter(i => taskState.wallCoats[i].on).length;
-  const doorFinalCoats = [1,2].filter(i => taskState.doorCoats[i].on).length;
-  const frameFinalCoats = [1,2].filter(i => taskState.doorFrameCoats[i].on).length;
-  const wndwFinalCoats = [1,2].filter(i => taskState.windowFrameCoats[i].on).length;
-
-  // Generic splitter: sums each room's contribution into whichever item # it's assigned for that
-  // paint category (clamped to however many items exist for that category).
-  function splitByLine(lineField, totalLines, contributionFn){
-    const sums = new Array(Math.max(totalLines,0)).fill(0);
-    rooms.forEach(r => {
-      if (totalLines === 0) return;
-      const assigned = Math.max(1, Math.min(Math.round(r[lineField]) || 1, totalLines));
-      sums[assigned-1] += contributionFn(r);
-    });
-    return sums;
-  }
-
-  // Needed sqm per item, per category (coats included in the contribution)
-  const neededSqm = {
-    ceilingFinal: splitByLine('lineCeiling', paintPlan.ceilingFinal.length, r => ceilAreaOf(r) * ceilingFinalCoats),
-    wallFinal: splitByLine('lineWall', paintPlan.wallFinal.length, r => wallAreaOf(r) * wallFinalCoats),
-    doorPaint: splitByLine('lineDoorPaint', paintPlan.doorPaint.length, r => doorAreaOf(r) * doorFinalCoats),
-    doorFrame: splitByLine('lineDoorFrame', paintPlan.doorFrame.length, r => frameAreaOf(r) * frameFinalCoats),
-    windowFrame: splitByLine('lineWindowFrame', paintPlan.windowFrame.length, r => wndwAreaOf(r) * wndwFinalCoats),
-    primer: [],
-  };
-
-  // Primer: every surface routes to its own primer item #. A primer item of 0 (or blank) means
-  // that surface gets no primer at all — this is the sole on/off control.
-  const doorPrimerOn = taskState.doorCoats[0].on ? 1 : 0;
-  const framePrimerOn = taskState.doorFrameCoats[0].on ? 1 : 0;
-  const wndwPrimerOn = taskState.windowFrameCoats[0].on ? 1 : 0;
-  const nPrimer = paintPlan.primer.length;
-  const primerSums = new Array(nPrimer).fill(0);
-  function routePrimer(itemField, amount, r){
-    const raw = Math.round(r[itemField]) || 0;
-    if (nPrimer === 0 || amount <= 0 || raw <= 0) return;
-    const idx = Math.max(1, Math.min(raw, nPrimer)) - 1;
-    primerSums[idx] += amount;
-  }
-  rooms.forEach(r => {
-    routePrimer('primCeil', ceilAreaOf(r) * ceilingPrimerCoats, r);
-    routePrimer('primWall', wallAreaOf(r) * wallPrimerCoats, r);
-    routePrimer('primDoor', doorAreaOf(r) * doorPrimerOn, r);
-    routePrimer('primFrame', frameAreaOf(r) * framePrimerOn, r);
-    routePrimer('primWndw', wndwAreaOf(r) * wndwPrimerOn, r);
-  });
-  neededSqm.primer = primerSums;
-
-  // Update every item's status: needed litres (sqm/coverage) vs purchased litres (qty × tin size)
+  // ---- status per type: report the first broken link in the demand chain ----
+  // assigned? → has area? → coats set? → coverage entered? → NEEDED vs purchased
   PLAN_CATS.forEach(cat => {
     paintPlan[cat].forEach((l,i) => {
-      const sqm = (neededSqm[cat] && neededSqm[cat][i]) || 0;
+      const area = split[cat].areas[i] || 0;
+      const refs = split[cat].refs[i] || 0;
+      const sqm = split[cat].coatSqm[i] || 0;
       const needed = l.coverage > 0 ? sqm / l.coverage : 0;
       const bought = (l.qty || 0) * (l.tinSize || 0);
       const elx = document.getElementById(`planStatus_${cat}_${l.id}`);
       if (!elx) return;
-      if (sqm > 0 && !(l.coverage > 0)) {
+      if (refs === 0 && bought <= 0) {
         elx.className = 'plan-status';
-        elx.textContent = `${sqm.toFixed(1)} sqm assigned — enter coverage to get litres`;
-      } else if (needed <= 0 && bought <= 0) {
+        elx.textContent = `Needed 0.0L — no object assigns type ${i+1} yet`;
+      } else if (refs > 0 && area <= 0) {
         elx.className = 'plan-status';
-        elx.textContent = 'Needed 0.0L — nothing assigned to this item yet';
+        elx.textContent = `Assigned on ${refs} object${refs>1?'s':''} but no area — check dimensions & counts`;
+      } else if (area > 0 && sqm <= 0) {
+        elx.className = 'plan-status short';
+        elx.textContent = `${area.toFixed(1)} m² assigned — coats set to 0, no demand`;
+      } else if (sqm > 0 && !(l.coverage > 0)) {
+        elx.className = 'plan-status short';
+        elx.textContent = `${area.toFixed(1)} m² → ${sqm.toFixed(1)} m² with coats — enter coverage (sqm/L) for litres`;
       } else if (bought + 0.0001 >= needed) {
         elx.className = 'plan-status ok';
-        elx.textContent = `Needed ${needed.toFixed(1)}L · Buying ${bought.toFixed(1)}L ✓ enough` + (bought - needed >= 0.05 ? ` (+${(bought-needed).toFixed(1)}L spare)` : '');
+        elx.textContent = `Needed ${needed.toFixed(1)}L (${sqm.toFixed(1)} m²) · Buying ${bought.toFixed(1)}L ✓ enough` + (bought - needed >= 0.05 ? ` (+${(bought-needed).toFixed(1)}L spare)` : '');
       } else {
         elx.className = 'plan-status short';
-        elx.textContent = `Needed ${needed.toFixed(1)}L · Buying ${bought.toFixed(1)}L ✗ SHORT ${(needed-bought).toFixed(1)}L`;
+        elx.textContent = `Needed ${needed.toFixed(1)}L (${sqm.toFixed(1)} m²) · Buying ${bought.toFixed(1)}L ✗ SHORT ${(needed-bought).toFixed(1)}L`;
       }
     });
   });
 
+  // ---- live readouts: per-object area chip + per-room area line ----
+  rooms.forEach(r => {
+    const parts = [];
+    const kindSums = {};
+    r.objects.forEach(o => {
+      const a = objArea(o);
+      kindSums[o.kind] = (kindSums[o.kind] || 0) + a;
+      const e = document.getElementById('objArea_' + o.id);
+      if (e) e.textContent = a > 0 ? a.toFixed(1) + ' m²' : '';
+    });
+    KIND_ORDER.forEach(k => { if (kindSums[k]) parts.push(`<span>${KINDS[k].label} = <b>${kindSums[k].toFixed(1)}</b> m²</span>`); });
+    const line = document.getElementById('roomAreas_' + r.id);
+    if (line) line.innerHTML = parts.join('') || '<span class="hint">No areas yet</span>';
+  });
+
   document.getElementById('breakdown').innerHTML = `
-    <div><span>Ceiling area</span><span>${ceilingArea.toFixed(2)} sqm</span></div>
-    <div><span>Wall area</span><span>${wallArea.toFixed(2)} sqm</span></div>
+    <div><span>Ceiling area</span><span>${agg.ceiling.area.toFixed(2)} sqm</span></div>
+    <div><span>Wall area</span><span>${agg.wall.area.toFixed(2)} sqm</span></div>
     <div><span>Paint purchase outlay</span><span>$${materialsOutlay.toFixed(2)}</span></div>
     <div><span>Ceiling prep materials</span><span>$${nonPaintMaterialsCeiling.toFixed(2)}</span></div>
     <div><span>Wall prep materials</span><span>$${nonPaintMaterialsWalls.toFixed(2)}</span></div>
@@ -761,27 +767,31 @@ function calculate(){
     <div><span>Ceiling paint labour</span><span>$${labourPaintCeiling.toFixed(2)}</span></div>
     <div><span>Wall prep labour</span><span>$${labourPrepWalls.toFixed(2)}</span></div>
     <div><span>Wall paint labour</span><span>$${labourPaintWalls.toFixed(2)}</span></div>
-    <div><span>Doors (${totalQtyDoors}) materials + labour</span><span>$${(doorMaterials+doorLabour).toFixed(2)}</span></div>
-    <div><span>Door frames (${totalQtyFrames}) materials + labour</span><span>$${(doorFrameMaterials+doorFrameLabour).toFixed(2)}</span></div>
-    <div><span>Window frames (${totalQtyWindows}) materials + labour</span><span>$${(windowFrameMaterials+windowFrameLabour).toFixed(2)}</span></div>
+    <div><span>Doors (${agg.door.count}) materials + labour</span><span>$${(doorMaterials+doorLabour).toFixed(2)}</span></div>
+    <div><span>Door frames (${agg.frame.count}) materials + labour</span><span>$${(doorFrameMaterials+doorFrameLabour).toFixed(2)}</span></div>
+    <div><span>Window frames (${agg.window.count}) materials + labour</span><span>$${(windowFrameMaterials+windowFrameLabour).toFixed(2)}</span></div>
     <div><span>Total</span><span>$${total.toFixed(2)}</span></div>
   `;
   saveState();
 }
 
-// ===================== SAVE / LOAD (localStorage) =====================
+// ---------------------------------------------------------------------------
+// PERSISTENCE — v2 saves objects; v1 saves migrate (fixed surfaces → objects)
+// ---------------------------------------------------------------------------
 const SAVE_KEY = 'paintcalc_quote_v6';
 let suppressSave = false;
 let saveTimer = null;
 
 function collectState(){
   return {
-    v: 1,
+    v: 2,
     job: {
       clientName: document.getElementById('clientName').value,
       clientPhone: document.getElementById('clientPhone').value,
       address: document.getElementById('address').value,
       jobdate: document.getElementById('jobdate').value,
+      quoteExpiry: document.getElementById('quoteExpiry').value,
+      expiryManual: expiryManual,
       quoteNumber: document.getElementById('quoteNumber').value,
       jobNotes: document.getElementById('jobNotes').value,
       jobStartDate: document.getElementById('jobStartDate').value,
@@ -789,7 +799,7 @@ function collectState(){
       rollerPrice: document.getElementById('rollerPrice').value,
     },
     rooms, paintPlan, taskState,
-    counters: { roomIdCounter, planIdCounter },
+    counters: { roomIdCounter, objIdCounter, planIdCounter },
   };
 }
 function saveState(){
@@ -803,30 +813,59 @@ function saveState(){
     } catch(e) { /* storage full or unavailable — fail silently, app still works */ }
   }, 400);
 }
+
+// v1 room (fixed surface slots) → v2 objects. Ceiling & wall always carry over;
+// doors/frames/windows only if a count was entered.
+function migrateV1Room(old){
+  roomIdCounter++;
+  const r = { id:roomIdCounter, name:old.name || 'Room', notes:old.notes || '', furnPct:old.furnPct || 0, objects: [] };
+  const push = (kind, d1, d2, count, type, coats, prim, primCoats) => {
+    objIdCounter++;
+    r.objects.push({ id:objIdCounter, kind, label:'', d1:d1||0, d2:d2||0, count:count??1,
+      type:type||0, coats:(coats===undefined?2:coats), prim:prim||0, primCoats:(primCoats===undefined?1:primCoats) });
+  };
+  push('ceiling', old.ceilLength, old.ceilWidth, old.qtyCeil ?? 1, old.lineCeiling, old.coatsCeil, old.primCeil, old.coatsPrimCeil);
+  push('wall', old.wallHeight, old.wallLength, old.qtyWall ?? 1, old.lineWall, old.coatsWall, old.primWall, old.coatsPrimWall);
+  if (old.qtyDoors > 0) push('door', old.doorH, old.doorW, old.qtyDoors, old.lineDoorPaint, old.coatsDoor, old.primDoor, old.coatsPrimDoor);
+  if (old.qtyFrames > 0) push('frame', old.frameL, old.frameW, old.qtyFrames, old.lineDoorFrame, old.coatsFrame, old.primFrame, old.coatsPrimFrame);
+  if (old.qtyWindows > 0) push('window', old.wndwL, old.wndwW, old.qtyWindows, old.lineWindowFrame, old.coatsWndw, old.primWndw, old.coatsPrimWndw);
+  return r;
+}
+
 function loadState(){
   let raw;
   try { raw = localStorage.getItem(SAVE_KEY); } catch(e) { return false; }
   if (!raw) return false;
   let st;
   try { st = JSON.parse(raw); } catch(e) { return false; }
-  if (!st || st.v !== 1 || !Array.isArray(st.rooms)) return false;
+  if (!st || !Array.isArray(st.rooms)) return false;
+  if (st.v !== 1 && st.v !== 2) return false;
   try {
     suppressSave = true;
-    rooms = st.rooms;
-    paintPlan = st.paintPlan;
-    // Merge saved task toggles onto current task definitions (handles future task-list changes safely)
+    if (st.v === 2) {
+      rooms = st.rooms;
+    } else {
+      rooms = st.rooms.map(migrateV1Room);
+    }
+    paintPlan = st.paintPlan || paintPlan;
+    PLAN_CATS.forEach(cat => { if (!Array.isArray(paintPlan[cat])) paintPlan[cat] = []; });
+    // Merge saved prep toggles onto current defs (v1 saves also had coat groups — ignored)
     Object.keys(taskState).forEach(k => {
       if (st.taskState && Array.isArray(st.taskState[k])) {
         taskState[k] = taskState[k].map((def,i) => st.taskState[k][i] || def);
       }
     });
-    roomIdCounter = st.counters?.roomIdCounter || 100;
+    roomIdCounter = Math.max(st.counters?.roomIdCounter || 100, roomIdCounter);
+    objIdCounter = Math.max(st.counters?.objIdCounter || 0, objIdCounter, 1000);
     planIdCounter = st.counters?.planIdCounter || 100;
     const j = st.job || {};
     document.getElementById('clientName').value = j.clientName || '';
     document.getElementById('clientPhone').value = j.clientPhone || '';
     document.getElementById('address').value = j.address || '';
     document.getElementById('jobdate').value = j.jobdate || '';
+    document.getElementById('quoteExpiry').value = j.quoteExpiry || '';
+    expiryManual = !!j.expiryManual;
+    if (!j.quoteExpiry) syncExpiry();
     document.getElementById('quoteNumber').value = j.quoteNumber || '';
     document.getElementById('jobNotes').value = j.jobNotes || '';
     document.getElementById('jobStartDate').value = j.jobStartDate || '';
@@ -847,26 +886,42 @@ function newQuote(){
   try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
   location.reload();
 }
-// =======================================================================
+
+// ---------------------------------------------------------------------------
+// QUOTE EXPIRY — auto = quote date + 30 days. Editing "Valid until" by hand
+// switches it to manual; clearing it by hand switches it back to auto.
+// ---------------------------------------------------------------------------
+let expiryManual = false;
+function syncExpiry(){
+  if (expiryManual) return;
+  const d = document.getElementById('jobdate').value;
+  const ex = document.getElementById('quoteExpiry');
+  if (!d) { ex.value = ''; return; }
+  const dt = new Date(d + 'T00:00:00');
+  dt.setDate(dt.getDate() + 30);
+  ex.value = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
+}
+document.getElementById('jobdate').addEventListener('input', syncExpiry);
+document.getElementById('quoteExpiry').addEventListener('input', function(){
+  if (this.value === '') { expiryManual = false; syncExpiry(); }
+  else expiryManual = true;
+});
 
 document.getElementById('rollerPrice').addEventListener('input', calculate);
-['clientName','clientPhone','address','jobdate','quoteNumber','jobNotes','jobStartDate','jobFinishDate'].forEach(id => {
+['clientName','clientPhone','address','jobdate','quoteExpiry','quoteNumber','jobNotes','jobStartDate','jobFinishDate'].forEach(id => {
   document.getElementById(id).addEventListener('input', saveState);
 });
 
+// ---------------------------------------------------------------------------
+// BOOT
+// ---------------------------------------------------------------------------
 initTasks();
 const restored = loadState();
 if (!restored) {
   renderTasks();
-  addPlanLine('ceilingFinal');
-  addPlanLine('primer');
-  addPlanLine('wallFinal');
-  addPlanLine('doorPaint');
-  addPlanLine('doorFrame');
-  addPlanLine('windowFrame');
+  addRoom('Room 1');
 }
 readyToCalculate = true;
-if (!restored) addRoom('Room 1');
 calculate();
 </script>
 </body>
