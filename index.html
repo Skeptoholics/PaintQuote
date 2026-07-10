@@ -62,7 +62,9 @@
   .breakdown div:last-child{border-bottom:none;font-weight:700;padding-top:8px;}
   .plan-item{border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin-bottom:8px;background:#fbfaf7;}
   .plan-line{display:flex;align-items:center;gap:5px;}
-  .plan-badge{font-size:10px;font-weight:700;color:var(--accent);width:44px;display:inline-block;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .plan-title{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:5px;}
+  .obj-desc{flex:1 1 130px;min-width:110px;padding:6px 8px;font-size:12px;border:1px solid var(--line);border-radius:6px;background:#fbfaf7;min-height:0;}
+  .obj-desc:disabled{background:#f1efe9;color:#9a988f;}
   input.plan-coverage{width:40px;padding:5px 2px;border:1px solid var(--line);border-radius:5px;font-size:12px;text-align:center;flex-shrink:0;flex-grow:0;min-height:0;background:#fff;}
   .plan-suffix{font-size:9px;color:var(--sub);flex-shrink:0;}
   input.plan-color{flex:1 1 0%;min-width:0;padding:5px 6px;border:1px solid var(--line);border-radius:5px;font-size:12px;min-height:0;background:#fff;}
@@ -145,7 +147,7 @@
 
   <section>
     <h2>Rooms</h2>
-    <p class="hint">Each room holds the objects being painted — add walls, ceilings, doors etc as needed. Each object carries its own dimensions, count, paint type # × coats, and primer type # × coats (0 = no primer). Two doors with different paint? Add two door objects.</p>
+    <p class="hint">Each room holds the objects being painted — add walls, ceilings, doors etc as needed. Each object carries its own dimensions, count, paint type # × coats, and primer type # × coats (0 = no primer). Two doors with different paint? Add two door objects. The description field beside each type is the same field as in Paint Needed &amp; Purchase — fill it in while you measure and it shows in both places.</p>
     <div id="roomsList"></div>
     <button class="add-btn" onclick="addRoom()">+ Add room</button>
   </section>
@@ -153,22 +155,22 @@
   <section>
     <h2>Paint needed &amp; purchase</h2>
     <p class="hint">This section is the output of the rooms above. Each paint category can hold multiple paint types (distinct products/colours). Referencing a type # on any object creates its line here automatically, and every object across every room using the same type # accumulates into that one line. Coats are set per object — the same paint can get 1 coat in one room and 3 in another. <b>NEEDED</b> = each object's area × its coats, summed per type. Fill in tin size, tins bought, and price beneath it to satisfy it, and it'll tell you if you're buying enough.</p>
-    <div class="group-label">Ceiling paint</div>
-    <div id="planCeilingFinal"></div>
-    <div class="group-label">Primer / sealer undercoat</div>
+    <div class="group-label">Primer paint types (applied first)</div>
     <div id="planPrimer"></div>
-    <div class="group-label">Wall paint</div>
+    <div class="group-label">Ceiling paint types</div>
+    <div id="planCeilingFinal"></div>
+    <div class="group-label">Wall paint types</div>
     <div id="planWallFinal"></div>
     <details class="collapse-group">
-      <summary>Door paint</summary>
+      <summary>Door paint types</summary>
       <div id="planDoorPaint"></div>
     </details>
     <details class="collapse-group">
-      <summary>Door frame paint</summary>
+      <summary>Door frame paint types</summary>
       <div id="planDoorFrame"></div>
     </details>
     <details class="collapse-group">
-      <summary>Window frame paint</summary>
+      <summary>Window frame paint types</summary>
       <div id="planWindowFrame"></div>
     </details>
     <div class="row" style="margin-top:10px;">
@@ -311,11 +313,11 @@ const WINDOWFRAME_PREP = [
 //   unitKind: true → per-unit coat labour/sundries + per-unit prep.
 // ---------------------------------------------------------------------------
 const KINDS = {
-  wall:    {label:'Wall',      d1:'H', d2:'L', unitKind:false, paintCat:'wallFinal',   paintRate:'wallPaint', primerRate:'wallPrimer', prep:'wallPrep',        defD1:0,    defD2:0,   defCount:1},
-  ceiling: {label:'Ceiling',   d1:'L', d2:'W', unitKind:false, paintCat:'ceilingFinal',paintRate:'ceilPaint', primerRate:'ceilPrimer', prep:'ceilingPrep',     defD1:0,    defD2:0,   defCount:1},
-  door:    {label:'Door',      d1:'H', d2:'W', unitKind:true,  paintCat:'doorPaint',   unitRate:'door',                                prep:'doorPrep',        defD1:2.04, defD2:0.82, defCount:1},
-  frame:   {label:'D Frame',   d1:'L', d2:'W', unitKind:true,  paintCat:'doorFrame',   unitRate:'frame',                               prep:'doorFramePrep',   defD1:5.0,  defD2:0.1, defCount:1},
-  window:  {label:'Window',    d1:'L', d2:'W', unitKind:true,  paintCat:'windowFrame', unitRate:'wndw',                                prep:'windowFramePrep', defD1:6.0,  defD2:0.1, defCount:1},
+  wall:    {label:'Wall',      d1:'Height', d2:'Length', unitKind:false, paintCat:'wallFinal',   paintName:'Wall paint',        paintRate:'wallPaint', primerRate:'wallPrimer', prep:'wallPrep',        defD1:0,    defD2:0,   defCount:1},
+  ceiling: {label:'Ceiling',   d1:'Length', d2:'Width',  unitKind:false, paintCat:'ceilingFinal',paintName:'Ceiling paint',     paintRate:'ceilPaint', primerRate:'ceilPrimer', prep:'ceilingPrep',     defD1:0,    defD2:0,   defCount:1},
+  door:    {label:'Door',      d1:'Height', d2:'Width',  unitKind:true,  paintCat:'doorPaint',   paintName:'Door paint',        unitRate:'door',                                prep:'doorPrep',        defD1:2.04, defD2:0.82, defCount:1},
+  frame:   {label:'D Frame',   d1:'Length', d2:'Width',  unitKind:true,  paintCat:'doorFrame',   paintName:'Door frame paint',  unitRate:'frame',                               prep:'doorFramePrep',   defD1:5.0,  defD2:0.1, defCount:1},
+  window:  {label:'Window',    d1:'Length', d2:'Width',  unitKind:true,  paintCat:'windowFrame', paintName:'Window frame paint',unitRate:'wndw',                                prep:'windowFramePrep', defD1:6.0,  defD2:0.1, defCount:1},
 };
 const KIND_ORDER = ['wall','ceiling','door','frame','window'];
 
@@ -333,7 +335,7 @@ let readyToCalculate = false;
 let paintPlan = { ceilingFinal: [], primer: [], wallFinal: [], doorPaint: [], doorFrame: [], windowFrame: [] };
 const PLAN_CATS = ['ceilingFinal','primer','wallFinal','doorPaint','doorFrame','windowFrame'];
 const PLAN_EL_ID = { ceilingFinal:'planCeilingFinal', primer:'planPrimer', wallFinal:'planWallFinal', doorPaint:'planDoorPaint', doorFrame:'planDoorFrame', windowFrame:'planWindowFrame' };
-const PLAN_LABELS = { ceilingFinal:'Ceiling', primer:'Primer', wallFinal:'Wall', doorPaint:'Door', doorFrame:'D Frame', windowFrame:'Window' };
+const PLAN_LABELS = { ceilingFinal:'Ceiling paint', primer:'Primer paint', wallFinal:'Wall paint', doorPaint:'Door paint', doorFrame:'Door frame paint', windowFrame:'Window frame paint' };
 
 let taskState = { ceilingPrep:[], wallPrep:[], doorPrep:[], doorFramePrep:[], windowFramePrep:[] };
 const PREP_DEFS = { ceilingPrep:CEILING_PREP, wallPrep:WALL_PREP, doorPrep:DOOR_PREP, doorFramePrep:DOORFRAME_PREP, windowFramePrep:WINDOWFRAME_PREP };
@@ -420,12 +422,12 @@ function renderRooms(){
           <button class="del-btn" onclick="removeRoom(${r.id})">Remove</button>
         </div>
       </div>
+      <div class="mini-row" style="margin:0 0 8px;">
+        <div class="mini-field"><label>Furnished %</label><input type="number" min="0" step="10" value="${r.furnPct || ''}" title="0 = empty room, 100 = fully furnished (×1.5 labour), 200 = cluttered (×2)" oninput="updateRoom(${r.id},'furnPct',this.value)"></div>
+      </div>
       ${r.objects.map(o => renderObject(r, o)).join('')}
       <div class="chips">
         ${KIND_ORDER.map(k => `<button class="chip" onclick="addObject(${r.id},'${k}')">+ ${KINDS[k].label}</button>`).join('')}
-      </div>
-      <div class="mini-row">
-        <div class="mini-field"><label>Furnished %</label><input type="number" min="0" step="10" value="${r.furnPct || ''}" title="0 = empty room, 100 = fully furnished (×1.5 labour), 200 = cluttered (×2)" oninput="updateRoom(${r.id},'furnPct',this.value)"></div>
       </div>
       <div class="area-line" id="roomAreas_${r.id}"></div>
       <label style="margin-top:6px;">Notes</label>
@@ -444,25 +446,52 @@ function renderObject(r, o){
         <button class="del-btn plan-del" onclick="removeObject(${r.id},${o.id})">✕</button>
       </div>
       <div class="obj-dims">
-        <input type="number" step="0.01" min="0" value="${o.d1 || ''}" oninput="updateObject(${r.id},${o.id},'d1',this.value)"><span class="obj-lbl">${K.d1}</span>
+        <span class="obj-lbl">${K.d1}</span>
+        <input type="number" step="0.01" min="0" value="${o.d1 || ''}" oninput="updateObject(${r.id},${o.id},'d1',this.value)">
         <span class="pair-x">×</span>
-        <input type="number" step="0.01" min="0" value="${o.d2 || ''}" oninput="updateObject(${r.id},${o.id},'d2',this.value)"><span class="obj-lbl">${K.d2}</span>
+        <span class="obj-lbl">${K.d2}</span>
+        <input type="number" step="0.01" min="0" value="${o.d2 || ''}" oninput="updateObject(${r.id},${o.id},'d2',this.value)">
         <span class="pair-x">×</span>
-        <input type="number" step="1" min="0" class="qty-in" value="${o.count ?? ''}" oninput="updateObject(${r.id},${o.id},'count',this.value)"><span class="obj-lbl">count</span>
+        <span class="obj-lbl">How many</span>
+        <input type="number" step="1" min="0" class="qty-in" value="${o.count ?? ''}" oninput="updateObject(${r.id},${o.id},'count',this.value)">
         <span class="obj-area" id="objArea_${o.id}"></span>
       </div>
       <div class="obj-paint">
-        <span class="obj-lbl">paint</span>
-        <input type="number" min="1" step="1" value="${o.type || ''}" title="Paint type #" oninput="updateObject(${r.id},${o.id},'type',this.value)">
+        <span class="obj-lbl">Primer paint type</span>
+        <input type="number" min="0" step="1" value="${o.prim || ''}" title="Primer paint type # (0 = none)" oninput="updateObject(${r.id},${o.id},'prim',this.value)">
         <span class="pair-x">×</span>
-        <input type="number" min="0" step="1" class="coats-in" value="${o.coats ?? ''}" title="Paint coats" oninput="updateObject(${r.id},${o.id},'coats',this.value)">
-        <span class="pair-sep">/</span>
-        <span class="obj-lbl">primer</span>
-        <input type="number" min="0" step="1" value="${o.prim || ''}" title="Primer type # (0 = none)" oninput="updateObject(${r.id},${o.id},'prim',this.value)">
-        <span class="pair-x">×</span>
+        <span class="obj-lbl">coats</span>
         <input type="number" min="0" step="1" class="coats-in" value="${o.primCoats ?? ''}" title="Primer coats" oninput="updateObject(${r.id},${o.id},'primCoats',this.value)">
+        <input class="obj-desc" type="text" id="objDescPr_${o.id}" oninput="updateObjDesc(${r.id},${o.id},'prim',this.value)">
+      </div>
+      <div class="obj-paint">
+        <span class="obj-lbl">${K.paintName} type</span>
+        <input type="number" min="1" step="1" value="${o.type || ''}" title="${K.paintName} type #" oninput="updateObject(${r.id},${o.id},'type',this.value)">
+        <span class="pair-x">×</span>
+        <span class="obj-lbl">coats</span>
+        <input type="number" min="0" step="1" class="coats-in" value="${o.coats ?? ''}" title="Paint coats" oninput="updateObject(${r.id},${o.id},'coats',this.value)">
+        <input class="obj-desc" type="text" id="objDescP_${o.id}" oninput="updateObjDesc(${r.id},${o.id},'paint',this.value)">
       </div>
     </div>`;
+}
+
+// Resolve the plan line an object's paint or primer assignment points at (null if unset)
+function planLineFor(o, which){
+  const cat = which === 'prim' ? 'primer' : KINDS[o.kind].paintCat;
+  const t = Math.round(which === 'prim' ? o.prim : o.type) || 0;
+  if (t <= 0) return null;
+  return paintPlan[cat][Math.min(t, paintPlan[cat].length) - 1] || null;
+}
+// Two-way description: editing it on the room card edits the same field as the
+// purchase section — one description per paint type, visible in both places.
+function updateObjDesc(roomId, objId, which, value){
+  const r = rooms.find(x => x.id === roomId);
+  const o = r && r.objects.find(x => x.id === objId);
+  if (!o) return;
+  const line = planLineFor(o, which);
+  if (!line) return;
+  line.color = value;
+  calculate();
 }
 
 // ---------------------------------------------------------------------------
@@ -520,18 +549,19 @@ function renderPlan(){
     const el = document.getElementById(PLAN_EL_ID[cat]);
     el.innerHTML = paintPlan[cat].map((l,i) => `
       <div class="plan-item">
+        <div class="plan-title">${PLAN_LABELS[cat]} type ${i+1}<button class="del-btn plan-del" style="float:right;" onclick="removePlanLine('${cat}',${l.id})">✕</button></div>
         <div class="plan-line">
-          <span class="plan-badge">${PLAN_LABELS[cat]} ${i+1}</span>
-          <input type="number" step="0.5" min="0.1" class="plan-coverage" value="${l.coverage || ''}" title="Coverage sqm per litre" oninput="updatePlanLine('${cat}',${l.id},'coverage',this.value)">
-          <span class="plan-suffix">sqm/L</span>
-          <input type="text" class="plan-color" placeholder="colour / product" value="${l.color}" oninput="updatePlanLine('${cat}',${l.id},'color',this.value)">
-          <button class="del-btn plan-del" onclick="removePlanLine('${cat}',${l.id})">✕</button>
+          <span class="obj-lbl">Coverage</span>
+          <input type="number" step="0.5" min="0.1" class="plan-coverage" value="${l.coverage || ''}" title="How many sqm one litre covers" oninput="updatePlanLine('${cat}',${l.id},'coverage',this.value)">
+          <span class="plan-suffix">sqm per litre</span>
+          <input type="text" class="plan-color" id="planColor_${cat}_${l.id}" placeholder="description — colour / product" value="${l.color}" oninput="updatePlanLine('${cat}',${l.id},'color',this.value)">
         </div>
-        <div class="plan-status" id="planStatus_${cat}_${l.id}">Needed 0.0L</div>
+        <div class="plan-status" id="planStatus_${cat}_${l.id}">Required 0.0L</div>
         <div class="plan-buy">
-          <span class="plan-buy-field"><input type="number" step="0.5" min="0" value="${l.tinSize || ''}" title="Tin size litres" oninput="updatePlanLine('${cat}',${l.id},'tinSize',this.value)"><span>L tin</span></span>
+          <span class="obj-lbl" style="font-weight:700;">Purchase:</span>
+          <span class="plan-buy-field"><span>Tin size</span><input type="number" step="0.5" min="0" value="${l.tinSize || ''}" title="Tin size litres" oninput="updatePlanLine('${cat}',${l.id},'tinSize',this.value)"><span>L</span></span>
           <span class="plan-buy-field"><span>×</span><input type="number" step="1" min="0" value="${l.qty || ''}" title="Tins bought" oninput="updatePlanLine('${cat}',${l.id},'qty',this.value)"><span>tins</span></span>
-          <span class="plan-buy-field"><span>@$</span><input type="number" step="0.01" min="0" value="${l.price || ''}" title="Price per tin" oninput="updatePlanLine('${cat}',${l.id},'price',this.value)"></span>
+          <span class="plan-buy-field"><span>@ $</span><input type="number" step="0.01" min="0" value="${l.price || ''}" title="Price per tin" oninput="updatePlanLine('${cat}',${l.id},'price',this.value)"><span>per tin</span></span>
         </div>
       </div>`).join('') + `<button class="add-btn plan-add" onclick="addPlanLine('${cat}')">+ Add type</button>`;
   });
@@ -722,25 +752,41 @@ function calculate(){
       if (!elx) return;
       if (refs === 0 && bought <= 0) {
         elx.className = 'plan-status';
-        elx.textContent = `Needed 0.0L — no object assigns type ${i+1} yet`;
+        elx.textContent = `Required: 0.0L — no object uses this type yet`;
       } else if (refs > 0 && area <= 0) {
         elx.className = 'plan-status';
-        elx.textContent = `Assigned on ${refs} object${refs>1?'s':''} but no area — check dimensions & counts`;
+        elx.textContent = `Used on ${refs} object${refs>1?'s':''} but no area yet — check dimensions & how-many`;
       } else if (area > 0 && sqm <= 0) {
         elx.className = 'plan-status short';
-        elx.textContent = `${area.toFixed(1)} m² assigned — coats set to 0, no demand`;
+        elx.textContent = `${area.toFixed(1)} m² assigned — coats set to 0, nothing required`;
       } else if (sqm > 0 && !(l.coverage > 0)) {
         elx.className = 'plan-status short';
-        elx.textContent = `${area.toFixed(1)} m² → ${sqm.toFixed(1)} m² with coats — enter coverage (sqm/L) for litres`;
+        elx.textContent = `Required: ${sqm.toFixed(1)} m² of coating (${area.toFixed(1)} m² × coats) — enter coverage to get litres`;
       } else if (bought + 0.0001 >= needed) {
         elx.className = 'plan-status ok';
-        elx.textContent = `Needed ${needed.toFixed(1)}L (${sqm.toFixed(1)} m²) · Buying ${bought.toFixed(1)}L ✓ enough` + (bought - needed >= 0.05 ? ` (+${(bought-needed).toFixed(1)}L spare)` : '');
+        elx.textContent = `Required ${needed.toFixed(1)}L (${sqm.toFixed(1)} m²) · Purchased ${bought.toFixed(1)}L ✓ enough` + (bought - needed >= 0.05 ? ` (+${(bought-needed).toFixed(1)}L spare)` : '');
       } else {
         elx.className = 'plan-status short';
-        elx.textContent = `Needed ${needed.toFixed(1)}L (${sqm.toFixed(1)} m²) · Buying ${bought.toFixed(1)}L ✗ SHORT ${(needed-bought).toFixed(1)}L`;
+        elx.textContent = `Required ${needed.toFixed(1)}L (${sqm.toFixed(1)} m²) · Purchased ${bought.toFixed(1)}L ✗ SHORT ${(needed-bought).toFixed(1)}L — buy more`;
       }
     });
   });
+
+  // ---- two-way description sync: room-card inputs mirror the type's description ----
+  const syncDesc = (id, line, ph) => {
+    const e = document.getElementById(id);
+    if (!e || document.activeElement === e) return;
+    if (!line) { e.value = ''; e.disabled = true; e.placeholder = ph; }
+    else { e.disabled = false; e.placeholder = 'description — colour / product'; e.value = line.color || ''; }
+  };
+  rooms.forEach(r => r.objects.forEach(o => {
+    syncDesc('objDescP_' + o.id, planLineFor(o, 'paint'), 'set type # first');
+    syncDesc('objDescPr_' + o.id, planLineFor(o, 'prim'), (Math.round(o.prim)||0) > 0 ? 'set type # first' : 'no primer');
+  }));
+  PLAN_CATS.forEach(cat => paintPlan[cat].forEach(l => {
+    const ce = document.getElementById(`planColor_${cat}_${l.id}`);
+    if (ce && document.activeElement !== ce) ce.value = l.color || '';
+  }));
 
   // ---- live readouts: per-object area chip + per-room area line ----
   rooms.forEach(r => {
@@ -754,7 +800,7 @@ function calculate(){
     });
     KIND_ORDER.forEach(k => { if (kindSums[k]) parts.push(`<span>${KINDS[k].label} = <b>${kindSums[k].toFixed(1)}</b> m²</span>`); });
     const line = document.getElementById('roomAreas_' + r.id);
-    if (line) line.innerHTML = parts.join('') || '<span class="hint">No areas yet</span>';
+    if (line) line.innerHTML = parts.length ? '<span style="font-weight:700;">Totals:</span>' + parts.join('') : '<span class="hint">Totals: no areas yet</span>';
   });
 
   document.getElementById('breakdown').innerHTML = `
