@@ -350,7 +350,7 @@ function newObject(kind){
   const K = KINDS[kind];
   objIdCounter++;
   return { id:objIdCounter, kind, label:'', d1:K.defD1, d2:K.defD2, count:K.defCount,
-           type:0, coats:2, prim:0, primCoats:1 };
+           type:0, coats:2, prim:0, primCoats:0 };
 }
 function addRoom(name){
   roomIdCounter++;
@@ -403,6 +403,13 @@ function updateObject(roomId, objId, field, value){
   const o = r.objects.find(x => x.id === objId);
   if (!o) return;
   o[field] = (field === 'label') ? value : (parseFloat(value) || 0);
+  // Primer coats follow the primer type: picking a type fills coats to 1 if blank,
+  // clearing the type blanks the coats again.
+  if (field === 'prim') {
+    const pcEl = document.getElementById('primCoats_' + o.id);
+    if (o.prim > 0 && !o.primCoats) { o.primCoats = 1; if (pcEl) pcEl.value = 1; }
+    else if (o.prim <= 0) { o.primCoats = 0; if (pcEl) pcEl.value = ''; }
+  }
   calculate();
 }
 function objArea(o){ return (o.d1 || 0) * (o.d2 || 0) * (o.count || 0); }
@@ -461,7 +468,7 @@ function renderObject(r, o){
         <input type="number" min="0" step="1" value="${o.prim || ''}" title="Primer paint type # (0 = none)" oninput="updateObject(${r.id},${o.id},'prim',this.value)">
         <span class="pair-x">×</span>
         <span class="obj-lbl">coats</span>
-        <input type="number" min="0" step="1" class="coats-in" value="${o.primCoats ?? ''}" title="Primer coats" oninput="updateObject(${r.id},${o.id},'primCoats',this.value)">
+        <input type="number" min="0" step="1" class="coats-in" id="primCoats_${o.id}" value="${o.primCoats || ''}" title="Primer coats" oninput="updateObject(${r.id},${o.id},'primCoats',this.value)">
         <input class="obj-desc" type="text" id="objDescPr_${o.id}" oninput="updateObjDesc(${r.id},${o.id},'prim',this.value)">
       </div>
       <div class="obj-paint">
