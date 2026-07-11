@@ -3,979 +3,151 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Paint Job Calculator</title>
+<title>PaintQuote — Make Good Money Quoting Right | Free Painting Quote Calculator</title>
+<meta name="description" content="Make good money quoting right. Free painting quote calculator plus the money mechanics of running a painting business — real numbers, no theory.">
+<link rel="canonical" href="https://paintquote.net/">
+<meta property="og:title" content="PaintQuote — Make Good Money Quoting Right">
+<meta property="og:description" content="Free painting quote calculator + the money mechanics of a painting business.">
+<meta property="og:url" content="https://paintquote.net/">
+<meta property="og:type" content="website">
 <style>
-  :root{
-    --bg:#f4f3ef; --card:#ffffff; --ink:#1f1e1c; --sub:#6b6a66;
-    --line:#e2e0d9; --accent:#b0512a; --accent-ink:#ffffff;
-    --off:#c9c7bf; --on:#4a7c59; --danger:#b0392a;
-  }
-  *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;padding-bottom:100px;}
-  header{background:var(--ink);color:#fff;padding:18px 16px 16px;position:sticky;top:0;z-index:5;}
-  header h1{margin:0;font-size:18px;font-weight:600;}
-  header p{margin:2px 0 0;font-size:12px;color:#c9c7bf;}
-  main{max-width:640px;margin:0 auto;padding:16px;}
-  section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px;}
-  section h2{font-size:14px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.04em;color:var(--sub);}
-  .row{display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;}
-  label{font-size:13px;color:var(--sub);display:block;margin-bottom:3px;}
-  input[type=text],input[type=number],input[type=date]{
-    width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:15px;background:#fbfaf7;color:var(--ink);
-    box-sizing:border-box;min-height:42px;
-  }
-  input[type=date]{-webkit-appearance:none;appearance:none;display:block;}
-  .grid2 > div{min-width:0;}
-  .field{flex:1;min-width:90px;}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .room-card,.paint-card{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:#fbfaf7;}
-  .room-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:6px;}
-  input.room-name{font-weight:600;font-size:15px;border:1px solid var(--line);background:#fff;padding:8px 10px;border-radius:8px;flex:1;min-width:0;color:var(--ink);}
-  input.room-name:focus{outline:none;border-color:var(--accent);}
-  .room-actions{display:flex;gap:2px;flex-shrink:0;}
-  .chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 4px;}
-  .chip{font-size:12px;padding:6px 10px;border:1px solid var(--accent);border-radius:999px;background:none;color:var(--accent);cursor:pointer;font-weight:600;}
-  .chip:active{background:var(--line);}
-  .del-btn{background:none;border:none;color:var(--danger);font-size:13px;cursor:pointer;padding:4px;}
-  .dup-btn{background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;padding:4px;}
-  .add-btn{width:100%;padding:10px;border:1px dashed var(--accent);border-radius:10px;background:none;color:var(--accent);font-weight:600;font-size:14px;cursor:pointer;margin-top:4px;}
-  .task-row{padding:8px 0;border-bottom:1px solid var(--line);}
-  .task-row:last-child{border-bottom:none;}
-  .task-row .top-line{display:flex;align-items:center;gap:10px;}
-  .task-name{flex:1;font-size:14px;}
-  .toggle{width:42px;height:24px;border-radius:999px;background:var(--off);position:relative;cursor:pointer;flex-shrink:0;border:none;padding:0;}
-  .toggle.on{background:var(--on);}
-  .toggle::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s;}
-  .toggle.on::after{left:20px;}
-  .stepper{display:flex;align-items:center;gap:8px;margin-top:8px;padding-left:52px;}
-  .stepper button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:16px;font-weight:600;color:var(--accent);cursor:pointer;line-height:1;}
-  .stepper button:active{background:var(--line);}
-  .stepper .val{min-width:52px;text-align:center;font-size:14px;font-weight:600;}
-  .stepper .val-label{font-size:11px;color:var(--sub);font-weight:400;}
-  .group-label{font-size:12px;font-weight:600;color:var(--accent);margin:12px 0 2px;text-transform:uppercase;letter-spacing:.03em;}
-  .group-label:first-child{margin-top:0;}
-  .summary-bar{position:fixed;bottom:0;left:0;right:0;background:var(--ink);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;z-index:10;}
-  .summary-bar .total{font-size:22px;font-weight:700;}
-  .summary-bar .label{font-size:11px;color:#c9c7bf;text-transform:uppercase;letter-spacing:.04em;}
-  .breakdown{font-size:13px;}
-  .breakdown div{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--line);}
-  .breakdown div:last-child{border-bottom:none;font-weight:700;padding-top:8px;}
-  .plan-item{border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin-bottom:8px;background:#fbfaf7;}
-  .plan-line{display:flex;align-items:center;gap:5px;}
-  .plan-title{font-size:12px;font-weight:700;color:var(--accent);margin-bottom:5px;}
-  .obj-desc{flex:1 1 130px;min-width:110px;padding:6px 8px;font-size:12px;border:1px solid var(--line);border-radius:6px;background:#fbfaf7;min-height:0;}
-  .obj-desc:disabled{background:#f1efe9;color:#9a988f;}
-  input.plan-coverage{width:40px;padding:5px 2px;border:1px solid var(--line);border-radius:5px;font-size:12px;text-align:center;flex-shrink:0;flex-grow:0;min-height:0;background:#fff;}
-  .plan-suffix{font-size:9px;color:var(--sub);flex-shrink:0;}
-  input.plan-color{flex:1 1 0%;min-width:0;padding:5px 6px;border:1px solid var(--line);border-radius:5px;font-size:12px;min-height:0;background:#fff;}
-  .plan-del{padding:2px 4px;font-size:12px;flex-shrink:0;}
-  .plan-add{padding:6px;font-size:12px;margin-top:2px;}
-  .plan-buy{display:flex;align-items:center;gap:10px;margin-top:5px;flex-wrap:wrap;}
-  .plan-buy-field{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--sub);}
-  .plan-buy-field input{width:48px;padding:5px 3px;border:1px solid var(--line);border-radius:5px;font-size:12px;text-align:center;min-height:0;background:#fff;}
-  .plan-status{margin-top:6px;margin-bottom:6px;font-size:13.5px;font-weight:700;padding:7px 9px;border-radius:6px;background:#efede6;color:var(--ink);}
-  .plan-status.ok{background:#e4efe7;color:#31663f;}
-  .plan-status.short{background:#f7e4e0;color:#9c3320;}
-  /* ---- object cards ---- */
-  .obj-card{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:8px;background:#fff;}
-  .obj-top{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
-  .obj-kind{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;flex-shrink:0;width:58px;}
-  input.obj-label{flex:1;min-width:0;padding:6px 8px;font-size:13px;border:1px solid var(--line);border-radius:6px;background:#fbfaf7;min-height:0;}
-  .obj-dims{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
-  .obj-dims input{width:52px;padding:6px 3px;font-size:13px;text-align:center;border:1px solid var(--line);border-radius:6px;background:#fbfaf7;min-height:0;}
-  .obj-dims input.qty-in{width:44px;background:#f2efe6;font-weight:600;}
-  .obj-lbl{font-size:10px;color:var(--sub);white-space:nowrap;}
-  .obj-area{font-size:11px;color:var(--sub);margin-left:auto;font-weight:600;white-space:nowrap;}
-  .obj-paint{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
-  .obj-paint input{width:40px;padding:6px 2px;font-size:13px;text-align:center;border:1px solid var(--line);border-radius:6px;background:#fff;min-height:0;}
-  .obj-paint input.coats-in{width:34px;background:#fbf7ef;}
-  .pair-x{font-size:11px;color:var(--sub);}
-  .pair-sep{font-size:12px;color:var(--sub);padding:0 2px;}
-  .obj-paint .obj-lbl{width:auto;}
-  .area-line{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;padding:6px 0 2px;border-top:1px dashed var(--line);margin-top:6px;}
-  .mini-row{display:flex;gap:16px;margin-top:6px;align-items:flex-end;}
-  .mini-field label{font-size:10px;margin-bottom:2px;}
-  .mini-field input{width:56px;padding:5px 4px;font-size:12px;text-align:center;border:1px solid var(--line);border-radius:6px;background:#fff;min-height:0;}
-  .hint{font-size:11px;color:var(--sub);margin-top:2px;}
-  .collapse-group{margin:8px 0 0;}
-  .collapse-group summary{font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.03em;cursor:pointer;padding:6px 0;list-style:none;}
-  .collapse-group summary::-webkit-details-marker{display:none;}
-  .collapse-group summary::before{content:'▸ ';display:inline-block;}
-  .collapse-group[open] summary::before{content:'▾ ';}
-  .collapse-group > div{padding-top:2px;}
-  textarea.notes{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;background:#fbfaf7;color:var(--ink);font-family:inherit;resize:vertical;}
+:root{
+  --ink:#1a1d23; --panel:#23272f; --gold:#e8a823; --gold-deep:#b57f12;
+  --paper:#f4f2ec; --grey:#6b7078; --line:#d8d4c8;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:var(--ink);line-height:1.65}
+.sans{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif}
+/* sticky header */
+header{position:sticky;top:0;z-index:50;background:var(--ink);color:#f0f0ee;display:flex;align-items:center;justify-content:space-between;padding:14px 5%;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.brand{display:flex;align-items:center;gap:12px;font-family:'Segoe UI',system-ui,sans-serif;font-weight:800;font-size:1.25rem;letter-spacing:.5px;color:#f0f0ee;text-decoration:none}
+.mark{width:44px;height:30px;position:relative}
+.mark::before{content:"";position:absolute;left:0;top:0;width:34px;height:14px;background:var(--gold);border-radius:7px}
+.mark::after{content:"";position:absolute;left:28px;top:14px;width:4px;height:12px;background:#f0f0ee}
+.cta-calc{background:var(--gold);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-weight:800;padding:10px 22px;border-radius:8px;text-decoration:none;font-size:1rem;white-space:nowrap}
+.cta-calc:hover{background:#f4bd45}
+/* hero */
+.hero{background:var(--ink);color:#f0f0ee;padding:64px 5% 72px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;left:-5%;bottom:-40px;width:110%;height:120px;background:var(--panel);transform:rotate(-2.5deg)}
+.hero-inner{max-width:900px;margin:0 auto;position:relative;z-index:2}
+.slap{font-family:'Segoe UI',system-ui,sans-serif;font-weight:900;font-size:clamp(2rem,5.5vw,3.6rem);line-height:1.12}
+.slap em{font-style:normal;color:var(--gold)}
+.sub{margin-top:18px;font-size:1.15rem;color:#c9c6bd;max-width:640px}
+.hero-actions{margin-top:32px;display:flex;gap:16px;flex-wrap:wrap}
+.btn-big{background:var(--gold);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-weight:900;font-size:1.2rem;padding:16px 34px;border-radius:10px;text-decoration:none}
+.btn-big:hover{background:#f4bd45}
+.btn-ghost{border:2px solid #4a4f58;color:#f0f0ee;font-family:'Segoe UI',system-ui,sans-serif;font-weight:700;font-size:1.05rem;padding:15px 26px;border-radius:10px;text-decoration:none}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+/* sections */
+section{padding:56px 5%}
+.wrap{max-width:900px;margin:0 auto}
+h2{font-family:'Segoe UI',system-ui,sans-serif;font-weight:900;font-size:1.7rem;margin-bottom:8px}
+.kicker{font-family:'Segoe UI',system-ui,sans-serif;font-weight:700;font-size:.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold-deep)}
+/* ledger strip signature */
+.ledger{border-left:5px solid var(--gold);background:#fff;box-shadow:0 1px 4px rgba(26,29,35,.08)}
+.ledger-row{display:flex;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--line);font-size:1.05rem}
+.ledger-row:last-child{border-bottom:none;font-family:'Segoe UI',system-ui,sans-serif;font-weight:800}
+.ledger-row .val{font-family:'Segoe UI',system-ui,sans-serif;font-weight:800;color:var(--gold-deep)}
+/* video */
+.video-shell{position:relative;padding-top:56.25%;background:var(--ink);border-radius:10px;overflow:hidden;box-shadow:0 4px 18px rgba(26,29,35,.18)}
+.video-shell iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* articles */
+.art-list{display:grid;gap:18px;margin-top:24px}
+.art-card{background:#fff;border-left:5px solid var(--gold);padding:20px 24px;text-decoration:none;color:var(--ink);box-shadow:0 1px 4px rgba(26,29,35,.08)}
+.art-card:hover{border-left-color:var(--gold-deep);box-shadow:0 3px 10px rgba(26,29,35,.15)}
+.art-card h3{font-family:'Segoe UI',system-ui,sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:6px}
+.art-card p{color:var(--grey);font-size:.98rem}
+.art-card .soon{color:var(--gold-deep);font-family:'Segoe UI',system-ui,sans-serif;font-weight:700;font-size:.8rem;letter-spacing:1px;text-transform:uppercase}
+/* ad slot */
+.ad-slot{max-width:900px;margin:0 auto;border:1px dashed var(--line);background:#fff}
+.ad-tag{font-family:'Segoe UI',system-ui,sans-serif;font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey);padding:4px 8px}
+.house-ad{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 24px;text-decoration:none;color:var(--ink)}
+.house-ad b{font-family:'Segoe UI',system-ui,sans-serif;font-weight:800}
+.house-ad .go{background:var(--ink);color:var(--gold);font-family:'Segoe UI',system-ui,sans-serif;font-weight:800;padding:10px 18px;border-radius:8px;white-space:nowrap}
+/* footer */
+footer{background:var(--ink);color:#9a9fa8;padding:40px 5%;font-size:.85rem}
+footer .wrap{display:grid;gap:14px}
+footer a{color:var(--gold)}
+@media(max-width:600px){.hero{padding:44px 5% 60px}.house-ad{flex-direction:column;text-align:center}}
 </style>
 </head>
 <body>
-
 <header>
-  <div style="display:flex;justify-content:space-between;align-items:center;">
-    <div>
-      <h1>Paint Job Calculator</h1>
-      <p id="saveStatus">Quote auto-saves on this device as you type</p>
-    </div>
-    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-      <span style="font-size:10px;color:#8a8880;">v2.0</span>
-      <button id="newQuoteBtn" onclick="newQuote()" style="background:none;border:1px solid #555;color:#c9c7bf;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;">New quote</button>
-    </div>
-  </div>
+  <a class="brand" href="/"><span class="mark"></span>PAINTQUOTE</a>
+  <a class="cta-calc" href="/calculator/">Open the calculator →</a>
 </header>
 
-<main>
-
-  <section>
-    <h2>Job details</h2>
-    <div class="grid2">
-      <div><label>Client name</label><input type="text" id="clientName" placeholder="Jane Smith"></div>
-      <div><label>Client phone</label><input type="text" id="clientPhone" placeholder="0412 345 678"></div>
+<div class="hero">
+  <div class="hero-inner">
+    <div class="slap"><em>Make good money</em> quoting right.</div>
+    <p class="sub sans">Price every paint job to profit with the free PaintQuote calculator — a full quote in minutes — plus the money mechanics of a painting business from the PaintQuote channel.</p>
+    <div class="hero-actions">
+      <a class="btn-big" href="/calculator/">Quote a job now — free</a>
+      <a class="btn-ghost" href="https://www.youtube.com/@paintquote" target="_blank" rel="noopener">Watch the channel</a>
     </div>
-    <div style="margin-top:8px;"><label>Job address</label><input type="text" id="address" placeholder="123 Example St"></div>
-    <div class="grid2" style="margin-top:8px;">
-      <div><label>Quote date</label><input type="date" id="jobdate"></div>
-      <div><label>Valid until</label><input type="date" id="quoteExpiry" title="Quote expiry — auto-set to 30 days after quote date, edit to override"></div>
-    </div>
-    <div style="margin-top:8px;"><label>Quotation number</label><input type="text" id="quoteNumber" placeholder="Q-0001"></div>
-    <div class="grid2" style="margin-top:8px;">
-      <div><label>Job start date</label><input type="date" id="jobStartDate"></div>
-      <div><label>Job finish date</label><input type="date" id="jobFinishDate"></div>
-    </div>
-    <div style="margin-top:8px;">
-      <label>Job notes</label>
-      <textarea id="jobNotes" rows="3" class="notes" placeholder="Overarching notes for the whole job — access, parking, special requests, anything that doesn't belong to one room"></textarea>
-    </div>
-  </section>
-
-  <section>
-    <h2>Rooms</h2>
-    <p class="hint">Each room holds the objects being painted — add walls, ceilings, doors etc as needed. Each object carries its own dimensions, count, paint type # × coats, and primer type # × coats (0 = no primer). Two doors with different paint? Add two door objects. The description field beside each type is the same field as in Paint Needed &amp; Purchase — fill it in while you measure and it shows in both places.</p>
-    <div id="roomsList"></div>
-    <button class="add-btn" onclick="addRoom()">+ Add room</button>
-  </section>
-
-  <section>
-    <h2>Paint needed &amp; purchase</h2>
-    <p class="hint">This section is the output of the rooms above. Each paint category can hold multiple paint types (distinct products/colours). Referencing a type # on any object creates its line here automatically, and every object across every room using the same type # accumulates into that one line. Coats are set per object — the same paint can get 1 coat in one room and 3 in another. <b>NEEDED</b> = each object's area × its coats, summed per type. Fill in tin size, tins bought, and price beneath it to satisfy it, and it'll tell you if you're buying enough.</p>
-    <div class="group-label">Primer paint types (applied first)</div>
-    <div id="planPrimer"></div>
-    <div class="group-label">Ceiling paint types</div>
-    <div id="planCeilingFinal"></div>
-    <div class="group-label">Wall paint types</div>
-    <div id="planWallFinal"></div>
-    <details class="collapse-group">
-      <summary>Door paint types</summary>
-      <div id="planDoorPaint"></div>
-    </details>
-    <details class="collapse-group">
-      <summary>Door frame paint types</summary>
-      <div id="planDoorFrame"></div>
-    </details>
-    <details class="collapse-group">
-      <summary>Window frame paint types</summary>
-      <div id="planWindowFrame"></div>
-    </details>
-    <div class="row" style="margin-top:10px;">
-      <div class="field"><label>Roller price each ($) — one roller per tin bought</label><input type="number" id="rollerPrice"></div>
-    </div>
-  </section>
-
-  <section>
-    <h2>Ceiling work</h2>
-    <div class="group-label">Preparation</div>
-    <div id="ceilingPrepTasks"></div>
-  </section>
-
-  <section>
-    <h2>Wall work</h2>
-    <div class="group-label">Preparation</div>
-    <div id="wallPrepTasks"></div>
-  </section>
-
-  <section>
-    <details class="collapse-group">
-      <summary style="font-size:14px;text-transform:none;">Door work</summary>
-      <div class="group-label">Preparation (per door)</div>
-      <div id="doorPrepTasks"></div>
-    </details>
-    <details class="collapse-group">
-      <summary style="font-size:14px;text-transform:none;">Door frame work</summary>
-      <div class="group-label">Preparation (per frame)</div>
-      <div id="doorFramePrepTasks"></div>
-    </details>
-    <details class="collapse-group">
-      <summary style="font-size:14px;text-transform:none;">Window frame work</summary>
-      <div class="group-label">Preparation (per frame)</div>
-      <div id="windowFramePrepTasks"></div>
-    </details>
-    <p class="hint">Prep is still job-wide in this build (applies across all objects of that kind by %) — per-object prep add-ons are the next chunk. Unit rates are rough placeholders until the settings page exists.</p>
-  </section>
-
-  <section>
-    <h2>Breakdown</h2>
-    <div class="breakdown" id="breakdown"></div>
-  </section>
-
-</main>
-
-<div class="summary-bar">
-  <div><div class="label">Job total</div></div>
-  <div class="total" id="totalOut">$0.00</div>
+  </div>
 </div>
 
-<datalist id="roomNames"></datalist>
+<section>
+  <div class="wrap">
+    <div class="kicker">Why quotes leak money</div>
+    <h2>The profit is decided before the brush moves</h2>
+    <p>Gut-feel quoting remembers the walls and forgets the rest: the prep hours, the second coat on the dark feature wall, the consumables that quietly come out of your labour. The calculator prices the whole job — every surface, every coat, every tin — so the number you hand the client is one you can actually make money on.</p>
+    <div class="ledger" style="margin-top:22px">
+      <div class="ledger-row"><span>Every wall, ceiling, door &amp; frame priced per room</span><span class="val">✓</span></div>
+      <div class="ledger-row"><span>Paint &amp; primer quantities with purchase check</span><span class="val">✓</span></div>
+      <div class="ledger-row"><span>Furnished-room labour loading</span><span class="val">✓</span></div>
+      <div class="ledger-row"><span>Cost to you</span><span class="val">$0</span></div>
+    </div>
+  </div>
+</section>
 
-<script>
-'use strict';
-// ============================================================================
-// PAINT JOB CALCULATOR v2 — object-model core
-//
-// Structure: Job → Rooms → Objects → (paint type × coats / primer type × coats)
-//   - A room is a container: name, notes, furnished %, and a list of OBJECTS.
-//   - An object is one paintable thing: a wall group, a ceiling, a door, a door
-//     frame, or a window frame. It carries its own dims, count, paint type #,
-//     coats, primer type # (0 = none) and primer coats.
-//   - Paint Needed & Purchase is pure OUTPUT: type lines auto-create when an
-//     object references them and accumulate area × coats across the whole job.
-//   - Prep is still job-wide per kind (per-object prep add-ons = next chunk).
-//
-// SETTINGS PAGE — NOT BUILT YET. Everything in the rate tables below should
-// eventually be user-editable there. Logged per Mark, 2026-07.
-// ============================================================================
+<div class="ad-slot"><div class="ad-tag">Sponsored</div>
+  <a class="house-ad" href="https://www.youtube.com/@paintquote" target="_blank" rel="noopener">
+    <span><b>New: the PaintQuote channel.</b> What it actually costs to start a painting business — the full ledger, nothing hidden.</span>
+    <span class="go">Watch free ▶</span>
+  </a>
+</div>
 
-// ---------------------------------------------------------------------------
-// RATE TABLES (placeholders — the settings page will make these editable)
-// ---------------------------------------------------------------------------
-const DEFAULT_HOURLY_RATE = 65;
+<section>
+  <div class="wrap">
+    <div class="kicker">Latest episode</div>
+    <h2>What it actually costs to start a handyman painting business</h2>
+    <div class="video-shell" style="margin-top:18px">
+      <iframe src="https://www.youtube-nocookie.com/embed/Kipjds4hCmI" title="What It ACTUALLY Costs to Start a Handyman Painting Business" loading="lazy" allowfullscreen></iframe>
+    </div>
+  </div>
+</section>
 
-// Per-coat application rates. sqm kinds: sqm applied per hour per coat.
-// Unit kinds: hours + sundry $ per unit per coat.
-const COAT_RATES = {
-  ceilPaint:{sqmPerHr:60}, ceilPrimer:{sqmPerHr:40},
-  wallPaint:{sqmPerHr:70}, wallPrimer:{sqmPerHr:50},
-  door:{hrsPerUnit:0.25, matPerUnit:2},
-  frame:{hrsPerUnit:0.15, matPerUnit:1},
-  wndw:{hrsPerUnit:0.15, matPerUnit:1},
-};
-
-// Prep task catalogues. sqm kinds use matPerSqm + sqmPerHr (or flatHours);
-// unit kinds use flatHoursPerUnit + matPerUnit. Rates live ONLY here — prep
-// instances reference the catalogue so a future settings change reprices
-// every quote live.
-const CEILING_PREP = [
-  {name:'Call Out and Setup', matPerSqm:0, flatHours:1, defaultOn:false},
-  {name:'Spacial Setup (drop sheets)', matPerSqm:0, sqmPerHr:60, defaultOn:false},
-  {name:'Wash Ceiling', matPerSqm:0.1, sqmPerHr:30, defaultOn:false},
-  {name:'Patch repair small holes', matPerSqm:0.1, sqmPerHr:40, defaultOn:false},
-  {name:'Patch repair large holes', matPerSqm:0.1, sqmPerHr:6, defaultOn:false},
-  {name:'Patch plaster small cracks', matPerSqm:0.1, sqmPerHr:40, defaultOn:false},
-  {name:'Patch plaster large cracks', matPerSqm:0.1, sqmPerHr:6, defaultOn:false},
-  {name:'Flushing simple', matPerSqm:0.2, sqmPerHr:50, defaultOn:false},
-  {name:'Flushing complex', matPerSqm:0.1, sqmPerHr:5, defaultOn:false},
-  {name:'Sanding', matPerSqm:0.2, sqmPerHr:40, defaultOn:false},
-  {name:'Boarder tapping', matPerSqm:0.2, sqmPerHr:40, defaultOn:false},
-  {name:'Miscellaneous Consumables', matPerSqm:0.01, sqmPerHr:0, defaultOn:false},
-  {name:'Spacial Pack down and Clean up', matPerSqm:0, sqmPerHr:60, defaultOn:false},
-];
-const WALL_PREP = [
-  {name:'Call Out and Setup', matPerSqm:0, flatHours:1, defaultOn:false},
-  {name:'Spacial Setup (drop sheets)', matPerSqm:0, sqmPerHr:60, defaultOn:false},
-  {name:'Wash Walls', matPerSqm:0.1, sqmPerHr:40, defaultOn:false},
-  {name:'Patch repair small holes', matPerSqm:0.1, sqmPerHr:40, defaultOn:false},
-  {name:'Patch repair large holes', matPerSqm:0.1, sqmPerHr:5, defaultOn:false},
-  {name:'Patch plaster small cracks', matPerSqm:0.1, sqmPerHr:50, defaultOn:false},
-  {name:'Patch plaster large cracks', matPerSqm:0.1, sqmPerHr:10, defaultOn:false},
-  {name:'Flushing simple', matPerSqm:0.1, sqmPerHr:60, defaultOn:false},
-  {name:'Flushing complex', matPerSqm:0.2, sqmPerHr:10, defaultOn:false},
-  {name:'Sanding', matPerSqm:0.2, sqmPerHr:40, defaultOn:false},
-  {name:'Boarder tapping', matPerSqm:0.2, sqmPerHr:40, defaultOn:false},
-  {name:'Miscellaneous Consumables', matPerSqm:0.1, sqmPerHr:0, defaultOn:false},
-  {name:'Spacial Pack down and Clean up', matPerSqm:0, sqmPerHr:60, defaultOn:false},
-];
-const DOOR_PREP = [
-  {name:'Remove & re-hang door', flatHoursPerUnit:0.25, matPerUnit:0, defaultOn:false},
-  {name:'Fill & sand', flatHoursPerUnit:0.33, matPerUnit:1, defaultOn:false},
-  {name:'Clean / wipe down', flatHoursPerUnit:0.1, matPerUnit:0, defaultOn:false},
-];
-const DOORFRAME_PREP = [
-  {name:'Sand / prep frame', flatHoursPerUnit:0.2, matPerUnit:0, defaultOn:false},
-  {name:'Fill / caulk gaps', flatHoursPerUnit:0.15, matPerUnit:0.5, defaultOn:false},
-  {name:'Clean / wipe down', flatHoursPerUnit:0.05, matPerUnit:0, defaultOn:false},
-];
-const WINDOWFRAME_PREP = [
-  {name:'Sand / prep frame', flatHoursPerUnit:0.2, matPerUnit:0, defaultOn:false},
-  {name:'Fill / caulk gaps', flatHoursPerUnit:0.15, matPerUnit:0.5, defaultOn:false},
-  {name:'Clean / wipe down', flatHoursPerUnit:0.05, matPerUnit:0, defaultOn:false},
-];
-
-// ---------------------------------------------------------------------------
-// OBJECT KINDS — one row per paintable thing. Everything kind-specific hangs
-// off this table so adding a future kind (e.g. fence, trim) is one entry.
-//   dims: input labels. area = d1 × d2 × count for every kind.
-//   unitKind: true → per-unit coat labour/sundries + per-unit prep.
-// ---------------------------------------------------------------------------
-const KINDS = {
-  wall:    {label:'Wall',      d1:'Height', d2:'Length', unitKind:false, paintCat:'wallFinal',   paintName:'Wall paint',        paintRate:'wallPaint', primerRate:'wallPrimer', prep:'wallPrep',        defD1:0,    defD2:0,   defCount:1},
-  ceiling: {label:'Ceiling',   d1:'Length', d2:'Width',  unitKind:false, paintCat:'ceilingFinal',paintName:'Ceiling paint',     paintRate:'ceilPaint', primerRate:'ceilPrimer', prep:'ceilingPrep',     defD1:0,    defD2:0,   defCount:1},
-  door:    {label:'Door',      d1:'Height', d2:'Width',  unitKind:true,  paintCat:'doorPaint',   paintName:'Door paint',        unitRate:'door',                                prep:'doorPrep',        defD1:2.04, defD2:0.82, defCount:1},
-  frame:   {label:'D Frame',   d1:'Length', d2:'Width',  unitKind:true,  paintCat:'doorFrame',   paintName:'Door frame paint',  unitRate:'frame',                               prep:'doorFramePrep',   defD1:5.0,  defD2:0.1, defCount:1},
-  window:  {label:'Window',    d1:'Length', d2:'Width',  unitKind:true,  paintCat:'windowFrame', paintName:'Window frame paint',unitRate:'wndw',                                prep:'windowFramePrep', defD1:6.0,  defD2:0.1, defCount:1},
-};
-const KIND_ORDER = ['wall','ceiling','door','frame','window'];
-
-const ROOM_NAME_SUGGESTIONS = ['Bedroom 1','Bedroom 2','Bedroom 3','Main bedroom','Ensuite','Bathroom','Kitchen','Living room','Dining room','Hallway','Laundry','Study','Garage'];
-
-// ---------------------------------------------------------------------------
-// STATE
-// ---------------------------------------------------------------------------
-let roomIdCounter = 0;
-let objIdCounter = 0;
-let planIdCounter = 0;
-let rooms = [];
-let readyToCalculate = false;
-
-let paintPlan = { ceilingFinal: [], primer: [], wallFinal: [], doorPaint: [], doorFrame: [], windowFrame: [] };
-const PLAN_CATS = ['ceilingFinal','primer','wallFinal','doorPaint','doorFrame','windowFrame'];
-const PLAN_EL_ID = { ceilingFinal:'planCeilingFinal', primer:'planPrimer', wallFinal:'planWallFinal', doorPaint:'planDoorPaint', doorFrame:'planDoorFrame', windowFrame:'planWindowFrame' };
-const PLAN_LABELS = { ceilingFinal:'Ceiling paint', primer:'Primer paint', wallFinal:'Wall paint', doorPaint:'Door paint', doorFrame:'Door frame paint', windowFrame:'Window frame paint' };
-
-let taskState = { ceilingPrep:[], wallPrep:[], doorPrep:[], doorFramePrep:[], windowFramePrep:[] };
-const PREP_DEFS = { ceilingPrep:CEILING_PREP, wallPrep:WALL_PREP, doorPrep:DOOR_PREP, doorFramePrep:DOORFRAME_PREP, windowFramePrep:WINDOWFRAME_PREP };
-function initTasks(){
-  Object.keys(PREP_DEFS).forEach(k => { taskState[k] = PREP_DEFS[k].map(t => ({on:t.defaultOn, pct:100})); });
-}
-
-// ---------------------------------------------------------------------------
-// ROOMS & OBJECTS
-// ---------------------------------------------------------------------------
-function newObject(kind){
-  const K = KINDS[kind];
-  objIdCounter++;
-  return { id:objIdCounter, kind, label:'', d1:K.defD1, d2:K.defD2, count:K.defCount,
-           type:0, coats:2, prim:0, primCoats:0 };
-}
-function addRoom(name){
-  roomIdCounter++;
-  // A fresh room starts with the two objects every room has, ready to measure.
-  rooms.push({ id:roomIdCounter, name: name || ('Room ' + roomIdCounter), notes:'', furnPct:0,
-               objects: [newObject('ceiling'), newObject('wall')] });
-  renderRooms();
-  if (readyToCalculate) calculate();
-}
-function removeRoom(id){
-  rooms = rooms.filter(r => r.id !== id);
-  renderRooms();
-  calculate();
-}
-function duplicateRoom(id){
-  const src = rooms.find(r => r.id === id);
-  if (!src) return;
-  roomIdCounter++;
-  const copy = JSON.parse(JSON.stringify(src));
-  copy.id = roomIdCounter;
-  copy.name = src.name + ' copy';
-  copy.objects.forEach(o => { objIdCounter++; o.id = objIdCounter; });
-  rooms.splice(rooms.indexOf(src) + 1, 0, copy);
-  renderRooms();
-  calculate();
-}
-function updateRoom(id, field, value){
-  const r = rooms.find(x => x.id === id);
-  if (!r) return;
-  r[field] = (field === 'name' || field === 'notes') ? value : (parseFloat(value) || 0);
-  calculate();
-}
-function addObject(roomId, kind){
-  const r = rooms.find(x => x.id === roomId);
-  if (!r) return;
-  r.objects.push(newObject(kind));
-  renderRooms();
-  calculate();
-}
-function removeObject(roomId, objId){
-  const r = rooms.find(x => x.id === roomId);
-  if (!r) return;
-  r.objects = r.objects.filter(o => o.id !== objId);
-  renderRooms();
-  calculate();
-}
-function updateObject(roomId, objId, field, value){
-  const r = rooms.find(x => x.id === roomId);
-  if (!r) return;
-  const o = r.objects.find(x => x.id === objId);
-  if (!o) return;
-  o[field] = (field === 'label') ? value : (parseFloat(value) || 0);
-  // Primer coats follow the primer type: picking a type fills coats to 1 if blank,
-  // clearing the type blanks the coats again.
-  if (field === 'prim') {
-    const pcEl = document.getElementById('primCoats_' + o.id);
-    if (o.prim > 0 && !o.primCoats) { o.primCoats = 1; if (pcEl) pcEl.value = 1; }
-    else if (o.prim <= 0) { o.primCoats = 0; if (pcEl) pcEl.value = ''; }
-  }
-  calculate();
-}
-function objArea(o){ return (o.d1 || 0) * (o.d2 || 0) * (o.count || 0); }
-
-// ---------------------------------------------------------------------------
-// RENDER — rooms & objects. Field edits update in place (no re-render, keeps
-// keyboard focus); structural changes (add/remove/duplicate) re-render.
-// ---------------------------------------------------------------------------
-function renderRooms(){
-  const el = document.getElementById('roomsList');
-  el.innerHTML = rooms.map(r => `
-    <div class="room-card" data-id="${r.id}">
-      <div class="top">
-        <input class="room-name" list="roomNames" value="${r.name}" oninput="updateRoom(${r.id},'name',this.value)">
-        <div class="room-actions">
-          <button class="dup-btn" onclick="duplicateRoom(${r.id})" title="Duplicate this room">Duplicate</button>
-          <button class="del-btn" onclick="removeRoom(${r.id})">Remove</button>
-        </div>
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="kicker">Straight answers</div>
+    <h2>Short reads for people who'd rather be painting</h2>
+    <div class="art-list">
+      <a class="art-card" href="/articles-startup-costs.html">
+        <h3>What it costs to start a handyman painting business</h3>
+        <p>The full startup ledger: about $360 in tools, ~$1,000 in insurance, and the licensing rule to check before job one.</p>
+      </a>
+      <div class="art-card" style="border-left-color:var(--line)">
+        <h3>How to price a painting job</h3>
+        <p>A real quote, line by line — where the margin hides.</p>
+        <span class="soon">This week</span>
       </div>
-      <div class="mini-row" style="margin:0 0 8px;">
-        <div class="mini-field"><label>Furnished %</label><input type="number" min="0" step="10" value="${r.furnPct || ''}" title="0 = empty room, 100 = fully furnished (×1.5 labour), 200 = cluttered (×2)" oninput="updateRoom(${r.id},'furnPct',this.value)"></div>
+      <div class="art-card" style="border-left-color:var(--line)">
+        <h3>Margin vs markup — same profit, different maths</h3>
+        <p>Two systems, one trap, and the question that saves arguments: a percentage of <i>what</i>?</p>
+        <span class="soon">Coming</span>
       </div>
-      ${r.objects.map(o => renderObject(r, o)).join('')}
-      <div class="chips">
-        ${KIND_ORDER.map(k => `<button class="chip" onclick="addObject(${r.id},'${k}')">+ ${KINDS[k].label}</button>`).join('')}
-      </div>
-      <div class="area-line" id="roomAreas_${r.id}"></div>
-      <label style="margin-top:6px;">Notes</label>
-      <textarea class="notes" rows="2" placeholder="e.g. water damage on north wall" oninput="updateRoom(${r.id},'notes',this.value)">${r.notes || ''}</textarea>
-    </div>`).join('');
-  const dl = document.getElementById('roomNames');
-  dl.innerHTML = ROOM_NAME_SUGGESTIONS.map(n => `<option value="${n}">`).join('');
-}
-function renderObject(r, o){
-  const K = KINDS[o.kind];
-  return `
-    <div class="obj-card" data-oid="${o.id}">
-      <div class="obj-top">
-        <span class="obj-kind">${K.label}</span>
-        <input class="obj-label" type="text" placeholder="label (optional) — e.g. north wall" value="${o.label || ''}" oninput="updateObject(${r.id},${o.id},'label',this.value)">
-        <button class="del-btn plan-del" onclick="removeObject(${r.id},${o.id})">✕</button>
-      </div>
-      <div class="obj-dims">
-        <span class="obj-lbl">${K.d1}</span>
-        <input type="number" step="0.01" min="0" value="${o.d1 || ''}" oninput="updateObject(${r.id},${o.id},'d1',this.value)">
-        <span class="pair-x">×</span>
-        <span class="obj-lbl">${K.d2}</span>
-        <input type="number" step="0.01" min="0" value="${o.d2 || ''}" oninput="updateObject(${r.id},${o.id},'d2',this.value)">
-        <span class="pair-x">×</span>
-        <span class="obj-lbl">How many</span>
-        <input type="number" step="1" min="0" class="qty-in" value="${o.count ?? ''}" oninput="updateObject(${r.id},${o.id},'count',this.value)">
-        <span class="obj-area" id="objArea_${o.id}"></span>
-      </div>
-      <div class="obj-paint">
-        <span class="obj-lbl">Primer paint type</span>
-        <input type="number" min="0" step="1" value="${o.prim || ''}" title="Primer paint type # (0 = none)" oninput="updateObject(${r.id},${o.id},'prim',this.value)">
-        <span class="pair-x">×</span>
-        <span class="obj-lbl">coats</span>
-        <input type="number" min="0" step="1" class="coats-in" id="primCoats_${o.id}" value="${o.primCoats || ''}" title="Primer coats" oninput="updateObject(${r.id},${o.id},'primCoats',this.value)">
-        <input class="obj-desc" type="text" id="objDescPr_${o.id}" oninput="updateObjDesc(${r.id},${o.id},'prim',this.value)">
-      </div>
-      <div class="obj-paint">
-        <span class="obj-lbl">${K.paintName} type</span>
-        <input type="number" min="1" step="1" value="${o.type || ''}" title="${K.paintName} type #" oninput="updateObject(${r.id},${o.id},'type',this.value)">
-        <span class="pair-x">×</span>
-        <span class="obj-lbl">coats</span>
-        <input type="number" min="0" step="1" class="coats-in" value="${o.coats ?? ''}" title="Paint coats" oninput="updateObject(${r.id},${o.id},'coats',this.value)">
-        <input class="obj-desc" type="text" id="objDescP_${o.id}" oninput="updateObjDesc(${r.id},${o.id},'paint',this.value)">
-      </div>
-    </div>`;
-}
+    </div>
+  </div>
+</section>
 
-// Resolve the plan line an object's paint or primer assignment points at (null if unset)
-function planLineFor(o, which){
-  const cat = which === 'prim' ? 'primer' : KINDS[o.kind].paintCat;
-  const t = Math.round(which === 'prim' ? o.prim : o.type) || 0;
-  if (t <= 0) return null;
-  return paintPlan[cat][Math.min(t, paintPlan[cat].length) - 1] || null;
-}
-// Two-way description: editing it on the room card edits the same field as the
-// purchase section — one description per paint type, visible in both places.
-function updateObjDesc(roomId, objId, which, value){
-  const r = rooms.find(x => x.id === roomId);
-  const o = r && r.objects.find(x => x.id === objId);
-  if (!o) return;
-  const line = planLineFor(o, which);
-  if (!line) return;
-  line.color = value;
-  calculate();
-}
-
-// ---------------------------------------------------------------------------
-// PAINT PLAN — type lines per category (unchanged card, object-fed demand)
-// ---------------------------------------------------------------------------
-function addPlanLine(cat){
-  planIdCounter++;
-  paintPlan[cat].push({id:planIdCounter, coverage:0, color:'', tinSize:0, qty:0, price:0});
-  renderPlan();
-  calculate();
-}
-function removePlanLine(cat, id){
-  paintPlan[cat] = paintPlan[cat].filter(l => l.id !== id);
-  renderPlan();
-  calculate();
-}
-function updatePlanLine(cat, id, field, value){
-  const l = paintPlan[cat].find(x => x.id === id);
-  if (!l) return;
-  l[field] = field === 'color' ? value : (parseFloat(value) || 0);
-  calculate();
-}
-
-// Auto-create paint type lines: if any object references a type # that doesn't
-// exist yet in its category, create it. Trailing auto-created, never-filled,
-// no-longer-referenced lines get pruned (self-heals typos). Manually added or
-// filled lines are never touched.
-const MAX_TYPES = 8;
-function ensurePlanLines(){
-  const wants = {ceilingFinal:0, primer:0, wallFinal:0, doorPaint:0, doorFrame:0, windowFrame:0};
-  const bump = (cat,v) => { const n = Math.round(v)||0; if (n > wants[cat]) wants[cat] = Math.min(n, MAX_TYPES); };
-  rooms.forEach(r => r.objects.forEach(o => {
-    bump(KINDS[o.kind].paintCat, o.type);
-    bump('primer', o.prim);
-  }));
-  let changed = false;
-  PLAN_CATS.forEach(cat => {
-    while (paintPlan[cat].length < wants[cat]) {
-      planIdCounter++;
-      paintPlan[cat].push({id:planIdCounter, coverage:0, color:'', tinSize:0, qty:0, price:0, auto:true});
-      changed = true;
-    }
-    while (paintPlan[cat].length > wants[cat]) {
-      const last = paintPlan[cat][paintPlan[cat].length-1];
-      if (!(last.auto && !last.coverage && !last.color && !last.tinSize && !last.qty && !last.price)) break;
-      paintPlan[cat].pop();
-      changed = true;
-    }
-  });
-  if (changed) renderPlan();
-}
-
-function renderPlan(){
-  PLAN_CATS.forEach(cat => {
-    const el = document.getElementById(PLAN_EL_ID[cat]);
-    el.innerHTML = paintPlan[cat].map((l,i) => `
-      <div class="plan-item">
-        <div class="plan-title">${PLAN_LABELS[cat]} type ${i+1}<button class="del-btn plan-del" style="float:right;" onclick="removePlanLine('${cat}',${l.id})">✕</button></div>
-        <div class="plan-line">
-          <span class="obj-lbl">Coverage</span>
-          <input type="number" step="0.5" min="0.1" class="plan-coverage" value="${l.coverage || ''}" title="How many sqm one litre covers" oninput="updatePlanLine('${cat}',${l.id},'coverage',this.value)">
-          <span class="plan-suffix">sqm per litre</span>
-          <input type="text" class="plan-color" id="planColor_${cat}_${l.id}" placeholder="description — colour / product" value="${l.color}" oninput="updatePlanLine('${cat}',${l.id},'color',this.value)">
-        </div>
-        <div class="plan-status" id="planStatus_${cat}_${l.id}">Required 0.0L</div>
-        <div class="plan-buy">
-          <span class="obj-lbl" style="font-weight:700;">Purchase:</span>
-          <span class="plan-buy-field"><span>Tin size</span><input type="number" step="0.5" min="0" value="${l.tinSize || ''}" title="Tin size litres" oninput="updatePlanLine('${cat}',${l.id},'tinSize',this.value)"><span>L</span></span>
-          <span class="plan-buy-field"><span>×</span><input type="number" step="1" min="0" value="${l.qty || ''}" title="Tins bought" oninput="updatePlanLine('${cat}',${l.id},'qty',this.value)"><span>tins</span></span>
-          <span class="plan-buy-field"><span>@ $</span><input type="number" step="0.01" min="0" value="${l.price || ''}" title="Price per tin" oninput="updatePlanLine('${cat}',${l.id},'price',this.value)"><span>per tin</span></span>
-        </div>
-      </div>`).join('') + `<button class="add-btn plan-add" onclick="addPlanLine('${cat}')">+ Add type</button>`;
-  });
-}
-
-// ---------------------------------------------------------------------------
-// PREP TASK UI (job-wide per kind, unchanged behaviour)
-// ---------------------------------------------------------------------------
-function toggleTask(group, i){
-  taskState[group][i].on = !taskState[group][i].on;
-  renderTaskGroup(group + 'El', group, PREP_DEFS[group]);
-  calculate();
-}
-function adjustPct(group, i, delta){
-  const s = taskState[group][i];
-  s.pct = Math.max(10, Math.min(300, s.pct + delta));
-  renderTaskGroup(group + 'El', group, PREP_DEFS[group]);
-  calculate();
-}
-const PREP_EL_ID = { ceilingPrep:'ceilingPrepTasks', wallPrep:'wallPrepTasks', doorPrep:'doorPrepTasks', doorFramePrep:'doorFramePrepTasks', windowFramePrep:'windowFramePrepTasks' };
-function renderTaskGroup(_elIdIgnored, group, defs){
-  const el = document.getElementById(PREP_EL_ID[group]);
-  el.innerHTML = defs.map((t,i) => {
-    const s = taskState[group][i];
-    return `
-    <div class="task-row">
-      <div class="top-line">
-        <button class="toggle ${s.on?'on':''}" onclick="toggleTask('${group}',${i})" aria-label="Toggle ${t.name}"></button>
-        <span class="task-name">${t.name}</span>
-      </div>
-      ${s.on ? `
-      <div class="stepper">
-        <button onclick="adjustPct('${group}',${i},-10)" aria-label="Decrease">-</button>
-        <span class="val">${s.pct}%</span>
-        <button onclick="adjustPct('${group}',${i},10)" aria-label="Increase">+</button>
-        <span class="val-label">100% = standard effort</span>
-      </div>` : ''}
-    </div>`;
-  }).join('');
-}
-function renderTasks(){
-  Object.keys(PREP_DEFS).forEach(g => renderTaskGroup(null, g, PREP_DEFS[g]));
-}
-
-// ---------------------------------------------------------------------------
-// COSTING HELPERS
-// ---------------------------------------------------------------------------
-function furnMult(r){ return 1 + (r.furnPct || 0) / 200; }
-
-// Job-wide prep line for sqm kinds: catalogue rates × aggregate area
-function taskLine(def, area, furnishedArea, on, pct, hourlyRate){
-  const D = on ? (pct/100) : 0;
-  if (D === 0) return { hours:0, materialCost:0, timeCost:0 };
-  let hours;
-  if (def.flatHours != null) hours = def.flatHours * D;
-  else hours = def.sqmPerHr === 0 ? 0 : (1/def.sqmPerHr) * furnishedArea * D;
-  const materialCost = D * (def.matPerSqm || 0) * area;
-  return { hours, materialCost, timeCost: hours * hourlyRate };
-}
-// Job-wide prep line for unit kinds: catalogue rates × aggregate count
-function unitTaskLine(def, qty, furnishedQty, on, pct, hourlyRate){
-  const D = on ? (pct/100) : 0;
-  if (D === 0) return { hours:0, materialCost:0, timeCost:0 };
-  const hours = def.flatHoursPerUnit * furnishedQty * D;
-  const materialCost = def.matPerUnit * qty * D;
-  return { hours, materialCost, timeCost: hours * hourlyRate };
-}
-
-// ---------------------------------------------------------------------------
-// CALCULATE — single pass over the object model
-// ---------------------------------------------------------------------------
-function calculate(){
-  ensurePlanLines();
-  const hourlyRate = DEFAULT_HOURLY_RATE;
-
-  // ---- aggregate per kind (feeds job-wide prep) + per-object coat labour ----
-  const agg = {};
-  KIND_ORDER.forEach(k => agg[k] = { area:0, furnArea:0, count:0, furnCount:0 });
-  let ceilCoatHrs = 0, wallCoatHrs = 0;
-  let doorCoatHrs = 0, doorCoatMat = 0, frameCoatHrs = 0, frameCoatMat = 0, wndwCoatHrs = 0, wndwCoatMat = 0;
-
-  rooms.forEach(r => {
-    const f = furnMult(r);
-    r.objects.forEach(o => {
-      const K = KINDS[o.kind];
-      const a = objArea(o);
-      agg[o.kind].area += a;
-      agg[o.kind].furnArea += a * f;
-      agg[o.kind].count += (o.count || 0);
-      agg[o.kind].furnCount += (o.count || 0) * f;
-
-      if (!K.unitKind) {
-        // sqm kinds: labour = furnished area × coats ÷ rate, per paint and primer
-        const paintR = COAT_RATES[K.paintRate].sqmPerHr;
-        const primR = COAT_RATES[K.primerRate].sqmPerHr;
-        const hrs = a * f * (o.coats || 0) / paintR + (o.prim > 0 ? a * f * (o.primCoats || 0) / primR : 0);
-        if (o.kind === 'ceiling') ceilCoatHrs += hrs; else wallCoatHrs += hrs;
-      } else {
-        // unit kinds: labour + sundries per unit per coat (paint + primer coats)
-        const R = COAT_RATES[K.unitRate];
-        const totCoats = (o.coats || 0) + (o.prim > 0 ? (o.primCoats || 0) : 0);
-        const hrs = (o.count || 0) * f * totCoats * R.hrsPerUnit;
-        const mat = (o.count || 0) * totCoats * R.matPerUnit;
-        if (o.kind === 'door') { doorCoatHrs += hrs; doorCoatMat += mat; }
-        else if (o.kind === 'frame') { frameCoatHrs += hrs; frameCoatMat += mat; }
-        else { wndwCoatHrs += hrs; wndwCoatMat += mat; }
-      }
-    });
-  });
-
-  // ---- paint purchase outlay: tins bought × price + one roller per tin ----
-  const rollerPrice = parseFloat(document.getElementById('rollerPrice').value) || 0;
-  let tinsTotal = 0, paintPurchaseCost = 0;
-  PLAN_CATS.forEach(cat => paintPlan[cat].forEach(l => {
-    tinsTotal += (l.qty || 0);
-    paintPurchaseCost += (l.qty || 0) * (l.price || 0);
-  }));
-  const materialsOutlay = paintPurchaseCost + tinsTotal * rollerPrice;
-
-  // ---- job-wide prep (per-object prep = next chunk) ----
-  const ceilingPrepLines = CEILING_PREP.map((t,i) => taskLine(t, agg.ceiling.area, agg.ceiling.furnArea, taskState.ceilingPrep[i].on, taskState.ceilingPrep[i].pct, hourlyRate));
-  const wallPrepLines = WALL_PREP.map((t,i) => taskLine(t, agg.wall.area, agg.wall.furnArea, taskState.wallPrep[i].on, taskState.wallPrep[i].pct, hourlyRate));
-  const doorPrepLines = DOOR_PREP.map((t,i) => unitTaskLine(t, agg.door.count, agg.door.furnCount, taskState.doorPrep[i].on, taskState.doorPrep[i].pct, hourlyRate));
-  const doorFramePrepLines = DOORFRAME_PREP.map((t,i) => unitTaskLine(t, agg.frame.count, agg.frame.furnCount, taskState.doorFramePrep[i].on, taskState.doorFramePrep[i].pct, hourlyRate));
-  const windowFramePrepLines = WINDOWFRAME_PREP.map((t,i) => unitTaskLine(t, agg.window.count, agg.window.furnCount, taskState.windowFramePrep[i].on, taskState.windowFramePrep[i].pct, hourlyRate));
-
-  const sumMat = arr => arr.reduce((a,l)=>a+l.materialCost,0);
-  const sumTime = arr => arr.reduce((a,l)=>a+l.timeCost,0);
-
-  const nonPaintMaterialsCeiling = sumMat(ceilingPrepLines);
-  const nonPaintMaterialsWalls = sumMat(wallPrepLines);
-  const labourPrepCeiling = sumTime(ceilingPrepLines);
-  const labourPrepWalls = sumTime(wallPrepLines);
-  const labourPaintCeiling = ceilCoatHrs * hourlyRate;
-  const labourPaintWalls = wallCoatHrs * hourlyRate;
-
-  const doorMaterials = sumMat(doorPrepLines) + doorCoatMat;
-  const doorLabour = sumTime(doorPrepLines) + doorCoatHrs * hourlyRate;
-  const doorFrameMaterials = sumMat(doorFramePrepLines) + frameCoatMat;
-  const doorFrameLabour = sumTime(doorFramePrepLines) + frameCoatHrs * hourlyRate;
-  const windowFrameMaterials = sumMat(windowFramePrepLines) + wndwCoatMat;
-  const windowFrameLabour = sumTime(windowFramePrepLines) + wndwCoatHrs * hourlyRate;
-
-  const total = materialsOutlay + nonPaintMaterialsCeiling + nonPaintMaterialsWalls
-    + labourPrepCeiling + labourPaintCeiling + labourPrepWalls + labourPaintWalls
-    + doorMaterials + doorLabour + doorFrameMaterials + doorFrameLabour + windowFrameMaterials + windowFrameLabour;
-
-  document.getElementById('totalOut').textContent = '$' + total.toFixed(2);
-
-  // ---- demand per paint type: walk objects, split raw area / coat-m² / refs ----
-  const split = {};
-  PLAN_CATS.forEach(cat => {
-    const n = paintPlan[cat].length;
-    split[cat] = { areas:new Array(n).fill(0), coatSqm:new Array(n).fill(0), refs:new Array(n).fill(0) };
-  });
-  rooms.forEach(r => r.objects.forEach(o => {
-    const a = objArea(o);
-    // paint routing (blank type defaults into type 1 of its category, matching v1 behaviour)
-    const cat = KINDS[o.kind].paintCat;
-    const nP = paintPlan[cat].length;
-    if (nP > 0) {
-      const idx = Math.max(1, Math.min(Math.round(o.type) || 1, nP)) - 1;
-      split[cat].areas[idx] += a;
-      split[cat].coatSqm[idx] += a * (o.coats || 0);
-      if ((Math.round(o.type) || 0) > 0) split[cat].refs[idx]++;
-    }
-    // primer routing (0/blank = no primer at all)
-    const nPr = paintPlan.primer.length;
-    const rawPrim = Math.round(o.prim) || 0;
-    if (nPr > 0 && rawPrim > 0) {
-      const idx = Math.max(1, Math.min(rawPrim, nPr)) - 1;
-      split.primer.areas[idx] += a;
-      split.primer.coatSqm[idx] += a * (o.primCoats || 0);
-      split.primer.refs[idx]++;
-    }
-  }));
-
-  // ---- status per type: report the first broken link in the demand chain ----
-  // assigned? → has area? → coats set? → coverage entered? → NEEDED vs purchased
-  PLAN_CATS.forEach(cat => {
-    paintPlan[cat].forEach((l,i) => {
-      const area = split[cat].areas[i] || 0;
-      const refs = split[cat].refs[i] || 0;
-      const sqm = split[cat].coatSqm[i] || 0;
-      const needed = l.coverage > 0 ? sqm / l.coverage : 0;
-      const bought = (l.qty || 0) * (l.tinSize || 0);
-      const elx = document.getElementById(`planStatus_${cat}_${l.id}`);
-      if (!elx) return;
-      if (refs === 0 && bought <= 0) {
-        elx.className = 'plan-status';
-        elx.textContent = `Required: 0.0L — no object uses this type yet`;
-      } else if (refs > 0 && area <= 0) {
-        elx.className = 'plan-status';
-        elx.textContent = `Used on ${refs} object${refs>1?'s':''} but no area yet — check dimensions & how-many`;
-      } else if (area > 0 && sqm <= 0) {
-        elx.className = 'plan-status short';
-        elx.textContent = `${area.toFixed(1)} m² assigned — coats set to 0, nothing required`;
-      } else if (sqm > 0 && !(l.coverage > 0)) {
-        elx.className = 'plan-status short';
-        elx.textContent = `Required: ${sqm.toFixed(1)} m² of coating (${area.toFixed(1)} m² × coats) — enter coverage to get litres`;
-      } else if (bought + 0.0001 >= needed) {
-        elx.className = 'plan-status ok';
-        elx.textContent = `Required ${needed.toFixed(1)}L (${sqm.toFixed(1)} m²) · Purchased ${bought.toFixed(1)}L ✓ enough` + (bought - needed >= 0.05 ? ` (+${(bought-needed).toFixed(1)}L spare)` : '');
-      } else {
-        elx.className = 'plan-status short';
-        elx.textContent = `Required ${needed.toFixed(1)}L (${sqm.toFixed(1)} m²) · Purchased ${bought.toFixed(1)}L ✗ SHORT ${(needed-bought).toFixed(1)}L — buy more`;
-      }
-    });
-  });
-
-  // ---- two-way description sync: room-card inputs mirror the type's description ----
-  const syncDesc = (id, line, ph) => {
-    const e = document.getElementById(id);
-    if (!e || document.activeElement === e) return;
-    if (!line) { e.value = ''; e.disabled = true; e.placeholder = ph; }
-    else { e.disabled = false; e.placeholder = 'description — colour / product'; e.value = line.color || ''; }
-  };
-  rooms.forEach(r => r.objects.forEach(o => {
-    syncDesc('objDescP_' + o.id, planLineFor(o, 'paint'), 'set type # first');
-    syncDesc('objDescPr_' + o.id, planLineFor(o, 'prim'), (Math.round(o.prim)||0) > 0 ? 'set type # first' : 'no primer');
-  }));
-  PLAN_CATS.forEach(cat => paintPlan[cat].forEach(l => {
-    const ce = document.getElementById(`planColor_${cat}_${l.id}`);
-    if (ce && document.activeElement !== ce) ce.value = l.color || '';
-  }));
-
-  // ---- live readouts: per-object area chip + per-room area line ----
-  rooms.forEach(r => {
-    const parts = [];
-    const kindSums = {};
-    r.objects.forEach(o => {
-      const a = objArea(o);
-      kindSums[o.kind] = (kindSums[o.kind] || 0) + a;
-      const e = document.getElementById('objArea_' + o.id);
-      if (e) e.textContent = a > 0 ? a.toFixed(1) + ' m²' : '';
-    });
-    KIND_ORDER.forEach(k => { if (kindSums[k]) parts.push(`<span>${KINDS[k].label} = <b>${kindSums[k].toFixed(1)}</b> m²</span>`); });
-    const line = document.getElementById('roomAreas_' + r.id);
-    if (line) line.innerHTML = parts.length ? '<span style="font-weight:700;">Totals:</span>' + parts.join('') : '<span class="hint">Totals: no areas yet</span>';
-  });
-
-  document.getElementById('breakdown').innerHTML = `
-    <div><span>Ceiling area</span><span>${agg.ceiling.area.toFixed(2)} sqm</span></div>
-    <div><span>Wall area</span><span>${agg.wall.area.toFixed(2)} sqm</span></div>
-    <div><span>Paint purchase outlay</span><span>$${materialsOutlay.toFixed(2)}</span></div>
-    <div><span>Ceiling prep materials</span><span>$${nonPaintMaterialsCeiling.toFixed(2)}</span></div>
-    <div><span>Wall prep materials</span><span>$${nonPaintMaterialsWalls.toFixed(2)}</span></div>
-    <div><span>Ceiling prep labour</span><span>$${labourPrepCeiling.toFixed(2)}</span></div>
-    <div><span>Ceiling paint labour</span><span>$${labourPaintCeiling.toFixed(2)}</span></div>
-    <div><span>Wall prep labour</span><span>$${labourPrepWalls.toFixed(2)}</span></div>
-    <div><span>Wall paint labour</span><span>$${labourPaintWalls.toFixed(2)}</span></div>
-    <div><span>Doors (${agg.door.count}) materials + labour</span><span>$${(doorMaterials+doorLabour).toFixed(2)}</span></div>
-    <div><span>Door frames (${agg.frame.count}) materials + labour</span><span>$${(doorFrameMaterials+doorFrameLabour).toFixed(2)}</span></div>
-    <div><span>Window frames (${agg.window.count}) materials + labour</span><span>$${(windowFrameMaterials+windowFrameLabour).toFixed(2)}</span></div>
-    <div><span>Total</span><span>$${total.toFixed(2)}</span></div>
-  `;
-  saveState();
-}
-
-// ---------------------------------------------------------------------------
-// PERSISTENCE — v2 saves objects; v1 saves migrate (fixed surfaces → objects)
-// ---------------------------------------------------------------------------
-const SAVE_KEY = 'paintcalc_quote_v6';
-let suppressSave = false;
-let saveTimer = null;
-
-function collectState(){
-  return {
-    v: 2,
-    job: {
-      clientName: document.getElementById('clientName').value,
-      clientPhone: document.getElementById('clientPhone').value,
-      address: document.getElementById('address').value,
-      jobdate: document.getElementById('jobdate').value,
-      quoteExpiry: document.getElementById('quoteExpiry').value,
-      expiryManual: expiryManual,
-      quoteNumber: document.getElementById('quoteNumber').value,
-      jobNotes: document.getElementById('jobNotes').value,
-      jobStartDate: document.getElementById('jobStartDate').value,
-      jobFinishDate: document.getElementById('jobFinishDate').value,
-      rollerPrice: document.getElementById('rollerPrice').value,
-    },
-    rooms, paintPlan, taskState,
-    counters: { roomIdCounter, objIdCounter, planIdCounter },
-  };
-}
-function saveState(){
-  if (suppressSave || !readyToCalculate) return;
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(collectState()));
-      const s = document.getElementById('saveStatus');
-      if (s) s.textContent = 'Saved on this device ' + new Date().toLocaleTimeString();
-    } catch(e) { /* storage full or unavailable — fail silently, app still works */ }
-  }, 400);
-}
-
-// v1 room (fixed surface slots) → v2 objects. Ceiling & wall always carry over;
-// doors/frames/windows only if a count was entered.
-function migrateV1Room(old){
-  roomIdCounter++;
-  const r = { id:roomIdCounter, name:old.name || 'Room', notes:old.notes || '', furnPct:old.furnPct || 0, objects: [] };
-  const push = (kind, d1, d2, count, type, coats, prim, primCoats) => {
-    objIdCounter++;
-    r.objects.push({ id:objIdCounter, kind, label:'', d1:d1||0, d2:d2||0, count:count??1,
-      type:type||0, coats:(coats===undefined?2:coats), prim:prim||0, primCoats:(primCoats===undefined?1:primCoats) });
-  };
-  push('ceiling', old.ceilLength, old.ceilWidth, old.qtyCeil ?? 1, old.lineCeiling, old.coatsCeil, old.primCeil, old.coatsPrimCeil);
-  push('wall', old.wallHeight, old.wallLength, old.qtyWall ?? 1, old.lineWall, old.coatsWall, old.primWall, old.coatsPrimWall);
-  if (old.qtyDoors > 0) push('door', old.doorH, old.doorW, old.qtyDoors, old.lineDoorPaint, old.coatsDoor, old.primDoor, old.coatsPrimDoor);
-  if (old.qtyFrames > 0) push('frame', old.frameL, old.frameW, old.qtyFrames, old.lineDoorFrame, old.coatsFrame, old.primFrame, old.coatsPrimFrame);
-  if (old.qtyWindows > 0) push('window', old.wndwL, old.wndwW, old.qtyWindows, old.lineWindowFrame, old.coatsWndw, old.primWndw, old.coatsPrimWndw);
-  return r;
-}
-
-function loadState(){
-  let raw;
-  try { raw = localStorage.getItem(SAVE_KEY); } catch(e) { return false; }
-  if (!raw) return false;
-  let st;
-  try { st = JSON.parse(raw); } catch(e) { return false; }
-  if (!st || !Array.isArray(st.rooms)) return false;
-  if (st.v !== 1 && st.v !== 2) return false;
-  try {
-    suppressSave = true;
-    if (st.v === 2) {
-      rooms = st.rooms;
-    } else {
-      rooms = st.rooms.map(migrateV1Room);
-    }
-    paintPlan = st.paintPlan || paintPlan;
-    PLAN_CATS.forEach(cat => { if (!Array.isArray(paintPlan[cat])) paintPlan[cat] = []; });
-    // Merge saved prep toggles onto current defs (v1 saves also had coat groups — ignored)
-    Object.keys(taskState).forEach(k => {
-      if (st.taskState && Array.isArray(st.taskState[k])) {
-        taskState[k] = taskState[k].map((def,i) => st.taskState[k][i] || def);
-      }
-    });
-    roomIdCounter = Math.max(st.counters?.roomIdCounter || 100, roomIdCounter);
-    objIdCounter = Math.max(st.counters?.objIdCounter || 0, objIdCounter, 1000);
-    planIdCounter = st.counters?.planIdCounter || 100;
-    const j = st.job || {};
-    document.getElementById('clientName').value = j.clientName || '';
-    document.getElementById('clientPhone').value = j.clientPhone || '';
-    document.getElementById('address').value = j.address || '';
-    document.getElementById('jobdate').value = j.jobdate || '';
-    document.getElementById('quoteExpiry').value = j.quoteExpiry || '';
-    expiryManual = !!j.expiryManual;
-    if (!j.quoteExpiry) syncExpiry();
-    document.getElementById('quoteNumber').value = j.quoteNumber || '';
-    document.getElementById('jobNotes').value = j.jobNotes || '';
-    document.getElementById('jobStartDate').value = j.jobStartDate || '';
-    document.getElementById('jobFinishDate').value = j.jobFinishDate || '';
-    document.getElementById('rollerPrice').value = j.rollerPrice || '';
-    renderRooms();
-    renderPlan();
-    renderTasks();
-    suppressSave = false;
-    return true;
-  } catch(e) {
-    suppressSave = false;
-    return false; // corrupted save — fall through to fresh start
-  }
-}
-function newQuote(){
-  if (!confirm('Start a new quote? The current one will be cleared from this device.')) return;
-  try { localStorage.removeItem(SAVE_KEY); } catch(e) {}
-  location.reload();
-}
-
-// ---------------------------------------------------------------------------
-// QUOTE EXPIRY — auto = quote date + 30 days. Editing "Valid until" by hand
-// switches it to manual; clearing it by hand switches it back to auto.
-// ---------------------------------------------------------------------------
-let expiryManual = false;
-function syncExpiry(){
-  if (expiryManual) return;
-  const d = document.getElementById('jobdate').value;
-  const ex = document.getElementById('quoteExpiry');
-  if (!d) { ex.value = ''; return; }
-  const dt = new Date(d + 'T00:00:00');
-  dt.setDate(dt.getDate() + 30);
-  ex.value = dt.getFullYear() + '-' + String(dt.getMonth()+1).padStart(2,'0') + '-' + String(dt.getDate()).padStart(2,'0');
-}
-document.getElementById('jobdate').addEventListener('input', syncExpiry);
-document.getElementById('quoteExpiry').addEventListener('input', function(){
-  if (this.value === '') { expiryManual = false; syncExpiry(); }
-  else expiryManual = true;
-});
-
-document.getElementById('rollerPrice').addEventListener('input', calculate);
-['clientName','clientPhone','address','jobdate','quoteExpiry','quoteNumber','jobNotes','jobStartDate','jobFinishDate'].forEach(id => {
-  document.getElementById(id).addEventListener('input', saveState);
-});
-
-// ---------------------------------------------------------------------------
-// BOOT
-// ---------------------------------------------------------------------------
-initTasks();
-const restored = loadState();
-if (!restored) {
-  renderTasks();
-  addRoom('Room 1');
-}
-readyToCalculate = true;
-calculate();
-</script>
+<footer>
+  <div class="wrap">
+    <div><a href="/calculator/">Calculator</a> · <a href="https://www.youtube.com/@paintquote" target="_blank" rel="noopener">YouTube</a> · <a href="/articles-startup-costs.html">Articles</a></div>
+    <div>General information and personal experience, not professional advice. Costs shown are examples; your prices, taxes, insurance and legal requirements differ by location. Verify licensing rules with your official local regulator before starting work. Not financial, legal or insurance advice. You are responsible for your own business decisions.</div>
+    <div>© PaintQuote · paintquote.net</div>
+  </div>
+</footer>
 </body>
 </html>

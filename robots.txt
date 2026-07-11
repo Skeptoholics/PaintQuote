@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://paintquote.net/sitemap.xml
