@@ -118,6 +118,10 @@
   .sd-block.leftover{border-left:3px solid var(--warn)}
   .sel-row{display:flex;gap:5px;align-items:stretch}
   .sel-row select{flex:1;min-width:0}
+  .charge-mode{margin-top:10px;padding:8px 10px;border:1px solid var(--line);border-left:3px solid var(--accent2,#4a5d7a);border-radius:8px;background:#f7f8fb}
+  .charge-mode label{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:800;display:block;margin-bottom:4px}
+  .charge-mode select{width:100%}
+  .charge-note{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.3}
   .sd-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
   .sd-title{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:800}
   .sd-figure{font-size:16px;font-weight:800;white-space:nowrap}
@@ -440,10 +444,10 @@ function defaultSettings(){
 }
 function defaultProducts(){
   return [
-    {id:uid('prod'),category:'primer',name:'Primer / sealer',coverage:10,tinSize:0,autoQty:true,qty:0,price:0},
-    {id:uid('prod'),category:'ceiling',name:'Ceiling white',coverage:10,tinSize:0,autoQty:true,qty:0,price:0},
-    {id:uid('prod'),category:'wall',name:'Wall paint',coverage:10,tinSize:0,autoQty:true,qty:0,price:0},
-    {id:uid('prod'),category:'trim',name:'Trim enamel',coverage:10,tinSize:0,autoQty:true,qty:0,price:0}
+    {id:uid('prod'),category:'primer',name:'Primer / sealer',coverage:10,tinSize:0,autoQty:true,qty:0,price:0,chargeMode:'tin'},
+    {id:uid('prod'),category:'ceiling',name:'Ceiling white',coverage:10,tinSize:0,autoQty:true,qty:0,price:0,chargeMode:'tin'},
+    {id:uid('prod'),category:'wall',name:'Wall paint',coverage:10,tinSize:0,autoQty:true,qty:0,price:0,chargeMode:'tin'},
+    {id:uid('prod'),category:'trim',name:'Trim enamel',coverage:10,tinSize:0,autoQty:true,qty:0,price:0,chargeMode:'tin'}
   ];
 }
 function newPrepState(){
@@ -483,6 +487,7 @@ function normaliseDB(data){
 function normaliseQuote(q){
   q.status=q.status||'Draft'; q.job={...createJobDefaults(),...(q.job||{})};
   q.products=Array.isArray(q.products)?q.products:defaultProducts();
+  q.products.forEach(p=>{ p.chargeMode=p.chargeMode==='used'?'used':'tin'; });
   q.rooms=Array.isArray(q.rooms)?q.rooms:[];
   q.rooms.forEach(r=>{
     r.accessAllowance=num(r.accessAllowance); r.objects=Array.isArray(r.objects)?r.objects:[];
@@ -630,6 +635,14 @@ function renderProducts(){
         <div><label>Tin size L <span class="req" id="req_tin_${p.id}" style="display:none">*</span></label><input type="number" min="0" step="0.5" inputmode="decimal" placeholder="e.g. 4, 10, 15" value="${p.tinSize?num(p.tinSize):''}" oninput="updateProduct('${p.id}','tinSize',this.value)"></div>
         <div><label>Price per tin $ <span class="req" id="req_price_${p.id}" style="display:none">*</span></label><input type="number" min="0" step="0.01" inputmode="decimal" value="${num(p.price)}" oninput="updateProduct('${p.id}','price',this.value)"></div>
       </div>
+      <div class="charge-mode">
+        <label>Charge the client for</label>
+        <select onchange="updateProduct('${p.id}','chargeMode',this.value)">
+          <option value="tin" ${p.chargeMode!=='used'?'selected':''}>Whole tin(s) — the full purchase</option>
+          <option value="used" ${p.chargeMode==='used'?'selected':''}>Only paint used — you keep the leftover</option>
+        </select>
+        <div class="charge-note">${p.chargeMode==='used'?'Client pays for the litres used only; the surplus stays yours for other jobs. Best for stock colours.':'Client pays for every tin bought. Best for custom colours that cannot be reused elsewhere.'}</div>
+      </div>
       <div class="sd">
         <div class="sd-block demand">
           <div class="sd-head"><span class="sd-title">Step 1 · Paint required (demand)</span><span class="sd-figure" id="preq_${p.id}">${s.litres.toFixed(2)} L</span></div>
@@ -640,12 +653,12 @@ function renderProducts(){
           <div class="sd-purchase">
             <div class="tinbox"><label>Tins to buy</label><input type="number" min="0" step="1" inputmode="numeric" id="ptins_${p.id}" value="${s.effectiveQty}" ${p.autoQty?'disabled':''} oninput="updateProduct('${p.id}','qty',this.value)"></div>
             <label class="auto-toggle"><input type="checkbox" ${p.autoQty?'checked':''} onchange="updateProduct('${p.id}','autoQty',this.checked)"> Auto (whole tins)</label>
-            <span class="sd-cost" id="pcost_${p.id}">${money(s.cost)}</span>
+            <span class="sd-cost" id="pcost_${p.id}" title="Charged to the client for this paint (before markup)">${money(s.charge)}</span>
           </div>
         </div>
         <div class="sd-block leftover">
           <div class="sd-head"><span class="sd-title">Step 3 · Left over (surplus)</span><span class="sd-figure" id="pleft_${p.id}">${s.leftover.toFixed(2)} L</span></div>
-          <div class="sd-note">Purchased volume minus the volume required.</div>
+          <div class="sd-note" id="pleftnote_${p.id}">${p.chargeMode==='used'?'Not charged — yours to keep for other jobs.':'Included in the price — the client is billed for the full tin(s).'}</div>
         </div>
       </div>
       <div class="status-line ${s.cls}" id="pstatus_${p.id}">${esc(s.status)}</div>
@@ -669,6 +682,8 @@ function productStatus(p,d){
   const bought=effectiveQty*num(p.tinSize);
   const cost=effectiveQty*num(p.price);
   const leftover=Math.max(0,bought-litres);
+  const perLitre=num(p.tinSize)>0?num(p.price)/num(p.tinSize):0;
+  const charge=(p.chargeMode==='used')?litres*perLitre:cost;
   let cls='',status='Not used on this quotation. Assign it to a surface to generate demand.';
   if(d.refs>0&&d.areaCoats<=0){cls='warn';status='Assigned to a surface, but there is no measurable area or coat quantity yet.';}
   else if(d.refs>0&&num(p.coverage)<=0){cls='bad';status='Enter a coverage rate before litres can be calculated.';}
@@ -676,7 +691,7 @@ function productStatus(p,d){
   else if(litres>0&&num(p.price)<=0){cls='warn';status='Enter a price per tin to cost this paint.';}
   else if(litres>0&&bought+1e-6<litres){cls='bad';status=`Short by ${(litres-bought).toFixed(2)} L — increase the tins to buy.`;}
   else if(litres>0){cls='good';status=`Sufficient — ${effectiveQty} tin${effectiveQty===1?'':'s'} cover the ${litres.toFixed(2)} L required.`;}
-  return {cls,status,effectiveQty,bought,litres,cost,leftover};
+  return {cls,status,effectiveQty,bought,litres,cost,leftover,charge};
 }
 function refreshObjectArea(r,o){
   const area=objectArea(o);
@@ -693,7 +708,7 @@ function refreshProductStatuses(){
     line.className='status-line '+s.cls; line.textContent=s.status;
     const req=document.getElementById('preq_'+p.id); if(req)req.textContent=s.litres.toFixed(2)+' L';
     const sup=document.getElementById('psup_'+p.id); if(sup)sup.textContent=s.bought.toFixed(2)+' L';
-    const cst=document.getElementById('pcost_'+p.id); if(cst)cst.textContent=money(s.cost);
+    const cst=document.getElementById('pcost_'+p.id); if(cst)cst.textContent=money(s.charge);
     const lft=document.getElementById('pleft_'+p.id); if(lft)lft.textContent=s.leftover.toFixed(2)+' L';
     if(p.autoQty){const t=document.getElementById('ptins_'+p.id); if(t)t.value=s.effectiveQty;}
   });
@@ -735,7 +750,7 @@ function addPaintToObject(r,o,isPrimer){
   const entered=prompt('Name this '+suffix+' so you can tell it apart (e.g. colour or product name):',def);
   if(entered===null){ rerenderObject(r,o); return; }
   const name=uniqueName(entered.trim()||def);
-  const np={id:uid('prod'),category:cat,name,coverage:10,tinSize:0,autoQty:true,qty:0,price:0};
+  const np={id:uid('prod'),category:cat,name,coverage:10,tinSize:0,autoQty:true,qty:0,price:0,chargeMode:'tin'};
   currentQuote().products.push(np);
   if(isPrimer){ o.primerProductId=np.id; if(!o.primerCoats)o.primerCoats=1; }
   else o.finishProductId=np.id;
@@ -782,11 +797,12 @@ function setPrepFullArea(roomId,objId,key){
   rerenderObject(r,o); calculate(); scheduleSave();
 }
 
-function addProduct(){ currentQuote().products.push({id:uid('prod'),category:'other',name:'New paint product',coverage:10,tinSize:0,autoQty:true,qty:0,price:0}); renderProducts(); renderRooms(); calculateAndRefresh(true); }
+function addProduct(){ currentQuote().products.push({id:uid('prod'),category:'other',name:'New paint product',coverage:10,tinSize:0,autoQty:true,qty:0,price:0,chargeMode:'tin'}); renderProducts(); renderRooms(); calculateAndRefresh(true); }
 function updateProduct(id,field,value){
   const p=currentQuote().products.find(x=>x.id===id); if(!p)return;
-  p[field]=['name','category'].includes(field)?value:field==='autoQty'?!!value:num(value);
+  p[field]=['name','category','chargeMode'].includes(field)?value:field==='autoQty'?!!value:num(value);
   if(field==='category'){ renderRooms(); renderProducts(); calculate(); scheduleSave(); return; }
+  if(field==='chargeMode'){ renderProducts(); calculate(); scheduleSave(); return; }
   if(field==='autoQty'){ renderProducts(); calculate(); scheduleSave(); return; }
   if(field==='name'){ const h=document.getElementById('pname_'+p.id); if(h)h.textContent=p.name||'Unnamed paint'; refreshProductOptionLabels(p); }
   refreshProductStatuses(); calculate(); scheduleSave();
@@ -813,7 +829,7 @@ function calculate(){
   const jobLabourHours=num(q.jobCosts.setupHours)+num(q.jobCosts.cleanupHours)+num(q.jobCosts.travelHours);
   const totalHours=paintHours+prepHours+jobLabourHours;
   let paintCost=0,totalLitres=0,totalTins=0;
-  q.products.forEach(p=>{const d=demand[p.id]||{litres:0};totalLitres+=d.litres;const suggested=num(p.tinSize)>0&&d.litres>0?Math.ceil(d.litres/num(p.tinSize)):0;const qty=p.autoQty?suggested:num(p.qty);totalTins+=qty;paintCost+=qty*num(p.price);});
+  q.products.forEach(p=>{const d=demand[p.id]||{litres:0};totalLitres+=d.litres;const tin=num(p.tinSize);const suggested=tin>0&&d.litres>0?Math.ceil(d.litres/tin):0;const qty=p.autoQty?suggested:num(p.qty);totalTins+=qty;const perLitre=tin>0?num(p.price)/tin:0;paintCost+=(p.chargeMode==='used')?d.litres*perLitre:qty*num(p.price);});
   const travelCost=num(q.jobCosts.travelKm)*num(db.settings.travelRate);
   const fixedDirect=num(q.jobCosts.sundries)+num(q.jobCosts.waste)+num(q.jobCosts.parking)+num(q.jobCosts.equipment)+travelCost;
   const otherDirect=q.jobCosts.other.reduce((s,x)=>s+num(x.cost),0);
@@ -898,7 +914,7 @@ function renderCalculation(c){
     <div class="metric"><div class="label">Gross margin</div><div class="value">${c.margin.toFixed(1)}%</div></div>`;
   const rows=[
     ['Painting labour',`${c.paintHours.toFixed(2)} hr`],['Preparation labour',`${c.prepHours.toFixed(2)} hr`],['Setup, cleanup and travel labour',`${c.jobLabourHours.toFixed(2)} hr`],
-    ['Internal labour cost',money(c.labourCost)],['Paint purchased',money(c.paintCost)],['Preparation materials',money(c.prepMaterials)],['Other direct materials and costs',money(c.directMaterials-c.paintCost-c.prepMaterials)],
+    ['Internal labour cost',money(c.labourCost)],['Paint (charged to job)',money(c.paintCost)],['Preparation materials',money(c.prepMaterials)],['Other direct materials and costs',money(c.directMaterials-c.paintCost-c.prepMaterials)],
     ['Direct job cost',money(c.directCost),'subtotal'],['Labour charged',money(c.labourSell)],['Materials and costs charged',money(c.materialsSell)],['Additional customer charges',money(c.otherCharges)],['Overhead allowance',money(c.overhead)],['Contingency',money(c.contingency)],...(c.minimumUplift>0?[['Minimum-charge uplift',money(c.minimumUplift)]]:[]),['Discount',`− ${money(currentQuote().pricing.discount)}`],['Price adjustment',money(currentQuote().pricing.adjustment)],['Subtotal ex GST',money(c.subtotalEx),'subtotal'],['GST',money(c.gst)],['Total including GST',money(c.total),'total']
   ];
   document.getElementById('breakdown').innerHTML=rows.map(([a,b,cls])=>`<div class="breakdown-row ${cls||''}"><span>${esc(a)}</span><strong>${esc(b)}</strong></div>`).join('');
