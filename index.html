@@ -1,27 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-AU">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a1d23">
+<meta name="robots" content="index,follow,max-image-preview:large">
 <title>PaintQuote — Make Good Money Quoting Right | Free Painting Quote Calculator</title>
 <meta name="description" content="Make good money quoting right. Free painting quote calculator plus the money mechanics of running a painting business — real numbers, no theory.">
 <link rel="canonical" href="https://paintquote.net/">
 <meta property="og:title" content="PaintQuote — Make Good Money Quoting Right">
-<meta property="og:description" content="Free painting quote calculator + the money mechanics of a painting business.">
+<meta property="og:description" content="Free painting quote calculator plus the money mechanics of running a painting business.">
 <meta property="og:url" content="https://paintquote.net/">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="PaintQuote">
+<meta property="og:locale" content="en_AU">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PaintQuote — Make Good Money Quoting Right">
+<meta name="twitter:description" content="Free painting quote calculator plus practical painting-business numbers.">
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebSite",
+      "@id":"https://paintquote.net/#website",
+      "url":"https://paintquote.net/",
+      "name":"PaintQuote",
+      "description":"A free painting quote calculator and practical painting-business resources.",
+      "inLanguage":"en-AU"
+    },
+    {
+      "@type":"SoftwareApplication",
+      "@id":"https://paintquote.net/#calculator",
+      "name":"PaintQuote",
+      "url":"https://paintquote.net/calculator.html",
+      "applicationCategory":"BusinessApplication",
+      "operatingSystem":"Web",
+      "description":"A browser-based calculator for preparing painting quotations and invoices.",
+      "offers":{"@type":"Offer","price":"0","priceCurrency":"AUD"}
+    }
+  ]
+}
+</script>
 <style>
 :root{
-  --ink:#1a1d23; --panel:#23272f; --gold:#e8a823; --gold-deep:#b57f12;
-  --paper:#f4f2ec; --grey:#6b7078; --line:#d8d4c8;
+  --ink:#1a1d23; --panel:#23272f; --gold:#e8a823; --gold-deep:#8f620a;
+  --paper:#f4f2ec; --grey:#626872; --line:#d8d4c8; --white:#fff;
+  --good:#2f6c42; --bad:#9e342a;
 }
 *{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:92px}
 body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:var(--ink);line-height:1.65}
+a,button,input,select,textarea{font:inherit}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
 .sans{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip-link{position:fixed;left:12px;top:-80px;z-index:100;background:var(--gold);color:var(--ink);padding:10px 14px;border-radius:0 0 8px 8px;font-family:'Segoe UI',system-ui,sans-serif;font-weight:800;text-decoration:none}
+.skip-link:focus{top:0}
 /* sticky header */
-header{position:sticky;top:0;z-index:50;background:var(--ink);color:#f0f0ee;display:flex;align-items:center;justify-content:space-between;padding:14px 5%;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+header{position:sticky;top:0;z-index:50;background:var(--ink);color:#f0f0ee;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 5%;box-shadow:0 2px 12px rgba(0,0,0,.25)}
 .brand{display:flex;align-items:center;gap:12px;font-family:'Segoe UI',system-ui,sans-serif;font-weight:800;font-size:1.25rem;letter-spacing:.5px;color:#f0f0ee;text-decoration:none}
-.mark{width:44px;height:30px;position:relative}
+.mark{width:44px;height:30px;position:relative;flex:0 0 auto}
 .mark::before{content:"";position:absolute;left:0;top:0;width:34px;height:14px;background:var(--gold);border-radius:7px}
 .mark::after{content:"";position:absolute;left:28px;top:14px;width:4px;height:12px;background:#f0f0ee}
 .cta-calc{background:var(--gold);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-weight:800;padding:10px 22px;border-radius:8px;text-decoration:none;font-size:1rem;white-space:nowrap}
@@ -32,7 +71,7 @@ header{position:sticky;top:0;z-index:50;background:var(--ink);color:#f0f0ee;disp
 .hero-inner{max-width:900px;margin:0 auto;position:relative;z-index:2}
 .slap{font-family:'Segoe UI',system-ui,sans-serif;font-weight:900;font-size:clamp(2rem,5.5vw,3.6rem);line-height:1.12}
 .slap em{font-style:normal;color:var(--gold)}
-.sub{margin-top:18px;font-size:1.15rem;color:#c9c6bd;max-width:640px}
+.sub{margin-top:18px;font-size:1.15rem;color:#c9c6bd;max-width:680px}
 .hero-actions{margin-top:32px;display:flex;gap:16px;flex-wrap:wrap}
 .btn-big{background:var(--gold);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-weight:900;font-size:1.2rem;padding:16px 34px;border-radius:10px;text-decoration:none}
 .btn-big:hover{background:#f4bd45}
@@ -41,113 +80,245 @@ header{position:sticky;top:0;z-index:50;background:var(--ink);color:#f0f0ee;disp
 /* sections */
 section{padding:56px 5%}
 .wrap{max-width:900px;margin:0 auto}
-h2{font-family:'Segoe UI',system-ui,sans-serif;font-weight:900;font-size:1.7rem;margin-bottom:8px}
+h2{font-family:'Segoe UI',system-ui,sans-serif;font-weight:900;font-size:1.7rem;line-height:1.25;margin-bottom:8px}
 .kicker{font-family:'Segoe UI',system-ui,sans-serif;font-weight:700;font-size:.8rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold-deep)}
 /* ledger strip signature */
-.ledger{border-left:5px solid var(--gold);background:#fff;box-shadow:0 1px 4px rgba(26,29,35,.08)}
-.ledger-row{display:flex;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--line);font-size:1.05rem}
+.ledger{border-left:5px solid var(--gold);background:var(--white);box-shadow:0 1px 4px rgba(26,29,35,.08)}
+.ledger-row{display:flex;justify-content:space-between;gap:18px;padding:14px 22px;border-bottom:1px solid var(--line);font-size:1.05rem}
 .ledger-row:last-child{border-bottom:none;font-family:'Segoe UI',system-ui,sans-serif;font-weight:800}
-.ledger-row .val{font-family:'Segoe UI',system-ui,sans-serif;font-weight:800;color:var(--gold-deep)}
+.ledger-row .val{font-family:'Segoe UI',system-ui,sans-serif;font-weight:800;color:var(--gold-deep);white-space:nowrap}
 /* video */
 .video-shell{position:relative;padding-top:56.25%;background:var(--ink);border-radius:10px;overflow:hidden;box-shadow:0 4px 18px rgba(26,29,35,.18)}
 .video-shell iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 /* articles */
 .art-list{display:grid;gap:18px;margin-top:24px}
-.art-card{background:#fff;border-left:5px solid var(--gold);padding:20px 24px;text-decoration:none;color:var(--ink);box-shadow:0 1px 4px rgba(26,29,35,.08)}
+.art-card{background:var(--white);border-left:5px solid var(--gold);padding:20px 24px;text-decoration:none;color:var(--ink);box-shadow:0 1px 4px rgba(26,29,35,.08)}
 .art-card:hover{border-left-color:var(--gold-deep);box-shadow:0 3px 10px rgba(26,29,35,.15)}
 .art-card h3{font-family:'Segoe UI',system-ui,sans-serif;font-weight:800;font-size:1.15rem;margin-bottom:6px}
 .art-card p{color:var(--grey);font-size:.98rem}
 .art-card .soon{color:var(--gold-deep);font-family:'Segoe UI',system-ui,sans-serif;font-weight:700;font-size:.8rem;letter-spacing:1px;text-transform:uppercase}
-/* ad slot */
-.ad-slot{max-width:900px;margin:0 auto;border:1px dashed var(--line);background:#fff}
+/* featured channel */
+.ad-slot{max-width:900px;margin:0 auto;border:1px dashed var(--line);background:var(--white)}
 .ad-tag{font-family:'Segoe UI',system-ui,sans-serif;font-size:.65rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--grey);padding:4px 8px}
 .house-ad{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 24px;text-decoration:none;color:var(--ink)}
 .house-ad b{font-family:'Segoe UI',system-ui,sans-serif;font-weight:800}
 .house-ad .go{background:var(--ink);color:var(--gold);font-family:'Segoe UI',system-ui,sans-serif;font-weight:800;padding:10px 18px;border-radius:8px;white-space:nowrap}
+/* contact */
+.contact-section{background:var(--panel);color:#f0f0ee;scroll-margin-top:92px}
+.contact-section .kicker{color:var(--gold)}
+.contact-intro{max-width:680px;color:#c9c6bd}
+.contact-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:20px}
+.contact-toggle,.contact-submit{border:0;background:var(--gold);color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-weight:900;padding:12px 22px;border-radius:9px;cursor:pointer}
+.contact-toggle:hover,.contact-submit:hover{background:#f4bd45}
+.contact-note{font-family:'Segoe UI',system-ui,sans-serif;font-size:.85rem;color:#adb1b8}
+.contact-form{margin-top:22px;background:var(--white);color:var(--ink);border-radius:12px;padding:22px;box-shadow:0 5px 20px rgba(0,0,0,.2)}
+.contact-form[hidden]{display:none}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-field{min-width:0}
+.form-field.full{grid-column:1/-1}
+.form-field label{display:block;font-family:'Segoe UI',system-ui,sans-serif;font-weight:700;font-size:.85rem;margin-bottom:5px}
+.form-field input,.form-field select,.form-field textarea{width:100%;border:1px solid var(--line);background:#fbfaf7;color:var(--ink);border-radius:8px;padding:10px 12px;min-height:44px}
+.form-field textarea{min-height:150px;resize:vertical}
+.form-help{font-family:'Segoe UI',system-ui,sans-serif;color:var(--grey);font-size:.78rem;margin-top:4px}
+.form-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px;flex-wrap:wrap}
+.form-status{display:none;margin-top:18px;padding:12px 14px;border-radius:8px;background:#e7f3e9;color:var(--good);font-family:'Segoe UI',system-ui,sans-serif;font-weight:700}
+.form-status.visible{display:block}
+.honeypot{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important;overflow:hidden!important}
 /* footer */
 footer{background:var(--ink);color:#9a9fa8;padding:40px 5%;font-size:.85rem}
 footer .wrap{display:grid;gap:14px}
 footer a{color:var(--gold)}
-@media(max-width:600px){.hero{padding:44px 5% 60px}.house-ad{flex-direction:column;text-align:center}}
+.footer-links{font-family:'Segoe UI',system-ui,sans-serif}
+@media(max-width:600px){
+  header{padding:10px 4%;gap:10px}
+  .brand{font-size:1rem;gap:8px}
+  .mark{width:35px;height:26px;transform:scale(.82);transform-origin:left center}
+  .cta-calc{padding:9px 12px;font-size:.84rem}
+  .hero{padding:44px 5% 60px}
+  .hero-actions{display:grid}
+  .btn-big,.btn-ghost{text-align:center;padding-left:18px;padding-right:18px}
+  .house-ad{flex-direction:column;text-align:center}
+  .form-grid{grid-template-columns:1fr}
+  .form-field.full{grid-column:auto}
+  .ledger-row{padding:13px 16px}
+}
+@media(max-width:380px){
+  .brand{font-size:.9rem}
+  .cta-calc{font-size:.78rem;padding:8px 9px}
+}
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 <header>
-  <a class="brand" href="/"><span class="mark"></span>PAINTQUOTE</a>
+  <a class="brand" href="/" aria-label="PaintQuote home"><span class="mark" aria-hidden="true"></span>PAINTQUOTE</a>
   <a class="cta-calc" href="/calculator.html">Open the calculator →</a>
 </header>
 
-<div class="hero">
-  <div class="hero-inner">
-    <div class="slap"><em>Make good money</em> quoting right.</div>
-    <p class="sub sans">Price every paint job to profit with the free PaintQuote calculator — a full quote in minutes — plus the money mechanics of a painting business from the PaintQuote channel.</p>
-    <div class="hero-actions">
-      <a class="btn-big" href="/calculator.html">Quote a job now — free</a>
-      <a class="btn-ghost" href="https://www.youtube.com/@paintquote" target="_blank" rel="noopener">Watch the channel</a>
-    </div>
-  </div>
-</div>
-
-<section>
-  <div class="wrap">
-    <div class="kicker">Why quotes leak money</div>
-    <h2>The profit is decided before the brush moves</h2>
-    <p>Gut-feel quoting remembers the walls and forgets the rest: the prep hours, the second coat on the dark feature wall, the consumables that quietly come out of your labour. The calculator prices the whole job — every surface, every coat, every tin — so the number you hand the client is one you can actually make money on.</p>
-    <div class="ledger" style="margin-top:22px">
-      <div class="ledger-row"><span>Every wall, ceiling, door &amp; frame priced per room</span><span class="val">✓</span></div>
-      <div class="ledger-row"><span>Paint &amp; primer quantities with purchase check</span><span class="val">✓</span></div>
-      <div class="ledger-row"><span>Furnished-room labour loading</span><span class="val">✓</span></div>
-      <div class="ledger-row"><span>Cost to you</span><span class="val">$0</span></div>
-    </div>
-  </div>
-</section>
-
-<div class="ad-slot"><div class="ad-tag">Sponsored</div>
-  <a class="house-ad" href="https://www.youtube.com/@paintquote" target="_blank" rel="noopener">
-    <span><b>New: the PaintQuote channel.</b> What it actually costs to start a painting business — the full ledger, nothing hidden.</span>
-    <span class="go">Watch free ▶</span>
-  </a>
-</div>
-
-<section>
-  <div class="wrap">
-    <div class="kicker">Latest episode</div>
-    <h2>What it actually costs to start a handyman painting business</h2>
-    <div class="video-shell" style="margin-top:18px">
-      <iframe src="https://www.youtube-nocookie.com/embed/Kipjds4hCmI" title="What It ACTUALLY Costs to Start a Handyman Painting Business" loading="lazy" allowfullscreen></iframe>
-    </div>
-  </div>
-</section>
-
-<section style="padding-top:0">
-  <div class="wrap">
-    <div class="kicker">Straight answers</div>
-    <h2>Short reads for people who'd rather be painting</h2>
-    <div class="art-list">
-      <a class="art-card" href="/articles-startup-costs.html">
-        <h3>What it costs to start a handyman painting business</h3>
-        <p>The full startup ledger: about $360 in tools, ~$1,000 in insurance, and the licensing rule to check before job one.</p>
-      </a>
-      <div class="art-card" style="border-left-color:var(--line)">
-        <h3>How to price a painting job</h3>
-        <p>A real quote, line by line — where the margin hides.</p>
-        <span class="soon">This week</span>
-      </div>
-      <div class="art-card" style="border-left-color:var(--line)">
-        <h3>Margin vs markup — same profit, different maths</h3>
-        <p>Two systems, one trap, and the question that saves arguments: a percentage of <i>what</i>?</p>
-        <span class="soon">Coming</span>
+<main id="main-content">
+  <div class="hero">
+    <div class="hero-inner">
+      <h1 class="slap"><em>Make good money</em> quoting right.</h1>
+      <p class="sub sans">Price every paint job to profit with the free PaintQuote calculator — a full quote in minutes — plus the money mechanics of a painting business from the PaintQuote channel.</p>
+      <div class="hero-actions">
+        <a class="btn-big" href="/calculator.html">Quote a job now — free</a>
+        <a class="btn-ghost" href="https://www.youtube.com/@paintquote" target="_blank" rel="noopener noreferrer">Watch the channel</a>
       </div>
     </div>
   </div>
-</section>
+
+  <section aria-labelledby="profit-heading">
+    <div class="wrap">
+      <div class="kicker">Why quotes leak money</div>
+      <h2 id="profit-heading">The profit is decided before the brush moves</h2>
+      <p>Gut-feel quoting remembers the walls and forgets the rest: the prep hours, the second coat on the dark feature wall, the consumables that quietly come out of your labour. The calculator prices the whole job — every surface, every coat, every tin — so the number you hand the client is one you can actually make money on.</p>
+      <div class="ledger" style="margin-top:22px">
+        <div class="ledger-row"><span>Every wall, ceiling, door and frame priced per room</span><span class="val" aria-label="Included">✓</span></div>
+        <div class="ledger-row"><span>Paint and primer quantities with purchase check</span><span class="val" aria-label="Included">✓</span></div>
+        <div class="ledger-row"><span>Furnished-room labour loading</span><span class="val" aria-label="Included">✓</span></div>
+        <div class="ledger-row"><span>Cost to you</span><span class="val">$0</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ad-slot" aria-label="Featured PaintQuote content">
+    <div class="ad-tag">Featured</div>
+    <a class="house-ad" href="https://www.youtube.com/@paintquote" target="_blank" rel="noopener noreferrer">
+      <span><b>New: the PaintQuote channel.</b> What it actually costs to start a painting business — the full ledger, nothing hidden.</span>
+      <span class="go">Watch free ▶</span>
+    </a>
+  </div>
+
+  <section aria-labelledby="episode-heading">
+    <div class="wrap">
+      <div class="kicker">Latest episode</div>
+      <h2 id="episode-heading">What it actually costs to start a handyman painting business</h2>
+      <div class="video-shell" style="margin-top:18px">
+        <iframe src="https://www.youtube-nocookie.com/embed/Kipjds4hCmI" title="What It ACTUALLY Costs to Start a Handyman Painting Business" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0" aria-labelledby="articles-heading">
+    <div class="wrap">
+      <div class="kicker">Straight answers</div>
+      <h2 id="articles-heading">Short reads for people who'd rather be painting</h2>
+      <div class="art-list">
+        <a class="art-card" href="/articles-startup-costs.html">
+          <h3>What it costs to start a handyman painting business</h3>
+          <p>The full startup ledger: about $360 in tools, approximately $1,000 in insurance, and the licensing rule to check before job one.</p>
+        </a>
+        <div class="art-card" style="border-left-color:var(--line)">
+          <h3>How to price a painting job</h3>
+          <p>A real quote, line by line — where the margin hides.</p>
+          <span class="soon">In production</span>
+        </div>
+        <div class="art-card" style="border-left-color:var(--line)">
+          <h3>Margin vs markup — same profit, different maths</h3>
+          <p>Two systems, one trap, and the question that saves arguments: a percentage of <i>what</i>?</p>
+          <span class="soon">Coming soon</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact-developer" class="contact-section" aria-labelledby="contact-heading">
+    <div class="wrap">
+      <div class="kicker">Feedback and support</div>
+      <h2 id="contact-heading">Email the developer</h2>
+      <p class="contact-intro">Report a problem, suggest an improvement, or ask a question about PaintQuote. The developer's email address is not displayed publicly.</p>
+      <div id="contactSuccess" class="form-status" role="status" aria-live="polite">Your message was submitted. Thank you.</div>
+      <div class="contact-actions">
+        <button id="contactToggle" class="contact-toggle" type="button" aria-expanded="false" aria-controls="developerForm">Open contact form</button>
+        <span class="contact-note">Your email address is used only to reply to your message.</span>
+      </div>
+
+      <form id="developerForm" class="contact-form" method="POST" hidden>
+        <input type="hidden" name="_subject" value="PaintQuote website message">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://paintquote.net/?message=sent#contact-developer">
+        <div class="honeypot" aria-hidden="true">
+          <label for="companyWebsite">Leave this field empty</label>
+          <input id="companyWebsite" type="text" name="_honey" tabindex="-1" autocomplete="off">
+        </div>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="contactName">Your name</label>
+            <input id="contactName" name="name" type="text" autocomplete="name" maxlength="100" required>
+          </div>
+          <div class="form-field">
+            <label for="contactEmail">Your email</label>
+            <input id="contactEmail" name="email" type="email" autocomplete="email" inputmode="email" maxlength="180" required>
+          </div>
+          <div class="form-field full">
+            <label for="contactTopic">Message type</label>
+            <select id="contactTopic" name="topic" required>
+              <option value="">Choose one</option>
+              <option>Problem with the calculator</option>
+              <option>Feature suggestion</option>
+              <option>Website problem</option>
+              <option>General question</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-field full">
+            <label for="contactMessage">Message</label>
+            <textarea id="contactMessage" name="message" maxlength="5000" required placeholder="Describe the problem or suggestion. Include the device and browser if something is not working."></textarea>
+            <div class="form-help">Do not include passwords, payment details, or other sensitive information.</div>
+          </div>
+        </div>
+        <div class="form-footer">
+          <button class="contact-submit" type="submit">Send message</button>
+          <span class="form-help">The form uses FormSubmit to deliver the message without publishing the destination address on the page.</span>
+        </div>
+        <noscript><p class="form-help">JavaScript must be enabled to use this concealed-address contact form.</p></noscript>
+      </form>
+    </div>
+  </section>
+</main>
 
 <footer>
   <div class="wrap">
-    <div><a href="/calculator.html">Calculator</a> · <a href="https://www.youtube.com/@paintquote" target="_blank" rel="noopener">YouTube</a> · <a href="/articles-startup-costs.html">Articles</a></div>
+    <div class="footer-links"><a href="/calculator.html">Calculator</a> · <a href="https://www.youtube.com/@paintquote" target="_blank" rel="noopener noreferrer">YouTube</a> · <a href="/articles-startup-costs.html">Articles</a> · <a href="#contact-developer">Email the developer</a></div>
     <div>General information and personal experience, not professional advice. Costs shown are examples; your prices, taxes, insurance and legal requirements differ by location. Verify licensing rules with your official local regulator before starting work. Not financial, legal or insurance advice. You are responsible for your own business decisions.</div>
     <div>© PaintQuote · paintquote.net</div>
   </div>
 </footer>
+
+<script>
+(function(){
+  'use strict';
+  const form=document.getElementById('developerForm');
+  const toggle=document.getElementById('contactToggle');
+  const success=document.getElementById('contactSuccess');
+  if(!form||!toggle)return;
+
+  // Keep the destination address out of visible page content and avoid AJAX submission states.
+  const encoded=['bWFya2hs','Zm9vZHNA','Z21haWwuY29t'].join('');
+  form.action='https://formsubmit.co/'+atob(encoded);
+
+  function setFormOpen(open){
+    form.hidden=!open;
+    toggle.setAttribute('aria-expanded',String(open));
+    toggle.textContent=open?'Close contact form':'Open contact form';
+    if(open&&!form.hidden){
+      const first=document.getElementById('contactName');
+      if(first)first.focus({preventScroll:true});
+    }
+  }
+
+  toggle.addEventListener('click',function(){setFormOpen(form.hidden);});
+
+  const params=new URLSearchParams(window.location.search);
+  if(params.get('message')==='sent'){
+    success.classList.add('visible');
+    setFormOpen(false);
+    if(window.history&&window.history.replaceState){
+      window.history.replaceState({},document.title,window.location.pathname+'#contact-developer');
+    }
+  }
+})();
+</script>
 </body>
 </html>

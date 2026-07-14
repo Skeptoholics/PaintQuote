@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- PaintQuote Pro v4 — release build, 14 July 2026 -->
 <html lang="en-AU">
 <head>
 <meta charset="UTF-8">
@@ -133,11 +134,25 @@
   .divider{height:1px;background:var(--line);margin:12px 0}
   .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
+  .btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .val-float{position:fixed;left:0;right:0;bottom:76px;z-index:39;padding:0 16px;display:none}
+  .val-inner{max-width:980px;margin:auto;box-shadow:0 -2px 12px rgba(0,0,0,.16);border-radius:9px;overflow:hidden}
+  .val-toggle{width:100%;border:0;padding:10px 12px;font-weight:800;font-size:13px;display:flex;justify-content:space-between;gap:10px;color:#fff;text-align:left}
+  .val-toggle.bad{background:var(--bad)}
+  .val-toggle.warn{background:var(--warn)}
+  .val-list{background:#fff;border:1px solid var(--line);border-top:0;max-height:38vh;overflow:auto;padding:10px 14px}
   .tabbar{max-width:980px;margin:10px auto 0;display:flex;gap:6px}
   .tab-btn{flex:1;border:1px solid #5e615b;background:transparent;color:#c7c9c2;border-radius:8px;padding:8px 6px;font-size:13px;font-weight:700}
   .tab-btn.active{background:var(--bg);color:var(--ink);border-color:var(--bg)}
   .tab-panel{display:none}
   .tab-panel.active{display:block}
+  .hidden{display:none!important}
+  .status-history{margin-top:6px;font-size:11px;color:var(--muted)}
+  .val-nav{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .validation-item{margin:3px 0}
+  .validation-link{border:0;background:transparent;padding:2px 0;color:inherit;text-align:left;text-decoration:underline;text-decoration-style:dotted;cursor:pointer}
+  body.has-validation{padding-bottom:145px}
+  body.has-validation.validation-open{padding-bottom:300px}
 
   @media(max-width:760px){
     .header-inner{align-items:flex-start}.brand p{display:none}.header-tools{max-width:70%}.quote-select{min-width:140px;max-width:190px}
@@ -159,7 +174,7 @@
   @media print{
     @page{size:A4;margin:14mm}
     body{background:#fff;padding:0;font-size:11pt;color:#111}
-    header,main,.summary-bar{display:none!important}
+    header,main,.summary-bar,.val-float{display:none!important}
     .print-view{display:block!important}
     .print-page{max-width:none;margin:0}
     .print-header{display:flex;justify-content:space-between;gap:20px;border-bottom:2px solid #222;padding-bottom:10px;margin-bottom:14px}
@@ -171,6 +186,9 @@
     .print-room{break-inside:avoid;margin-bottom:11px}
     .print-room h3{font-size:11pt;margin:0 0 4px;border-bottom:1px solid #bbb;padding-bottom:3px}
     .print-room ul{margin:0;padding-left:18px}
+    .print-lines{margin-top:14px}
+    .print-lines .line{display:flex;justify-content:space-between;gap:14px;padding:4px 0;border-bottom:1px solid #ddd}
+    .print-lines .line.head{font-weight:800;border-bottom:2px solid #222}
     .print-price{margin-left:auto;width:300px;margin-top:18px}
     .print-price div{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #ddd}
     .print-price .grand{font-size:15pt;font-weight:800;border-top:2px solid #222;border-bottom:0;margin-top:5px;padding-top:8px}
@@ -206,8 +224,6 @@
 </header>
 
 <main>
-  <div id="validationBox"></div>
-
   <div id="tabQuote" class="tab-panel active">
   <section>
     <div class="section-head"><h2>Quotation details</h2><span id="quoteStatusPill" class="pill">Draft</span></div>
@@ -215,6 +231,14 @@
       <div class="field"><label for="quoteNumber">Quote number</label><input id="quoteNumber" type="text" data-job="quoteNumber"></div>
       <div class="field"><label for="quoteDate">Quote date</label><input id="quoteDate" type="date" data-job="quoteDate"></div>
       <div class="field"><label for="validUntil">Valid until</label><input id="validUntil" type="date" data-job="validUntil"></div>
+    </div>
+    <div class="grid2" style="margin-top:10px">
+      <div class="field"><label for="quoteStatus">Quote status</label><select id="quoteStatus" onchange="setQuoteStatus(this.value)"><option value="draft">Draft — not yet given to client</option><option value="given">Given to client</option><option value="accepted">Accepted</option><option value="declined">Declined</option></select><div id="statusHistory" class="status-history"></div></div>
+      <div class="field"><label for="quoteMode">Quote creation mode</label><select id="quoteMode" onchange="setQuoteMode(this.value)"><option value="measured">Measured quote — rooms and surfaces</option><option value="quick">Quick quote — lump-sum inputs</option></select><div class="hint"><button type="button" class="btn small-btn" onclick="updateQuoteFromCurrentProfile()">Update this quote to current profile</button></div></div>
+    </div>
+    <div class="grid2" style="margin-top:10px">
+      <div class="field"><label for="quotePresentation">Quotation detail level</label><select id="quotePresentation" onchange="setPresentation(this.value)"><option value="detailed">Detailed — full scope per room</option><option value="simple">Simple — summary and total only</option></select></div>
+      <div class="field"><label>Profile frozen into quote</label><input id="quoteProfileName" type="text" disabled></div>
     </div>
     <div class="grid2" style="margin-top:10px">
       <div class="field"><label for="clientName">Client name</label><input id="clientName" type="text" data-job="clientName" placeholder="Jane Smith"></div>
@@ -231,21 +255,33 @@
     <div style="margin-top:10px"><label for="jobNotes">Job notes</label><textarea id="jobNotes" data-job="notes" placeholder="Access, parking, special requests and whole-job notes"></textarea></div>
   </section>
 
-  <section>
+  <section id="quickQuoteSection" class="hidden">
+    <h2>Quick quote</h2>
+    <div class="field"><label for="quickDescription">Job description</label><textarea id="quickDescription" data-quick="description" placeholder="Describe the work included in this lump-sum quotation"></textarea></div>
+    <div class="grid4" style="margin-top:10px">
+      <div class="field"><label for="quickLabourHours">Estimated labour hours</label><input id="quickLabourHours" type="number" min="0" step="0.25" data-quick="labourHours"></div>
+      <div class="field"><label for="quickMaterialsCost">Materials cost to you ($)</label><input id="quickMaterialsCost" type="number" min="0" step="0.01" data-quick="materialsCost"></div>
+      <div class="field"><label for="quickOtherCost">Other cost to you ($)</label><input id="quickOtherCost" type="number" min="0" step="0.01" data-quick="otherCost"></div>
+      <div class="field"><label for="quickOtherCharge">Other customer charges ($)</label><input id="quickOtherCharge" type="number" min="0" step="0.01" data-quick="otherCharge"></div>
+    </div>
+    <p class="hint">The labour rate, materials markup, overhead, contingency, discount, adjustment and GST settings still apply.</p>
+  </section>
+
+  <section id="roomsSection">
     <div class="section-head"><h2>Rooms and measured scope</h2><span id="scopeMetric" class="pill">0 m²</span></div>
     <p class="hint">Measure each paintable surface. Preparation is attached to the specific surface using real quantities rather than a percentage of the entire job.</p>
     <div id="roomsList"></div>
     <button type="button" class="add-btn" onclick="addRoom()">+ Add room or area</button>
   </section>
 
-  <section>
-    <div class="section-head"><h2>Paint products and purchasing</h2><span id="paintMetric" class="pill">0.0 L required</span></div>
+  <section id="productsSection">
+    <div class="section-head"><h2>Paint products and purchasing</h2><button type="button" class="btn small-btn" onclick="saveProductDefaults()">Use as new-quote defaults</button><span id="paintMetric" class="pill">0.0 L required</span></div>
     <p class="hint">Objects select products by name. Required litres are calculated from measured area × coats ÷ coverage. Automatic tins rounds up to the next whole tin.</p>
     <div id="productsList"></div>
     <button type="button" class="add-btn" onclick="addProduct()">+ Add paint product</button>
   </section>
 
-  <section>
+  <section id="jobCostsSection">
     <h2>Job-wide labour and direct costs</h2>
     <div class="grid4">
       <div class="field"><label>Setup and loading hours</label><input type="number" min="0" step="0.25" data-jobcost="setupHours"></div>
@@ -286,13 +322,39 @@
     </div>
     <div style="margin-top:10px"><label for="quoteTerms">Terms shown on the quotation</label><textarea id="quoteTerms" data-job="terms"></textarea></div>
   </section>
+
+  <section>
+    <h2>Send, invoice and record</h2>
+    <div class="inline-actions">
+      <button type="button" class="btn" onclick="emailQuote()">Share / Email quote</button>
+      <button type="button" class="btn" onclick="printQuote()">Print / PDF quote</button>
+    </div>
+    <p class="hint">Sharing or emailing sends a text summary of the quotation. For a formatted copy, use Print / PDF and attach the saved file, or share directly from the print screen on your phone.</p>
+    <div class="divider"></div>
+    <h3>Invoice</h3>
+    <div class="grid4">
+      <div class="field"><label>Invoice number</label><input type="text" data-invoice="number" placeholder="Assigned on first print"></div>
+      <div class="field"><label for="invoiceDate">Invoice date</label><input id="invoiceDate" type="date" data-invoice="date"></div>
+      <div class="field"><label for="invoiceDueDate">Due date</label><input id="invoiceDueDate" type="date" data-invoice="dueDate"></div>
+      <div class="field"><label>Amount already paid ($)</label><input id="invoicePaidToDate" type="number" min="0" step="0.01" data-invoice="paidToDate"></div>
+    </div>
+    <div class="grid2" style="margin-top:10px">
+      <div class="field"><label for="invoiceStatus">Invoice status</label><select id="invoiceStatus" data-invoice-text="status" onchange="setInvoiceStatus(this.value)"><option value="draft">Draft</option><option value="issued">Issued</option><option value="part-paid">Part-paid</option><option value="paid">Paid</option><option value="void">Void</option></select><div id="invoiceStatusHistory" class="status-history"></div></div>
+      <div class="field"><label for="invoiceDescription">Invoice description override</label><input id="invoiceDescription" type="text" data-invoice="description" placeholder="Optional description for the simple invoice"></div>
+    </div>
+    <div class="grid2" style="margin-top:10px">
+      <div class="field"><label>Invoice detail level</label><select data-invoice-text="tier"><option value="summary">Simple — job description and total</option><option value="subtotals">Standard — section subtotals</option><option value="itemized">Detailed — fully itemised</option></select></div>
+      <div class="field" style="align-self:end"><button type="button" class="btn primary" style="width:100%" onclick="printInvoice()">Print / PDF invoice</button></div>
+    </div>
+    <p class="hint">Enter any deposit received in "Amount already paid" so the invoice shows the correct balance due.</p>
+  </section>
   </div>
 
   <div id="tabPricing" class="tab-panel">
   <section>
     <div class="section-head"><h2>Pricing — internal</h2><button type="button" class="btn small-btn" onclick="savePricingDefaults()">Use as new-quote defaults</button></div>
     <div class="grid4">
-      <div class="field"><label>Labour charge rate ($/hr)</label><input type="number" min="0" step="1" data-pricing="labourChargeRate"></div>
+      <div class="field"><label for="labourChargeRate">Labour charge rate ($/hr)</label><input id="labourChargeRate" type="number" min="0" step="1" data-pricing="labourChargeRate"></div>
       <div class="field"><label>Materials markup (%)</label><input type="number" min="0" step="1" data-pricing="materialMarkupPct"></div>
       <div class="field"><label>Overhead allowance (%)</label><input type="number" min="0" step="0.5" data-pricing="overheadPct"></div>
       <div class="field"><label>Contingency (%)</label><input type="number" min="0" step="0.5" data-pricing="contingencyPct"></div>
@@ -316,18 +378,35 @@
 
   <div id="tabSetup" class="tab-panel">
   <section>
+    <div class="section-head"><h2>Business profiles</h2><span class="pill" id="profileCount"></span></div>
+    <p class="hint">A profile stores business details, rates, pricing defaults and default paint products — for example separate domestic and commercial setups. Applying a profile changes the setup used for new quotations; existing quotations are not altered.</p>
+    <div class="grid2">
+      <div class="field"><label for="profileSelect">Saved profiles</label><select id="profileSelect"></select></div>
+      <div class="field"><label>&nbsp;</label><div class="inline-actions"><button type="button" class="btn" onclick="applyProfile()">Apply</button><button type="button" class="btn" onclick="updateProfile()">Update from current</button><button type="button" class="btn small-btn danger" onclick="deleteProfile()">Delete</button></div></div>
+    </div>
+    <div class="inline-actions" style="margin-top:10px">
+      <button type="button" class="btn" onclick="saveProfileAs()">Save current setup as new profile</button>
+      <button type="button" class="btn" onclick="exportProfile()">Export profile to file</button>
+      <button type="button" class="btn" onclick="document.getElementById('importProfileFile').click()">Import profile from file</button>
+      <input id="importProfileFile" type="file" accept="application/json,.json" class="sr-only" onchange="importProfile(this.files[0]);this.value=''">
+    </div>
+  </section>
+
+  <section>
     <h2>Business details and advanced rates</h2>
       <div class="grid2" style="margin-top:10px">
-        <div class="field"><label>Business name</label><input type="text" data-setting="businessName"></div>
+        <div class="field"><label for="businessName">Business name</label><input id="businessName" type="text" data-setting="businessName"></div>
         <div class="field"><label>ABN</label><input type="text" data-setting="abn"></div>
         <div class="field"><label>Phone</label><input type="tel" data-setting="phone"></div>
         <div class="field"><label>Email</label><input type="email" data-setting="email"></div>
       </div>
       <div style="margin-top:10px"><label>Business address</label><input type="text" data-setting="address"></div>
-      <div class="grid3" style="margin-top:10px">
-        <div class="field"><label>Internal labour cost ($/hr)</label><input type="number" min="0" step="1" data-setting="labourCostRate"></div>
+      <div style="margin-top:10px"><label>Payment instructions / bank details</label><textarea data-setting="paymentInstructions" placeholder="Bank name, BSB, account number and payment reference instructions"></textarea></div>
+      <div class="grid4" style="margin-top:10px">
+        <div class="field"><label for="labourCostRate">Internal labour cost ($/hr)</label><input id="labourCostRate" type="number" min="0" step="1" data-setting="labourCostRate"></div>
         <div class="field"><label>Vehicle cost ($/km)</label><input type="number" min="0" step="0.05" data-setting="travelRate"></div>
         <div class="field"><label>Default quote validity (days)</label><input type="number" min="1" step="1" data-setting="validDays"></div>
+        <div class="field"><label>Default invoice terms (days)</label><input type="number" min="0" step="1" data-setting="invoiceDueDays"></div>
       </div>
       <h3 style="margin-top:16px">Application rates — square metres per hour per coat</h3>
       <div class="grid4" id="rateSettings"></div>
@@ -348,6 +427,8 @@
   </div>
 </main>
 
+<div id="validationBox" class="val-float"></div>
+
 <div class="summary-bar">
   <div class="summary-inner">
     <div><div class="summary-label" id="summaryLabel">Quoted total including GST</div><div class="summary-total" id="totalOut">$0.00</div></div>
@@ -365,7 +446,7 @@
 
 const APP_KEY = 'paintquote_pro_v1';
 const LEGACY_KEY = 'paintcalc_quote_v6';
-const VERSION = 2;
+const VERSION = 4;
 
 const KIND_DEFS = {
   wall:{label:'Wall',mode:'area',d1:'Height (m)',d2:'Length (m)',d1Default:2.4,d2Default:4,sidesDefault:1,finishCategory:'wall',finishRateKey:'wallFinish',primerRateKey:'wallPrimer'},
@@ -401,6 +482,15 @@ const RATE_FIELDS = [
 let db;
 let saveTimer = null;
 let lastCalc = null;
+let valOpen = false;
+let validationMode = 'quote';
+const STATUS_META={draft:['Draft',''],given:['Given to client','warn'],accepted:['Accepted','good'],declined:['Declined','bad']};
+const INVOICE_STATUSES=['draft','issued','part-paid','paid','void'];
+function prepEffectiveQty(o,p){ return p.fullArea?round2(objectArea(o)):num(p.qty); }
+function issue(message,target='',tab='Quote'){ return {message,target,tab}; }
+function issueText(x){ return typeof x==='string'?x:String(x?.message||''); }
+function uniqueIssues(items){ const seen=new Set(); return items.filter(x=>{const k=issueText(x);if(seen.has(k))return false;seen.add(k);return true;}); }
+function titleCaseStatus(v){ return String(v||'draft').split('-').map(x=>x.charAt(0).toUpperCase()+x.slice(1)).join('-'); }
 
 function uid(prefix='id'){
   if (crypto && crypto.randomUUID) return prefix + '_' + crypto.randomUUID().replaceAll('-','').slice(0,14);
@@ -420,7 +510,7 @@ function productById(id){ return currentQuote().products.find(p=>p.id===id) || n
 
 function defaultSettings(){
   return {
-    businessName:'',abn:'',phone:'',email:'',address:'',labourCostRate:42,travelRate:.95,validDays:30,nextQuoteNumber:1,
+    businessName:'',abn:'',phone:'',email:'',address:'',paymentInstructions:'',labourCostRate:42,travelRate:.95,validDays:30,invoiceDueDays:14,nextQuoteNumber:1,nextInvoiceNumber:1,productDefaults:[],
     rates:{wallFinish:70,wallPrimer:50,ceilingFinish:60,ceilingPrimer:40,doorFinish:12,doorPrimer:10,frameFinish:8,framePrimer:7,windowFinish:6,windowPrimer:5,trimFinish:12,trimPrimer:10,otherFinish:30,otherPrimer:25},
     prepRates:Object.fromEntries(Object.entries(PREP_DEFS).map(([k,d])=>[k,{hoursPerUnit:d.hoursPerUnit,materialPerUnit:d.materialPerUnit}])),
     pricingDefaults:{labourChargeRate:75,materialMarkupPct:15,overheadPct:5,contingencyPct:5,minimumCharge:250,gstPct:10,gstEnabled:true,depositType:'none',depositValue:0}
@@ -435,7 +525,12 @@ function defaultProducts(){
   ];
 }
 function newPrepState(){
-  const out={}; Object.keys(PREP_DEFS).forEach(k=>out[k]={on:false,qty:0}); return out;
+  const out={}; Object.keys(PREP_DEFS).forEach(k=>out[k]={on:false,qty:0,fullArea:false}); return out;
+}
+function newQuoteProducts(){
+  const defs=db?.settings?.productDefaults;
+  if(Array.isArray(defs)&&defs.length) return defs.map(p=>({...structuredClone(p),id:uid('prod')}));
+  return defaultProducts();
 }
 function newObject(kind,products){
   const K=KIND_DEFS[kind];
@@ -445,14 +540,24 @@ function newObject(kind,products){
 function newRoom(name,products){
   return {id:uid('room'),name:name||'Room',accessAllowance:0,notes:'',objects:[newObject('ceiling',products),newObject('wall',products)]};
 }
+function makeSetupSnapshot(settings=db?.settings,activeProfileId=db?.activeProfileId,profiles=db?.profiles){
+  const defaults=defaultSettings(),s=settings||defaults;
+  const profile=Array.isArray(profiles)?profiles.find(p=>p.id===activeProfileId):null;
+  return {profileId:activeProfileId||'',profileName:profile?.name||'Current setup',businessName:s.businessName||'',abn:s.abn||'',phone:s.phone||'',email:s.email||'',address:s.address||'',paymentInstructions:s.paymentInstructions||'',labourCostRate:num(s.labourCostRate),travelRate:num(s.travelRate),validDays:Math.max(1,Math.round(num(s.validDays)||30)),invoiceDueDays:Math.max(0,Math.round(num(s.invoiceDueDays)||14)),rates:{...defaults.rates,...structuredClone(s.rates||{})},prepRates:{...structuredClone(defaults.prepRates),...structuredClone(s.prepRates||{})}};
+}
+function normaliseSetupSnapshot(snapshot,settings,activeProfileId,profiles){
+  const base=makeSetupSnapshot(settings,activeProfileId,profiles),x=snapshot&&typeof snapshot==='object'?snapshot:{};
+  return {...base,...x,rates:{...base.rates,...(x.rates||{})},prepRates:{...base.prepRates,...(x.prepRates||{})}};
+}
+function quoteSetup(q=currentQuote()){ return normaliseSetupSnapshot(q?.setupSnapshot,db?.settings,db?.activeProfileId,db?.profiles); }
 function createQuote(){
-  const products=defaultProducts();
+  const products=newQuoteProducts();
   const n=db?.settings?.nextQuoteNumber || 1;
   if(db?.settings) db.settings.nextQuoteNumber=n+1;
   const qDate=dateISO();
   return {
-    id:uid('quote'),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),status:'Draft',
-    job:{quoteNumber:'Q-'+String(n).padStart(4,'0'),quoteDate:qDate,validUntil:addDays(qDate,db?.settings?.validDays||30),clientName:'',clientPhone:'',clientEmail:'',address:'',startDate:'',finishDate:'',notes:'',inclusions:'All surfaces will be prepared and coated as described in this quotation. Colours are subject to client confirmation before purchase.',exclusions:'Repairs or work not specifically listed are excluded. Hidden defects, asbestos, structural movement and moisture ingress are excluded unless stated.',terms:'Payment terms: deposit or materials payment before commencement, balance on completion. Variations require approval and may change the price and completion date.'},
+    id:uid('quote'),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),status:'draft',statusDates:{},presentation:'detailed',mode:'measured',quick:{description:'',labourHours:0,materialsCost:0,otherCost:0,otherCharge:0},setupSnapshot:makeSetupSnapshot(),invoice:{number:'',date:'',dueDate:'',tier:'summary',paidToDate:0,status:'draft',statusDates:{},description:''},
+    job:{quoteNumber:'Q-'+String(n).padStart(4,'0'),quoteDate:qDate,validUntil:addDays(qDate,db?.settings?.validDays||30),clientName:'',clientPhone:'',clientEmail:'',address:'',startDate:'',finishDate:'',notes:'',inclusions:'All surfaces will be prepared and coated as described in this quotation. Colours are subject to client confirmation before purchase.',exclusions:'Repairs or work not specifically listed are excluded. Hidden defects, asbestos, structural movement and moisture ingress are excluded unless stated.',terms:'Any deposit shown in this quotation is payable before commencement, with the balance payable on completion. Variations require approval and may change the price and completion date.'},
     rooms:[newRoom('Room 1',products)],products,
     jobCosts:{setupHours:1,cleanupHours:1,travelHours:0,travelKm:0,sundries:25,waste:0,parking:0,equipment:0,other:[]},
     pricing:{...(db?.settings?.pricingDefaults||defaultSettings().pricingDefaults),discount:0,adjustment:0}
@@ -461,19 +566,31 @@ function createQuote(){
 
 function normaliseDB(data){
   const defaults=defaultSettings(); const s={...defaults,...(data?.settings||{})}; s.rates={...defaults.rates,...(data?.settings?.rates||{})}; s.pricingDefaults={...defaults.pricingDefaults,...(data?.settings?.pricingDefaults||{})}; s.prepRates={...defaults.prepRates,...(data?.settings?.prepRates||{})}; Object.keys(defaults.prepRates).forEach(k=>s.prepRates[k]={...defaults.prepRates[k],...(data?.settings?.prepRates?.[k]||{})});
-  const out={version:VERSION,settings:s,quotes:Array.isArray(data?.quotes)?data.quotes:[],currentId:data?.currentId||null};
-  out.quotes.forEach(q=>normaliseQuote(q));
+  if(!Array.isArray(s.productDefaults))s.productDefaults=[];
+  s.nextInvoiceNumber=Math.max(1,Math.round(num(s.nextInvoiceNumber)))||1;
+  const out={version:VERSION,settings:s,quotes:Array.isArray(data?.quotes)?data.quotes:[],currentId:data?.currentId||null,activeProfileId:data?.activeProfileId||'',profiles:Array.isArray(data?.profiles)?data.profiles.filter(p=>p&&p.id&&p.name&&p.settings):[]};
+  out.quotes.forEach(q=>normaliseQuote(q,s,out.activeProfileId,out.profiles));
   if(!out.quotes.length){ db={version:VERSION,settings:s,quotes:[],currentId:null}; const q=createQuote(); out.quotes=[q]; out.currentId=q.id; }
   if(!out.quotes.some(q=>q.id===out.currentId)) out.currentId=out.quotes[0].id;
   return out;
 }
-function normaliseQuote(q){
-  q.status=q.status||'Draft'; q.job={...createJobDefaults(),...(q.job||{})};
+function normaliseQuote(q,settings=db?.settings,activeProfileId=db?.activeProfileId,profiles=db?.profiles){
+  q.status=['draft','given','accepted','declined'].includes(String(q.status||'').toLowerCase())?String(q.status).toLowerCase():'draft';
+  q.statusDates=q.statusDates&&typeof q.statusDates==='object'?q.statusDates:{};
+  q.presentation=q.presentation==='simple'?'simple':'detailed';
+  q.mode=q.mode==='quick'?'quick':'measured';
+  q.quick={description:'',labourHours:0,materialsCost:0,otherCost:0,otherCharge:0,...(q.quick||{})};
+  q.setupSnapshot=normaliseSetupSnapshot(q.setupSnapshot,settings,activeProfileId,profiles);
+  q.invoice={number:'',date:'',dueDate:'',tier:'summary',paidToDate:0,status:'draft',statusDates:{},description:'',...(q.invoice||{})};
+  q.invoice.statusDates=q.invoice.statusDates&&typeof q.invoice.statusDates==='object'?q.invoice.statusDates:{};
+  if(!INVOICE_STATUSES.includes(q.invoice.status))q.invoice.status='draft';
+  if(!['summary','subtotals','itemized'].includes(q.invoice.tier))q.invoice.tier='summary';
+  q.job={...createJobDefaults(),...(q.job||{})};
   q.products=Array.isArray(q.products)?q.products:defaultProducts();
   q.rooms=Array.isArray(q.rooms)?q.rooms:[];
   q.rooms.forEach(r=>{
     r.accessAllowance=num(r.accessAllowance); r.objects=Array.isArray(r.objects)?r.objects:[];
-    r.objects.forEach(o=>{ o.prepOpen=!!o.prepOpen; o.prep={...newPrepState(),...(o.prep||{})}; Object.keys(PREP_DEFS).forEach(k=>o.prep[k]={on:!!o.prep[k]?.on,qty:num(o.prep[k]?.qty)}); });
+    r.objects.forEach(o=>{ o.prepOpen=!!o.prepOpen; o.prep={...newPrepState(),...(o.prep||{})}; Object.keys(PREP_DEFS).forEach(k=>o.prep[k]={on:!!o.prep[k]?.on,qty:num(o.prep[k]?.qty),fullArea:!!o.prep[k]?.fullArea}); });
   });
   q.jobCosts={setupHours:1,cleanupHours:1,travelHours:0,travelKm:0,sundries:0,waste:0,parking:0,equipment:0,other:[],...(q.jobCosts||{})};
   if(!Array.isArray(q.jobCosts.other))q.jobCosts.other=[];
@@ -528,11 +645,11 @@ function scheduleSave(){
 }
 
 function renderAll(){
-  renderQuoteSelector(); renderStaticFields(); renderRooms(); renderProducts(); renderOtherCosts(); renderSettings(); calculate();
+  renderQuoteSelector(); renderStaticFields(); renderRooms(); renderProducts(); renderOtherCosts(); renderSettings(); renderProfiles(); calculate();
 }
 function renderQuoteSelector(){
   const el=document.getElementById('quoteSelector');
-  el.innerHTML=db.quotes.map(q=>`<option value="${esc(q.id)}" ${q.id===db.currentId?'selected':''}>${esc(q.job.quoteNumber||'Untitled')} — ${esc(q.job.clientName||q.job.address||'New quotation')}</option>`).join('');
+  el.innerHTML=db.quotes.map(q=>`<option value="${esc(q.id)}" ${q.id===db.currentId?'selected':''}>${esc(q.job.quoteNumber||'Untitled')} · ${esc((STATUS_META[q.status]||STATUS_META.draft)[0])} — ${esc(q.job.clientName||q.job.address||'New quotation')}</option>`).join('');
 }
 function renderStaticFields(){
   const q=currentQuote();
@@ -543,6 +660,15 @@ function renderStaticFields(){
   document.querySelectorAll('[data-pricing-check]').forEach(el=>el.checked=!!q.pricing[el.dataset.pricingCheck]);
   updateDepositControls();
   document.querySelectorAll('[data-setting]').forEach(el=>el.value=db.settings[el.dataset.setting]??'');
+  document.querySelectorAll('[data-invoice]').forEach(el=>el.value=q.invoice?.[el.dataset.invoice]??'');
+  document.querySelectorAll('[data-invoice-text]').forEach(el=>el.value=q.invoice?.[el.dataset.invoiceText]??(el.dataset.invoiceText==='status'?'draft':'summary'));
+  document.querySelectorAll('[data-quick]').forEach(el=>el.value=q.quick?.[el.dataset.quick]??'');
+  const st=document.getElementById('quoteStatus'); if(st)st.value=q.status||'draft';
+  const pr=document.getElementById('quotePresentation'); if(pr)pr.value=q.presentation||'detailed';
+  renderStatusHistory(); renderInvoiceStatusHistory();
+  const qm=document.getElementById('quoteMode'); if(qm)qm.value=q.mode||'measured';
+  const qpn=document.getElementById('quoteProfileName'); if(qpn)qpn.value=q.setupSnapshot?.profileName||'Current setup';
+  updateModeVisibility();
 }
 function renderSettings(){
   document.getElementById('rateSettings').innerHTML=RATE_FIELDS.map(([key,label])=>`<div class="field"><label>${esc(label)}</label><input type="number" min="0.1" step="1" data-rate="${esc(key)}" value="${num(db.settings.rates[key])}"></div>`).join('');
@@ -565,7 +691,7 @@ function renderRooms(){
       </div>
       ${r.objects.map(o=>renderObject(r,o)).join('')}
       <div class="chips">${KIND_ORDER.map(k=>`<button type="button" class="chip" onclick="addObject('${r.id}','${k}')">+ ${esc(KIND_DEFS[k].label)}</button>`).join('')}</div>
-      <div class="room-total">Room total: <strong>${totalArea.toFixed(1)} m²</strong> across ${r.objects.length} paintable object${r.objects.length===1?'':'s'}.</div>
+      <div class="room-total" id="roomTotal_${r.id}">Room total: <strong>${totalArea.toFixed(1)} m²</strong> across ${r.objects.length} paintable object${r.objects.length===1?'':'s'}.</div>
     </div>`;
   }).join('');
 }
@@ -576,22 +702,22 @@ function renderObject(room,o){
   const primerOptions=paintOptions(o.primerProductId,true);
   const prepRows=Object.entries(PREP_DEFS).filter(([k,d])=>!d.doorOnly||o.kind==='door').map(([key,d])=>{
     const p=o.prep?.[key]||{on:false,qty:0};
-    return `<div class="prep-row"><div class="prep-top"><input type="checkbox" ${p.on?'checked':''} onchange="updatePrep('${room.id}','${o.id}','${key}','on',this.checked)"><span class="prep-name">${esc(d.name)}</span></div>${p.on?`<div class="prep-entry"><input type="number" min="0" step="0.1" value="${num(p.qty)}" oninput="updatePrep('${room.id}','${o.id}','${key}','qty',this.value)"><span class="prep-unit">${esc(d.unit)}</span>${d.fullArea?`<button type="button" class="btn small-btn" onclick="setPrepFullArea('${room.id}','${o.id}','${key}')">Full area</button>`:'<span></span>'}</div>`:''}</div>`;
+    return `<div class="prep-row"><div class="prep-top"><input type="checkbox" ${p.on?'checked':''} onchange="updatePrep('${room.id}','${o.id}','${key}','on',this.checked)"><span class="prep-name">${esc(d.name)}</span></div>${p.on?`<div class="prep-entry"><input id="prepQty_${o.id}_${key}" type="number" min="0" step="0.1" value="${prepEffectiveQty(o,p)}" ${p.fullArea?'disabled':''} oninput="updatePrep('${room.id}','${o.id}','${key}','qty',this.value)"><span class="prep-unit">${esc(d.unit)}</span>${d.fullArea?`<button type="button" class="btn small-btn ${p.fullArea?'active':''}" onclick="togglePrepFullArea('${room.id}','${o.id}','${key}')">${p.fullArea?'Full area ✓':'Full area'}</button>`:'<span></span>'}</div>`:''}</div>`;
   }).join('');
   return `<div class="object-card">
-    <div class="object-head"><span class="object-kind">${esc(K.label)}</span><input class="object-label" type="text" value="${esc(o.label)}" placeholder="Optional label, e.g. north wall" oninput="updateObject('${room.id}','${o.id}','label',this.value)"><span class="object-area">${area.toFixed(2)} m²</span><button type="button" class="btn icon danger" aria-label="Remove object" onclick="removeObject('${room.id}','${o.id}')">×</button></div>
+    <div class="object-head"><span class="object-kind">${esc(K.label)}</span><input class="object-label" type="text" value="${esc(o.label)}" placeholder="Optional label, e.g. north wall" oninput="updateObject('${room.id}','${o.id}','label',this.value)"><span class="object-area" id="objArea_${o.id}">${area.toFixed(2)} m²</span><button type="button" class="btn icon danger" aria-label="Remove object" onclick="removeObject('${room.id}','${o.id}')">×</button></div>
     <div class="compact-grid">
       <div><label>${esc(K.d1)}</label><input type="number" min="0" step="0.01" value="${num(o.d1)}" oninput="updateObject('${room.id}','${o.id}','d1',this.value)"></div>
       <div><label>${esc(K.d2)}</label><input type="number" min="0" step="0.01" value="${num(o.d2)}" oninput="updateObject('${room.id}','${o.id}','d2',this.value)"></div>
       <div><label>How many</label><input type="number" min="0" step="1" value="${num(o.count)}" oninput="updateObject('${room.id}','${o.id}','count',this.value)"></div>
       <div><label>${o.kind==='door'?'Sides':'Faces / sides'}</label><input type="number" min="1" step="1" value="${num(o.sides)||1}" oninput="updateObject('${room.id}','${o.id}','sides',this.value)"></div>
       <div><label>Deduct area (m²)</label><input type="number" min="0" step="0.01" value="${num(o.deduct)}" oninput="updateObject('${room.id}','${o.id}','deduct',this.value)"></div>
-      <div><label>Measured area</label><input type="text" value="${area.toFixed(2)} m²" disabled></div>
+      <div><label>Measured area</label><input id="objAreaOut_${o.id}" type="text" value="${area.toFixed(2)} m²" disabled></div>
     </div>
     <div class="paint-grid">
-      <div><label>Finish paint</label><select onchange="updateObject('${room.id}','${o.id}','finishProductId',this.value)">${finishOptions}</select></div>
-      <div><label>Coats</label><input type="number" min="0" step="1" value="${num(o.coats)}" oninput="updateObject('${room.id}','${o.id}','coats',this.value)"></div>
-      <div><label>Primer / sealer</label><select onchange="updateObject('${room.id}','${o.id}','primerProductId',this.value)">${primerOptions}</select></div>
+      <div><label>Finish paint</label><select id="finish_${o.id}" onchange="updateObject('${room.id}','${o.id}','finishProductId',this.value)">${finishOptions}</select></div>
+      <div><label>Coats</label><input id="coats_${o.id}" type="number" min="0" step="1" value="${num(o.coats)}" oninput="updateObject('${room.id}','${o.id}','coats',this.value)"></div>
+      <div><label>Primer / sealer</label><select id="primer_${o.id}" onchange="updateObject('${room.id}','${o.id}','primerProductId',this.value)">${primerOptions}</select></div>
       <div><label>Primer coats</label><input type="number" min="0" step="1" value="${num(o.primerCoats)}" oninput="updateObject('${room.id}','${o.id}','primerCoats',this.value)"></div>
     </div>
     <details ${o.prepOpen?'open':''} ontoggle="setPrepOpen('${room.id}','${o.id}',this.open)"><summary>Preparation and repair quantities</summary><div class="prep-grid">${prepRows}</div></details>
@@ -656,10 +782,21 @@ function duplicateRoom(id){ const q=currentQuote(); const r=q.rooms.find(x=>x.id
 function removeRoom(id){ const q=currentQuote(); if(q.rooms.length===1&&!confirm('Remove the last room?'))return; q.rooms=q.rooms.filter(x=>x.id!==id); renderRooms(); calculateAndRefresh(true); }
 function addObject(roomId,kind){ const q=currentQuote(); const r=q.rooms.find(x=>x.id===roomId); if(!r)return; r.objects.push(newObject(kind,q.products)); renderRooms(); calculateAndRefresh(true); }
 function removeObject(roomId,objId){ const r=currentQuote().rooms.find(x=>x.id===roomId); if(!r)return; r.objects=r.objects.filter(x=>x.id!==objId); renderRooms(); calculateAndRefresh(true); }
-function updateObject(roomId,objId,field,value){ const r=currentQuote().rooms.find(x=>x.id===roomId); const o=r?.objects.find(x=>x.id===objId); if(!o)return; const textFields=['label','finishProductId','primerProductId']; o[field]=textFields.includes(field)?value:num(value); if(field==='primerProductId'&&!value)o.primerCoats=0; if(field==='primerProductId'&&value&&!o.primerCoats)o.primerCoats=1; calculateAndRefresh(['finishProductId','primerProductId'].includes(field)); }
-function updatePrep(roomId,objId,key,field,value){ const r=currentQuote().rooms.find(x=>x.id===roomId); const o=r?.objects.find(x=>x.id===objId); if(!o)return; o.prep[key]=o.prep[key]||{on:false,qty:0}; o.prep[key][field]=field==='on'?!!value:num(value); if(field==='on')renderRooms(); calculateAndRefresh(false); }
+function updateObject(roomId,objId,field,value){ const r=currentQuote().rooms.find(x=>x.id===roomId); const o=r?.objects.find(x=>x.id===objId); if(!o)return; const textFields=['label','finishProductId','primerProductId']; o[field]=textFields.includes(field)?value:num(value); if(field==='primerProductId'&&!value)o.primerCoats=0; if(field==='primerProductId'&&value&&!o.primerCoats)o.primerCoats=1; calculateAndRefresh(['finishProductId','primerProductId'].includes(field)); if(['d1','d2','count','sides','deduct'].includes(field))refreshObjectAreas(roomId,objId); }
+function refreshObjectAreas(roomId,objId){
+  const r=currentQuote().rooms.find(x=>x.id===roomId); if(!r)return;
+  const o=r.objects.find(x=>x.id===objId);
+  if(o){ const a=objectArea(o);
+    const s1=document.getElementById('objArea_'+o.id); if(s1)s1.textContent=a.toFixed(2)+' m²';
+    const s2=document.getElementById('objAreaOut_'+o.id); if(s2)s2.value=a.toFixed(2)+' m²';
+    Object.entries(o.prep||{}).forEach(([k,p])=>{ if(p.on&&p.fullArea){const pi=document.getElementById(`prepQty_${o.id}_${k}`); if(pi)pi.value=round2(a);} });
+  }
+  const t=document.getElementById('roomTotal_'+r.id);
+  if(t)t.innerHTML=`Room total: <strong>${r.objects.reduce((s,x)=>s+objectArea(x),0).toFixed(1)} m²</strong> across ${r.objects.length} paintable object${r.objects.length===1?'':'s'}.`;
+}
+function updatePrep(roomId,objId,key,field,value){ const r=currentQuote().rooms.find(x=>x.id===roomId); const o=r?.objects.find(x=>x.id===objId); if(!o)return; const p=o.prep[key]=o.prep[key]||{on:false,qty:0,fullArea:false}; if(field==='qty'){p.qty=num(value);p.fullArea=false;} else p[field]=field==='on'?!!value:num(value); if(field==='on')renderRooms(); calculateAndRefresh(false); }
 function setPrepOpen(roomId,objId,isOpen){ const r=currentQuote().rooms.find(x=>x.id===roomId); const o=r?.objects.find(x=>x.id===objId); if(o)o.prepOpen=!!isOpen; }
-function setPrepFullArea(roomId,objId,key){ const r=currentQuote().rooms.find(x=>x.id===roomId); const o=r?.objects.find(x=>x.id===objId); if(!o)return; o.prep[key].on=true; o.prep[key].qty=round2(objectArea(o)); renderRooms(); calculateAndRefresh(true); }
+function togglePrepFullArea(roomId,objId,key){ const r=currentQuote().rooms.find(x=>x.id===roomId); const o=r?.objects.find(x=>x.id===objId); if(!o)return; const p=o.prep[key]=o.prep[key]||{on:false,qty:0,fullArea:false}; if(p.fullArea){p.fullArea=false;p.qty=round2(objectArea(o));} else {p.on=true;p.fullArea=true;} renderRooms(); calculateAndRefresh(true); }
 
 function addProduct(){ currentQuote().products.push({id:uid('prod'),category:'other',name:'New paint product',coverage:12,tinSize:4,autoQty:true,qty:0,price:0}); renderProducts(); renderRooms(); calculateAndRefresh(true); }
 function updateProduct(id,field,value){
@@ -696,27 +833,29 @@ function calculateAndRefresh(structural=false){ calculate(); if(structural){rend
 
 function calculate(){
   const q=currentQuote(), demand=calculatePaintDemand();
+  const qs=quoteSetup(q);
   let scopeArea=0,finishCoatArea=0,primerCoatArea=0,paintHours=0,prepHours=0,prepMaterials=0;
-  q.rooms.forEach(r=>{
+  if(q.mode!=='quick')q.rooms.forEach(r=>{
     const access=accessMultiplier(r);
     r.objects.forEach(o=>{
       const K=KIND_DEFS[o.kind]||KIND_DEFS.other,area=objectArea(o); scopeArea+=area;
-      if(num(o.coats)>0){finishCoatArea+=area*num(o.coats); const rate=num(db.settings.rates[K.finishRateKey]); if(rate>0)paintHours+=area*num(o.coats)*access/rate;}
-      if(o.primerProductId&&num(o.primerCoats)>0){primerCoatArea+=area*num(o.primerCoats);const rate=num(db.settings.rates[K.primerRateKey]);if(rate>0)paintHours+=area*num(o.primerCoats)*access/rate;}
-      Object.entries(PREP_DEFS).forEach(([key,d])=>{const p=o.prep?.[key];if(!p?.on)return;const rate=db.settings.prepRates[key]||d;prepHours+=num(p.qty)*num(rate.hoursPerUnit)*access;prepMaterials+=num(p.qty)*num(rate.materialPerUnit);});
+      if(num(o.coats)>0){finishCoatArea+=area*num(o.coats); const rate=num(qs.rates[K.finishRateKey]); if(rate>0)paintHours+=area*num(o.coats)*access/rate;}
+      if(o.primerProductId&&num(o.primerCoats)>0){primerCoatArea+=area*num(o.primerCoats);const rate=num(qs.rates[K.primerRateKey]);if(rate>0)paintHours+=area*num(o.primerCoats)*access/rate;}
+      Object.entries(PREP_DEFS).forEach(([key,d])=>{const p=o.prep?.[key];if(!p?.on)return;const rate=qs.prepRates[key]||d;const qq=prepEffectiveQty(o,p);prepHours+=qq*num(rate.hoursPerUnit)*access;prepMaterials+=qq*num(rate.materialPerUnit);});
     });
   });
-  const jobLabourHours=num(q.jobCosts.setupHours)+num(q.jobCosts.cleanupHours)+num(q.jobCosts.travelHours);
+  const jobLabourHours=q.mode==='quick'?0:num(q.jobCosts.setupHours)+num(q.jobCosts.cleanupHours)+num(q.jobCosts.travelHours);
+  if(q.mode==='quick')paintHours=num(q.quick.labourHours);
   const totalHours=paintHours+prepHours+jobLabourHours;
   let paintCost=0,totalLitres=0,totalTins=0;
-  q.products.forEach(p=>{const d=demand[p.id]||{litres:0};totalLitres+=d.litres;const suggested=num(p.tinSize)>0&&d.litres>0?Math.ceil(d.litres/num(p.tinSize)):0;const qty=p.autoQty?suggested:num(p.qty);totalTins+=qty;paintCost+=qty*num(p.price);});
-  const travelCost=num(q.jobCosts.travelKm)*num(db.settings.travelRate);
-  const fixedDirect=num(q.jobCosts.sundries)+num(q.jobCosts.waste)+num(q.jobCosts.parking)+num(q.jobCosts.equipment)+travelCost;
-  const otherDirect=q.jobCosts.other.reduce((s,x)=>s+num(x.cost),0);
-  const otherCharges=q.jobCosts.other.reduce((s,x)=>s+num(x.charge),0);
+  if(q.mode!=='quick')q.products.forEach(p=>{const d=demand[p.id]||{litres:0};totalLitres+=d.litres;const suggested=num(p.tinSize)>0&&d.litres>0?Math.ceil(d.litres/num(p.tinSize)):0;const qty=p.autoQty?suggested:num(p.qty);totalTins+=qty;paintCost+=qty*num(p.price);});
+  const travelCost=q.mode==='quick'?0:num(q.jobCosts.travelKm)*num(qs.travelRate);
+  const fixedDirect=q.mode==='quick'?num(q.quick.materialsCost):num(q.jobCosts.sundries)+num(q.jobCosts.waste)+num(q.jobCosts.parking)+num(q.jobCosts.equipment)+travelCost;
+  const otherDirect=q.mode==='quick'?num(q.quick.otherCost):q.jobCosts.other.reduce((s,x)=>s+num(x.cost),0);
+  const otherCharges=q.mode==='quick'?num(q.quick.otherCharge):q.jobCosts.other.reduce((s,x)=>s+num(x.charge),0);
   const markuppableMaterials=paintCost+prepMaterials+fixedDirect;
   const directMaterials=markuppableMaterials+otherDirect;
-  const labourCost=totalHours*num(db.settings.labourCostRate);
+  const labourCost=totalHours*num(qs.labourCostRate);
   const directCost=labourCost+directMaterials;
   const labourSell=totalHours*num(q.pricing.labourChargeRate);
   const materialsSell=markuppableMaterials*(1+num(q.pricing.materialMarkupPct)/100);
@@ -726,7 +865,7 @@ function calculate(){
   const preMinimum=baseSell+overhead+contingency-num(q.pricing.discount)+num(q.pricing.adjustment);
   const preMinimumClamped=Math.max(preMinimum,0);
   const subtotalEx=Math.max(num(q.pricing.minimumCharge),preMinimumClamped);
-  const minimumUplift=Math.max(0,subtotalEx-preMinimumClamped);
+  const minimumUplift=Math.max(0,subtotalEx-preMinimum);
   const gst=q.pricing.gstEnabled?subtotalEx*num(q.pricing.gstPct)/100:0;
   const total=subtotalEx+gst;
   const depositType=q.pricing.depositType||'none',depositValue=num(q.pricing.depositValue);
@@ -735,47 +874,81 @@ function calculate(){
   const balanceDue=Math.max(0,total-depositAmount);
   const grossProfit=subtotalEx-directCost;
   const margin=subtotalEx>0?grossProfit/subtotalEx*100:0;
-  const validation=validateQuote(demand,scopeArea);
-  if(depositType==='fixed'&&depositValue>total)validation.errors.push('Fixed deposit cannot exceed the quotation total.');
-  lastCalc={scopeArea,finishCoatArea,primerCoatArea,paintHours,prepHours,jobLabourHours,totalHours,paintCost,prepMaterials,travelCost,fixedDirect,otherDirect,otherCharges,markuppableMaterials,directMaterials,labourCost,directCost,labourSell,materialsSell,baseSell,overhead,contingency,preMinimum,minimumUplift,subtotalEx,gst,total,grossProfit,margin,totalLitres,totalTins,depositAmount,balanceDue,demand,validation};
-  renderCalculation(lastCalc); renderValidation(validation); renderPreview(lastCalc); renderPrintView(lastCalc); scheduleSave();
+  const validation=validateQuote(demand,scopeArea,total);
+  if(depositType==='fixed'&&depositValue>total)validation.errors.push(issue('Fixed deposit cannot exceed the quotation total.','depositValue','Quote'));
+  validation.errors=uniqueIssues(validation.errors); validation.warnings=uniqueIssues(validation.warnings);
+  const calculation={scopeArea,finishCoatArea,primerCoatArea,paintHours,prepHours,jobLabourHours,totalHours,paintCost,prepMaterials,travelCost,fixedDirect,otherDirect,otherCharges,markuppableMaterials,directMaterials,labourCost,directCost,labourSell,materialsSell,baseSell,overhead,contingency,preMinimum,minimumUplift,subtotalEx,gst,total,grossProfit,margin,totalLitres,totalTins,depositAmount,balanceDue,demand,validation};
+  calculation.invoiceValidation=validateInvoice(calculation);
+  lastCalc=calculation;
+  renderCalculation(lastCalc); renderValidation(validationMode==='invoice'?lastCalc.invoiceValidation:validation); renderPreview(lastCalc); renderPrintView(lastCalc); scheduleSave();
 }
 
-function validateQuote(demand,scopeArea){
-  const q=currentQuote(),errors=[],warnings=[];
-  if(scopeArea<=0)errors.push('No measurable paintable area has been entered.');
-  if(!q.rooms.length)errors.push('No rooms or work areas exist.');
-  q.rooms.forEach(r=>r.objects.forEach(o=>{
-    const area=objectArea(o),label=`${r.name}: ${o.label||KIND_DEFS[o.kind]?.label||'surface'}`;
-    if(area<=0&&(num(o.coats)>0||Object.values(o.prep||{}).some(p=>p.on)))errors.push(`${label} has work selected but no measurable area.`);
-    const finishProduct=productById(o.finishProductId), primerProduct=productById(o.primerProductId);
-    if(area>0&&num(o.coats)>0&&!finishProduct)errors.push(`${label} has finish coats but no valid paint product selected.`);
-    if(finishProduct?.category==='primer')errors.push(`${label} uses a primer product as its finish paint.`);
-    if(o.primerProductId&&!primerProduct)errors.push(`${label} references a primer product that no longer exists.`);
-    if(primerProduct&&primerProduct.category!=='primer')errors.push(`${label} uses a non-primer product as primer.`);
-    if(o.primerProductId&&num(o.primerCoats)<=0)warnings.push(`${label} has primer selected but primer coats are zero.`);
-    Object.entries(o.prep||{}).forEach(([k,p])=>{if(p.on&&num(p.qty)<=0)errors.push(`${label}: ${PREP_DEFS[k]?.name||'preparation'} is enabled but quantity is zero.`);});
-  }));
-  currentQuote().products.forEach(p=>{const d=demand[p.id];if(!d||d.areaCoats<=0)return;if(num(p.coverage)<=0)errors.push(`${p.name||'Paint product'} has no coverage rate.`);if(num(p.tinSize)<=0)errors.push(`${p.name||'Paint product'} has no tin size.`);if(num(p.price)<=0)errors.push(`${p.name||'Paint product'} has no price per tin.`);if(!p.autoQty&&num(p.tinSize)*num(p.qty)+1e-6<d.litres)errors.push(`${p.name||'Paint product'} does not have enough paint selected.`);});
-  if(!q.job.clientName)warnings.push('Client name is blank.');
-  if(!q.job.address)warnings.push('Job address is blank.');
-  if(!q.job.quoteNumber)warnings.push('Quote number is blank.');
-  if(!db.settings.businessName)warnings.push('Business name is blank.');
-  if(num(q.pricing.labourChargeRate)<=0)errors.push('Labour charge rate must be greater than zero.');
-  if(num(db.settings.labourCostRate)<=0)warnings.push('Internal labour cost is zero, so gross margin is overstated.');
+function validateQuote(demand,scopeArea,total){
+  const q=currentQuote(),errors=[],warnings=[],qs=quoteSetup(q);
+  if(q.mode==='quick'){
+    if(!String(q.quick.description||'').trim())errors.push(issue('Quick quote description is blank.','quickDescription','Quote'));
+    if(num(q.quick.labourHours)<=0&&num(q.quick.materialsCost)<=0&&num(q.quick.otherCharge)<=0)errors.push(issue('Quick quote has no labour, materials or other charges.','quickLabourHours','Quote'));
+  }else{
+    if(scopeArea<=0)errors.push(issue('No measurable paintable area has been entered.','roomsSection','Quote'));
+    if(!q.rooms.length)errors.push(issue('No rooms or work areas exist.','roomsSection','Quote'));
+    q.rooms.forEach(r=>r.objects.forEach(o=>{
+      const area=objectArea(o),label=`${r.name}: ${o.label||KIND_DEFS[o.kind]?.label||'surface'}`;
+      if(area<=0&&(num(o.coats)>0||Object.values(o.prep||{}).some(p=>p.on)))errors.push(issue(`${label} has work selected but no measurable area.`,`objArea_${o.id}`,'Quote'));
+      const finishProduct=productById(o.finishProductId),primerProduct=productById(o.primerProductId);
+      if(area>0&&num(o.coats)>0&&!finishProduct)errors.push(issue(`${label} has finish coats but no valid paint product selected.`,`finish_${o.id}`,'Quote'));
+      if(finishProduct?.category==='primer')errors.push(issue(`${label} uses a primer product as its finish paint.`,`finish_${o.id}`,'Quote'));
+      if(o.primerProductId&&!primerProduct)errors.push(issue(`${label} references a primer product that no longer exists.`,`primer_${o.id}`,'Quote'));
+      if(primerProduct&&primerProduct.category!=='primer')errors.push(issue(`${label} uses a non-primer product as primer.`,`primer_${o.id}`,'Quote'));
+      if(o.primerProductId&&num(o.primerCoats)<=0)warnings.push(issue(`${label} has primer selected but primer coats are zero.`,`primer_${o.id}`,'Quote'));
+      Object.entries(o.prep||{}).forEach(([k,p])=>{if(p.on&&prepEffectiveQty(o,p)<=0)errors.push(issue(`${label}: ${PREP_DEFS[k]?.name||'preparation'} is enabled but quantity is zero.`,`prepQty_${o.id}_${k}`,'Quote'));});
+    }));
+    q.products.forEach(p=>{const d=demand[p.id];if(!d||d.areaCoats<=0)return;const target=`productCard_${p.id}`;if(num(p.coverage)<=0)errors.push(issue(`${p.name||'Paint product'} has no coverage rate.`,target,'Quote'));if(num(p.tinSize)<=0)errors.push(issue(`${p.name||'Paint product'} has no tin size.`,target,'Quote'));if(num(p.price)<=0)errors.push(issue(`${p.name||'Paint product'} has no price per tin.`,target,'Quote'));if(!p.autoQty&&num(p.tinSize)*num(p.qty)+1e-6<d.litres)errors.push(issue(`${p.name||'Paint product'} does not have enough paint selected.`,target,'Quote'));});
+  }
+  if(!q.job.clientName)warnings.push(issue('Client name is blank.','clientName','Quote'));
+  if(!q.job.address)warnings.push(issue('Job address is blank.','jobAddress','Quote'));
+  if(!q.job.quoteNumber)warnings.push(issue('Quote number is blank.','quoteNumber','Quote'));
+  if(!qs.businessName)warnings.push(issue("Business name in this quote's frozen profile is blank. Complete Setup, then update this quote to the current profile.",'businessName','Setup'));
+  if(num(q.pricing.labourChargeRate)<=0)errors.push(issue('Labour charge rate must be greater than zero.','labourChargeRate','Pricing'));
+  if(num(qs.labourCostRate)<=0)warnings.push(issue('Internal labour cost is zero, so gross margin is overstated.','labourCostRate','Setup'));
   const dt=q.pricing.depositType||'none',dv=num(q.pricing.depositValue);
-  if(!['none','percent','fixed'].includes(dt))errors.push('Deposit type is invalid.');
-  if(dt==='percent'&&(dv<0||dv>100))errors.push('Deposit percentage must be between 0% and 100%.');
-  if(dt==='fixed'&&dv<0)errors.push('Fixed deposit cannot be negative.');
-  if(dt!=='none'&&dv<=0)warnings.push('A deposit type is selected but its value is zero.');
-  return {errors:[...new Set(errors)],warnings:[...new Set(warnings)]};
+  if(!['none','percent','fixed'].includes(dt))errors.push(issue('Deposit type is invalid.','depositValue','Quote'));
+  if(dt==='percent'&&(dv<0||dv>100))errors.push(issue('Deposit percentage must be between 0% and 100%.','depositValue','Quote'));
+  if(dt==='fixed'&&dv<0)errors.push(issue('Fixed deposit cannot be negative.','depositValue','Quote'));
+  if(dt!=='none'&&dv<=0)warnings.push(issue('A deposit type is selected but its value is zero.','depositValue','Quote'));
+  return {errors:uniqueIssues(errors),warnings:uniqueIssues(warnings)};
+}
+function validateInvoice(c){
+  const q=currentQuote(),errors=[...c.validation.errors],warnings=[...c.validation.warnings],inv=q.invoice||{};
+  if(q.status==='draft')errors.push(issue('Set the quotation status to Given to client or Accepted before creating an invoice.','quoteStatus','Quote'));
+  if(q.status==='declined')errors.push(issue('A declined quotation cannot be invoiced.','quoteStatus','Quote'));
+  if(inv.status==='void')errors.push(issue('A void invoice cannot be printed as an active invoice.','invoiceStatus','Quote'));
+  if(num(inv.paidToDate)>c.total+0.005)errors.push(issue('Amount already paid cannot exceed the invoice total.','invoicePaidToDate','Quote'));
+  if(inv.date&&inv.dueDate&&inv.dueDate<inv.date)errors.push(issue('Invoice due date cannot be before the invoice date.','invoiceDueDate','Quote'));
+  if(inv.status==='paid'&&num(inv.paidToDate)+0.005<c.total)errors.push(issue('Invoice status is Paid, but the amount paid is less than the invoice total.','invoiceStatus','Quote'));
+  if(inv.status==='part-paid'&&(num(inv.paidToDate)<=0||num(inv.paidToDate)>=c.total))errors.push(issue('Part-paid status does not match the amount already paid.','invoiceStatus','Quote'));
+  return {errors:uniqueIssues(errors),warnings:uniqueIssues(warnings)};
+}
+function validationItemHtml(item,type,index){
+  const text=issueText(item),click=item?.target?` onclick="goToValidation('${type}',${index})"`:'';
+  return `<li class="validation-item"><button type="button" class="validation-link"${click}>${esc(text)}</button></li>`;
 }
 function renderValidation(v){
-  const box=document.getElementById('validationBox');
-  if(!v.errors.length&&!v.warnings.length){box.innerHTML='<div class="notice good"><div class="notice-title">Quotation checks passed</div><div class="small">The required measurements, paint quantities and prices are complete.</div></div>';return;}
-  const cls=v.errors.length?'bad':'warn';
-  box.innerHTML=`<div class="notice ${cls}"><div class="notice-title">${v.errors.length?v.errors.length+' item'+(v.errors.length===1?'':'s')+' must be corrected':'Quotation can be produced, but review the warnings'}</div>${v.errors.length?`<ul class="validation-list">${v.errors.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}${v.warnings.length?`<div class="small" style="margin-top:6px"><strong>Warnings:</strong></div><ul class="validation-list">${v.warnings.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}</div>`;
+  const box=document.getElementById('validationBox'),n=v.errors.length,wn=v.warnings.length;
+  document.body.classList.toggle('has-validation',!!(n||wn));
+  document.body.classList.toggle('validation-open',!!(n||wn)&&valOpen);
+  if(!n&&!wn){box.style.display='none';box.innerHTML='';return;}
+  box.style.display='block';
+  const cls=n?'bad':'warn',title=n?`${n} item${n===1?'':'s'} must be corrected`:`${wn} warning${wn===1?'':'s'} to review`;
+  const list=valOpen?`<div class="val-list">${n?`<ul class="validation-list">${v.errors.map((x,i)=>validationItemHtml(x,'errors',i)).join('')}</ul>`:''}${wn?`<div class="small"><strong>Warnings:</strong></div><ul class="validation-list">${v.warnings.map((x,i)=>validationItemHtml(x,'warnings',i)).join('')}</ul>`:''}</div>`:'';
+  box.innerHTML=`<div class="val-inner"><button type="button" class="val-toggle ${cls}" onclick="toggleValidation()"><span>${esc(title)}</span><span>${valOpen?'Hide ▾':'Show ▸'}</span></button>${list}</div>`;
 }
+function goToValidation(type,index){
+  const v=validationMode==='invoice'?lastCalc?.invoiceValidation:lastCalc?.validation,item=v?.[type]?.[index]; if(!item)return;
+  showTab(item.tab||'Quote'); valOpen=false;
+  setTimeout(()=>{const el=document.getElementById(item.target);if(!el)return;el.scrollIntoView({behavior:'smooth',block:'center'});if(typeof el.focus==='function'&&!el.disabled)el.focus();},80);
+  renderValidation(v);
+}
+function toggleValidation(){ valOpen=!valOpen; if(lastCalc)renderValidation(validationMode==='invoice'?lastCalc.invoiceValidation:lastCalc.validation); }
 function renderCalculation(c){
   document.getElementById('scopeMetric').textContent=c.scopeArea.toFixed(1)+' m²';
   document.getElementById('paintMetric').textContent=c.totalLitres.toFixed(1)+' L required';
@@ -785,7 +958,8 @@ function renderCalculation(c){
   document.getElementById('balanceDueOut').value=money(c.balanceDue);
   updateDepositControls();
   document.getElementById('summaryStatus').textContent=c.validation.errors.length?`${c.validation.errors.length} blocking issue${c.validation.errors.length===1?'':'s'}`:'Ready to print';
-  const pill=document.getElementById('quoteStatusPill');pill.textContent=c.validation.errors.length?'Incomplete':'Ready';pill.className='pill '+(c.validation.errors.length?'bad':'good');
+  const [stLabel,stCls]=STATUS_META[currentQuote().status]||STATUS_META.draft;
+  const pill=document.getElementById('quoteStatusPill');pill.textContent=stLabel;pill.className='pill '+stCls;
   const mp=document.getElementById('marginPill');mp.textContent=c.margin.toFixed(1)+'% gross margin';mp.className='pill '+(c.margin>=30?'good':c.margin>=15?'warn':'bad');
   document.getElementById('metrics').innerHTML=`
     <div class="metric"><div class="label">Labour hours</div><div class="value">${c.totalHours.toFixed(1)}</div></div>
@@ -805,17 +979,20 @@ function objectScopeText(o){
   const parts=[`${K.label}${o.label?' — '+o.label:''}: ${area.toFixed(1)} m²`];
   if(num(o.coats)>0)parts.push(`${num(o.coats)} finish coat${num(o.coats)===1?'':'s'}${p?' using '+p.name:''}`);
   if(o.primerProductId&&num(o.primerCoats)>0)parts.push(`${num(o.primerCoats)} primer coat${num(o.primerCoats)===1?'':'s'}${pr?' using '+pr.name:''}`);
-  const prep=Object.entries(o.prep||{}).filter(([k,x])=>x.on&&num(x.qty)>0).map(([k,x])=>`${PREP_DEFS[k].name.toLowerCase()} (${num(x.qty)} ${PREP_DEFS[k].unit})`);
+  const prep=Object.entries(o.prep||{}).filter(([k,x])=>x.on&&prepEffectiveQty(o,x)>0).map(([k,x])=>`${PREP_DEFS[k].name.toLowerCase()} (${prepEffectiveQty(o,x)} ${PREP_DEFS[k].unit})`);
   if(prep.length)parts.push(prep.join(', ')); return parts.join('; ')+'.';
 }
 function renderPreview(c){
-  const q=currentQuote();
-  const rooms=q.rooms.filter(r=>r.objects.some(o=>objectArea(o)>0||Object.values(o.prep||{}).some(p=>p.on))).map(r=>`<div class="scope-room"><strong>${esc(r.name)}</strong><ul class="scope-list">${r.objects.filter(o=>objectArea(o)>0||Object.values(o.prep||{}).some(p=>p.on)).map(o=>`<li>${esc(objectScopeText(o))}</li>`).join('')}</ul>${r.notes?`<div class="small" style="margin-top:4px">${esc(r.notes)}</div>`:''}</div>`).join('');
+  const q=currentQuote(),active=q.rooms.filter(r=>r.objects.some(o=>objectArea(o)>0||Object.values(o.prep||{}).some(p=>p.on)));
+  const rooms=q.mode==='quick'?`<div class="scope-room"><strong>Scope of work</strong><div>${esc(q.quick.description||'').replaceAll('\n','<br>')}</div></div>`:q.presentation==='simple'?active.map(r=>`<div class="scope-room"><strong>${esc(r.name)}</strong><div>${r.objects.reduce((s,o)=>s+objectArea(o),0).toFixed(1)} m² across ${r.objects.filter(o=>objectArea(o)>0).length} surface${r.objects.filter(o=>objectArea(o)>0).length===1?'':'s'}.</div></div>`).join(''):active.map(r=>`<div class="scope-room"><strong>${esc(r.name)}</strong><ul class="scope-list">${r.objects.filter(o=>objectArea(o)>0||Object.values(o.prep||{}).some(p=>p.on)).map(o=>`<li>${esc(objectScopeText(o))}</li>`).join('')}</ul>${r.notes?`<div class="small" style="margin-top:4px">${esc(r.notes)}</div>`:''}</div>`).join('');
   document.getElementById('quotePreview').innerHTML=`<h3>${esc(q.job.quoteNumber||'Quotation')}</h3><div class="muted">${esc(q.job.clientName||'Client not entered')} · ${esc(q.job.address||'Job address not entered')}</div>${rooms||'<p class="muted">No measured scope entered.</p>'}<div class="breakdown-row total"><span>${esc(totalLabel(q))}</span><span>${money(c.total)}</span></div>${c.depositAmount>0?`<div class="breakdown-row"><span>Deposit required</span><strong>${money(c.depositAmount)}</strong></div><div class="breakdown-row"><span>Balance remaining</span><strong>${money(c.balanceDue)}</strong></div>`:''}`;
 }
 function renderPrintView(c){
-  const q=currentQuote(),s=db.settings;
-  const roomHtml=q.rooms.filter(r=>r.objects.some(o=>objectArea(o)>0||Object.values(o.prep||{}).some(p=>p.on))).map(r=>`<div class="print-room"><h3>${esc(r.name)}</h3><ul>${r.objects.filter(o=>objectArea(o)>0||Object.values(o.prep||{}).some(p=>p.on)).map(o=>`<li>${esc(objectScopeText(o))}</li>`).join('')}</ul>${r.notes?`<div style="margin-top:4px"><em>${esc(r.notes)}</em></div>`:''}</div>`).join('');
+  const q=currentQuote(),s=quoteSetup(q);
+  const activeRooms=q.rooms.filter(r=>r.objects.some(o=>objectArea(o)>0||Object.values(o.prep||{}).some(p=>p.on)));
+  const roomHtml=q.mode==='quick'?`<div class="print-box">${esc(q.quick.description||'').replaceAll('\n','<br>')}</div>`:(q.presentation==='simple')
+    ? (activeRooms.length?`<ul class="scope-summary">${activeRooms.map(r=>`<li>${esc(r.name)} — ${r.objects.reduce((s2,o)=>s2+objectArea(o),0).toFixed(1)} m², ${r.objects.filter(o=>objectArea(o)>0).length} surface${r.objects.filter(o=>objectArea(o)>0).length===1?'':'s'}${r.notes?' ('+esc(r.notes)+')':''}</li>`).join('')}</ul>`:'')
+    : activeRooms.map(r=>`<div class="print-room"><h3>${esc(r.name)}</h3><ul>${r.objects.filter(o=>objectArea(o)>0||Object.values(o.prep||{}).some(p=>p.on)).map(o=>`<li>${esc(objectScopeText(o))}</li>`).join('')}</ul>${r.notes?`<div style="margin-top:4px"><em>${esc(r.notes)}</em></div>`:''}</div>`).join('');
   document.getElementById('printView').innerHTML=`<div class="print-page">
     <div class="print-header"><div><h1>${esc(s.businessName||'Paint Quotation')}</h1><div>${esc(s.address||'')}</div><div>${esc([s.phone,s.email].filter(Boolean).join(' · '))}</div>${s.abn?`<div>ABN ${esc(s.abn)}</div>`:''}</div><div class="print-meta"><strong>${esc(q.job.quoteNumber||'Quotation')}</strong><br>Issued ${esc(formatDate(q.job.quoteDate))}<br>Valid until ${esc(formatDate(q.job.validUntil))}</div></div>
     <div class="print-grid"><div class="print-box"><h2>Prepared for</h2><strong>${esc(q.job.clientName||'')}</strong><br>${esc(q.job.address||'')}<br>${esc(q.job.clientPhone||'')}${q.job.clientEmail?'<br>'+esc(q.job.clientEmail):''}</div><div class="print-box"><h2>Schedule</h2>Proposed start: ${esc(formatDate(q.job.startDate)||'To be agreed')}<br>Estimated completion: ${esc(formatDate(q.job.finishDate)||'To be agreed')}</div></div>
@@ -826,7 +1003,7 @@ function renderPrintView(c){
     <div class="print-price"><div><span>Subtotal excluding GST</span><strong>${money(c.subtotalEx)}</strong></div>${q.pricing.gstEnabled?`<div><span>GST</span><strong>${money(c.gst)}</strong></div>`:''}<div class="grand"><span>${esc(totalLabel(q))}</span><span>${money(c.total)}</span></div>${c.depositAmount>0?`<div><span>Deposit required</span><strong>${money(c.depositAmount)}</strong></div><div><span>Balance remaining</span><strong>${money(c.balanceDue)}</strong></div>`:''}</div>
     <div class="print-acceptance"><h2>Acceptance</h2><div>I accept this quotation and authorise the work described above, subject to the stated terms, inclusions and exclusions.</div><div class="signature-grid"><div><div class="signature-line">Client name</div><div class="signature-line">Signature</div></div><div><div class="signature-line">Date</div><div class="signature-line">Quotation number: ${esc(q.job.quoteNumber||'')}</div></div></div><div style="font-size:8.5pt;margin-top:10px">Acceptance may also be confirmed in writing by email.</div></div>
     <div class="print-terms"><strong>Terms</strong><br>${esc(q.job.terms||'').replaceAll('\n','<br>')}</div>
-    <div class="print-footer">This quotation is based on the visible condition and measured scope at the time of inspection. Variations require approval and may affect price and timing.</div>
+    <div class="print-footer">${q.mode==='quick'?'This quotation is based on the described scope and assumptions above.':'This quotation is based on the visible condition and measured scope at the time of inspection.'} Variations require approval and may affect price and timing.</div>
   </div>`;
 }
 
@@ -843,21 +1020,201 @@ function newQuote(){
   const q=createQuote();db.quotes.push(q);db.currentId=q.id;renderAll();scheduleSave();
 }
 function duplicateQuote(){
-  const src=currentQuote(),q=structuredClone(src);q.id=uid('quote');q.createdAt=new Date().toISOString();q.updatedAt=q.createdAt;q.job.quoteNumber='Q-'+String(db.settings.nextQuoteNumber++).padStart(4,'0');q.job.clientName=q.job.clientName? q.job.clientName+' copy':'';q.rooms.forEach(r=>{r.id=uid('room');r.objects.forEach(o=>o.id=uid('obj'));});q.products.forEach(p=>{const old=p.id,newId=uid('prod');p.id=newId;q.rooms.forEach(r=>r.objects.forEach(o=>{if(o.finishProductId===old)o.finishProductId=newId;if(o.primerProductId===old)o.primerProductId=newId;}));});q.jobCosts.other.forEach(x=>x.id=uid('cost'));db.quotes.push(q);db.currentId=q.id;renderAll();scheduleSave();
+  const src=currentQuote(),q=structuredClone(src);q.id=uid('quote');q.createdAt=new Date().toISOString();q.updatedAt=q.createdAt;q.job.quoteNumber='Q-'+String(db.settings.nextQuoteNumber++).padStart(4,'0');q.job.clientName=q.job.clientName? q.job.clientName+' copy':'';q.status='draft';q.statusDates={};q.invoice={number:'',date:'',dueDate:'',tier:q.invoice?.tier||'summary',paidToDate:0,status:'draft',statusDates:{},description:q.invoice?.description||''};q.rooms.forEach(r=>{r.id=uid('room');r.objects.forEach(o=>o.id=uid('obj'));});q.products.forEach(p=>{const old=p.id,newId=uid('prod');p.id=newId;q.rooms.forEach(r=>r.objects.forEach(o=>{if(o.finishProductId===old)o.finishProductId=newId;if(o.primerProductId===old)o.primerProductId=newId;}));});q.jobCosts.other.forEach(x=>x.id=uid('cost'));db.quotes.push(q);db.currentId=q.id;renderAll();scheduleSave();
 }
 function deleteQuote(){
   if(!confirm('Delete this quotation from this browser?'))return;
   db.quotes=db.quotes.filter(q=>q.id!==db.currentId);if(!db.quotes.length){const q=createQuote();db.quotes=[q];}db.currentId=db.quotes[0].id;renderAll();scheduleSave();
 }
-function switchQuote(id){ db.currentId=id;renderAll();scheduleSave(); }
+function switchQuote(id){ db.currentId=id;validationMode='quote';valOpen=false;renderAll();scheduleSave(); }
 function printQuote(){
-  calculate(); if(lastCalc.validation.errors.length){document.getElementById('validationBox').scrollIntoView({behavior:'smooth',block:'start'});alert('Correct the blocking quotation issues before printing.');return;} window.print();
+  validationMode='quote'; calculate();
+  if(lastCalc.validation.errors.length){valOpen=true;renderValidation(lastCalc.validation);alert('Correct the blocking quotation issues before printing.');return;}
+  renderPrintView(lastCalc); window.print(); offerStatusUpdate();
 }
 function exportBackup(){
   scheduleSave(); const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='paintquote-backup-'+dateISO()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
 function importBackup(file){
   if(!file)return; const reader=new FileReader();reader.onload=()=>{try{const incoming=normaliseDB(JSON.parse(reader.result));if(!confirm(`Import ${incoming.quotes.length} quotation${incoming.quotes.length===1?'':'s'} and replace the current local data?`))return;db=incoming;renderAll();scheduleSave();}catch(e){alert('The selected file is not a valid PaintQuote backup.');}};reader.readAsText(file);
+}
+
+function renderStatusHistory(){
+  const q=currentQuote(),el=document.getElementById('statusHistory'); if(!el)return;
+  el.textContent=Object.entries(q.statusDates||{}).filter(([k])=>STATUS_META[k]).map(([k,d])=>`${STATUS_META[k][0]}: ${formatDate(d)}`).join(' · ');
+}
+function renderInvoiceStatusHistory(){
+  const q=currentQuote(),el=document.getElementById('invoiceStatusHistory');if(!el)return;
+  el.textContent=Object.entries(q.invoice?.statusDates||{}).filter(([k])=>INVOICE_STATUSES.includes(k)).map(([k,d])=>`${titleCaseStatus(k)}: ${formatDate(d)}`).join(' · ');
+}
+function setInvoiceStatus(v){
+  const q=currentQuote();if(!INVOICE_STATUSES.includes(v))return;q.invoice=q.invoice||{};q.invoice.status=v;q.invoice.statusDates=q.invoice.statusDates||{};q.invoice.statusDates[v]=dateISO();renderInvoiceStatusHistory();validationMode='invoice';calculate();
+}
+function updateModeVisibility(){
+  const quick=currentQuote().mode==='quick';
+  ['roomsSection','productsSection','jobCostsSection'].forEach(id=>document.getElementById(id)?.classList.toggle('hidden',quick));
+  document.getElementById('quickQuoteSection')?.classList.toggle('hidden',!quick);
+}
+function setQuoteMode(v){ currentQuote().mode=v==='quick'?'quick':'measured'; updateModeVisibility(); calculate(); }
+function updateQuoteFromCurrentProfile(){
+  const q=currentQuote(); if(!confirm('Replace the profile settings frozen into this quote with the current setup? The quote total may change.'))return;
+  q.setupSnapshot=makeSetupSnapshot(); renderStaticFields(); calculate(); scheduleSave();
+}
+function setQuoteStatus(v){
+  const q=currentQuote(); if(!STATUS_META[v])return;
+  q.status=v; q.statusDates=q.statusDates||{}; q.statusDates[v]=dateISO();
+  const el=document.getElementById('quoteStatus'); if(el)el.value=v;
+  renderQuoteSelector(); renderStatusHistory(); calculate();
+}
+function setPresentation(v){ currentQuote().presentation=v==='simple'?'simple':'detailed'; calculate(); }
+function offerStatusUpdate(){
+  const q=currentQuote();
+  if(q.status==='draft'&&confirm('Record this quotation as given to the client?'))setQuoteStatus('given');
+}
+function saveProductDefaults(){
+  db.settings.productDefaults=structuredClone(currentQuote().products);
+  scheduleSave(); alert('These paint products, prices and tin sizes will be used for new quotations.');
+}
+
+function quoteEmailText(c){
+  const q=currentQuote(),s=quoteSetup(q),lines=[];
+  lines.push(`Quotation ${q.job.quoteNumber||''} from ${s.businessName||'our business'}`.trim(),'');
+  if(q.job.clientName)lines.push(`For: ${q.job.clientName}`);
+  if(q.job.address)lines.push(`Job address: ${q.job.address}`);
+  if(q.job.validUntil)lines.push(`Valid until: ${formatDate(q.job.validUntil)}`);
+  lines.push('');
+  if(q.mode==='quick'){ lines.push(q.quick.description||'',''); }
+  else if(q.presentation!=='simple'){
+    q.rooms.forEach(r=>{ const objs=r.objects.filter(o=>objectArea(o)>0); if(!objs.length)return; lines.push(`${r.name}:`); objs.forEach(o=>lines.push('  - '+objectScopeText(o))); });
+    lines.push('');
+  } else if(q.job.notes){ lines.push(q.job.notes,''); }
+  lines.push(`${totalLabel(q)}: ${money(c.total)}`);
+  if(c.depositAmount>0){lines.push(`Deposit required: ${money(c.depositAmount)}`,`Balance on completion: ${money(c.balanceDue)}`);}
+  if(q.job.inclusions)lines.push('','Inclusions: '+q.job.inclusions);
+  if(q.job.exclusions)lines.push('','Exclusions: '+q.job.exclusions);
+  lines.push('','Reply to this email to accept this quotation or ask any questions.');
+  return lines.join('\n');
+}
+function emailQuote(){
+  validationMode='quote'; calculate();
+  if(lastCalc.validation.errors.length){valOpen=true;renderValidation(lastCalc.validation);alert('Correct the blocking quotation issues before sending.');return;}
+  const q=currentQuote(),s=quoteSetup(q);
+  const subject=`Quotation ${q.job.quoteNumber||''} — ${s.businessName||'painting work'}`.trim();
+  const body=quoteEmailText(lastCalc);
+  if(navigator.share){ navigator.share({title:subject,text:subject+'\n\n'+body}).then(()=>offerStatusUpdate()).catch(()=>{}); }
+  else{ location.href=`mailto:${encodeURIComponent(q.job.clientEmail||'')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; setTimeout(offerStatusUpdate,800); }
+}
+
+function invoiceSummaryText(q){
+  if(q.invoice?.description)return q.invoice.description;
+  if(q.mode==='quick'&&q.quick.description)return q.quick.description;
+  if(q.job.notes)return q.job.notes;
+  const rooms=q.rooms.filter(r=>r.objects.some(o=>objectArea(o)>0)).map(r=>r.name).join(', ');
+  return `Painting and preparation works${q.job.address?' at '+q.job.address:''}${rooms?': '+rooms:''}.`;
+}
+function renderInvoiceView(c){
+  const q=currentQuote(),s=quoteSetup(q),inv=q.invoice||{},tier=inv.tier||'summary';
+  const paid=clamp(num(inv.paidToDate),0,c.total),balance=Math.max(0,c.total-paid);
+  const line=(a,b)=>`<div class="line"><span>${esc(a)}</span><strong>${money(b)}</strong></div>`;
+  let body='';
+  if(tier==='summary'){
+    body=`<div class="print-box" style="margin:14px 0"><h2>Description of work</h2>${esc(invoiceSummaryText(q)).replaceAll('\n','<br>')}</div>`;
+  }else if(tier==='subtotals'){
+    const rows=[['Labour',c.labourSell],['Paint and materials',c.materialsSell],['Other charges',c.otherCharges],['Overhead and contingency',c.overhead+c.contingency],['Minimum-charge adjustment',c.minimumUplift],['Discount',-num(q.pricing.discount)],['Price adjustment',num(q.pricing.adjustment)]].filter(([,v])=>Math.abs(v)>0.004);
+    body=`<div class="print-lines"><div class="line head"><span>Charges</span><strong>Amount</strong></div>${rows.map(([a,b])=>line(a,b)).join('')}</div>`;
+  }else{
+    const markup=1+num(q.pricing.materialMarkupPct)/100,rate=num(q.pricing.labourChargeRate),rows=[];
+    if(q.mode==='quick'){
+      if(c.totalHours>0)rows.push([`Estimated labour — ${c.totalHours.toFixed(1)} hr`,c.labourSell]);
+      if(num(q.quick.materialsCost)>0)rows.push(['Materials',c.materialsSell]);
+      if(num(q.quick.otherCharge)>0)rows.push(['Other charges',c.otherCharges]);
+    }else{
+      if(c.prepHours>0)rows.push([`Preparation labour — ${c.prepHours.toFixed(1)} hr`,c.prepHours*rate]);
+      if(c.paintHours>0)rows.push([`Painting labour — ${c.paintHours.toFixed(1)} hr`,c.paintHours*rate]);
+      if(c.jobLabourHours>0)rows.push([`Setup, cleanup and travel — ${c.jobLabourHours.toFixed(1)} hr`,c.jobLabourHours*rate]);
+      q.products.forEach(p=>{ const d=c.demand[p.id]; if(!d)return; const suggested=num(p.tinSize)>0&&d.litres>0?Math.ceil(d.litres/num(p.tinSize)):0; const qty=p.autoQty?suggested:num(p.qty); if(qty>0&&num(p.price)>0)rows.push([`${p.name||'Paint'} — ${qty} × ${num(p.tinSize)} L`,qty*num(p.price)*markup]); });
+      if(c.prepMaterials>0)rows.push(['Preparation materials',c.prepMaterials*markup]);
+      if(c.fixedDirect>0)rows.push(['Sundries, travel and other direct costs',c.fixedDirect*markup]);
+      q.jobCosts.other.forEach(x=>{ if(num(x.charge)>0)rows.push([x.description||'Additional charge',num(x.charge)]); });
+    }
+    if(c.overhead>0)rows.push(['Overhead allowance',c.overhead]);
+    if(c.contingency>0)rows.push(['Contingency',c.contingency]);
+    if(c.minimumUplift>0)rows.push(['Minimum-charge adjustment',c.minimumUplift]);
+    if(num(q.pricing.discount))rows.push(['Discount',-num(q.pricing.discount)]);
+    if(num(q.pricing.adjustment))rows.push(['Price adjustment',num(q.pricing.adjustment)]);
+    body=`<div class="print-lines"><div class="line head"><span>Item</span><strong>Amount</strong></div>${rows.map(([a,b])=>line(a,b)).join('')}</div>`;
+  }
+  document.getElementById('printView').innerHTML=`<div class="print-page">
+    <div class="print-header"><div><h1>${esc(s.businessName||'Invoice')}</h1><div>${esc(s.address||'')}</div><div>${esc([s.phone,s.email].filter(Boolean).join(' · '))}</div>${s.abn?`<div>ABN ${esc(s.abn)}</div>`:''}</div><div class="print-meta"><strong>${q.pricing.gstEnabled?'TAX INVOICE':'INVOICE'}</strong><br>${esc(inv.number||'')}<br>Issued ${esc(formatDate(inv.date))}<br>Due ${esc(formatDate(inv.dueDate))}</div></div>
+    <div class="print-grid"><div class="print-box"><h2>Billed to</h2><strong>${esc(q.job.clientName||'')}</strong><br>${esc(q.job.address||'')}<br>${esc(q.job.clientPhone||'')}${q.job.clientEmail?'<br>'+esc(q.job.clientEmail):''}</div><div class="print-box"><h2>Reference</h2>Quotation ${esc(q.job.quoteNumber||'')}${q.job.startDate?'<br>Work commenced: '+esc(formatDate(q.job.startDate)):''}${q.job.finishDate?'<br>Work completed: '+esc(formatDate(q.job.finishDate)):''}</div></div>
+    ${body}
+    <div class="print-price"><div><span>Subtotal excluding GST</span><strong>${money(c.subtotalEx)}</strong></div>${q.pricing.gstEnabled?`<div><span>GST</span><strong>${money(c.gst)}</strong></div>`:''}<div><span>${esc(totalLabel(q))}</span><strong>${money(c.total)}</strong></div>${paid>0?`<div><span>Less amount paid</span><strong>− ${money(paid)}</strong></div>`:''}<div class="grand"><span>Balance due</span><span>${money(balance)}</span></div></div>
+    ${s.paymentInstructions?`<div class="print-box" style="margin-top:16px"><h2>Payment details</h2>${esc(s.paymentInstructions).replaceAll('\n','<br>')}</div>`:''}
+    <div class="print-footer">Invoice status: ${esc(titleCaseStatus(inv.status||'draft'))}. Payment is due by ${esc(formatDate(inv.dueDate)||'the due date shown')}. Please quote ${esc(inv.number||'the invoice number')} with payment.</div>
+  </div>`;
+}
+function printInvoice(){
+  validationMode='invoice'; calculate();
+  if(lastCalc.invoiceValidation.errors.length){valOpen=true;renderValidation(lastCalc.invoiceValidation);alert('Correct the blocking invoice issues before printing.');return;}
+  const q=currentQuote();
+  q.invoice=q.invoice||{number:'',date:'',dueDate:'',tier:'summary',paidToDate:0,status:'draft',statusDates:{},description:''};
+  if(!q.invoice.number)q.invoice.number='INV-'+String(db.settings.nextInvoiceNumber++).padStart(4,'0');
+  if(!q.invoice.date)q.invoice.date=dateISO();
+  if(!q.invoice.dueDate)q.invoice.dueDate=addDays(q.invoice.date,quoteSetup(q).invoiceDueDays);
+  if(q.invoice.status==='draft'){q.invoice.status='issued';q.invoice.statusDates=q.invoice.statusDates||{};q.invoice.statusDates.issued=dateISO();}
+  if(num(q.invoice.paidToDate)>=lastCalc.total&&lastCalc.total>0){q.invoice.status='paid';q.invoice.statusDates=q.invoice.statusDates||{};q.invoice.statusDates.paid=dateISO();}
+  else if(num(q.invoice.paidToDate)>0&&q.invoice.status!=='void'){q.invoice.status='part-paid';q.invoice.statusDates=q.invoice.statusDates||{};q.invoice.statusDates['part-paid']=dateISO();}
+  renderStaticFields(); renderInvoiceView(lastCalc); window.print(); renderPrintView(lastCalc); scheduleSave();
+}
+
+function renderProfiles(){
+  const sel=document.getElementById('profileSelect'); if(!sel)return;
+  sel.innerHTML=db.profiles.length?db.profiles.map(p=>`<option value="${esc(p.id)}">${esc(p.name)}</option>`).join(''):'<option value="">No saved profiles</option>';
+  if(db.activeProfileId&&db.profiles.some(p=>p.id===db.activeProfileId))sel.value=db.activeProfileId;
+  const c=document.getElementById('profileCount'); if(c)c.textContent=db.profiles.length+' saved';
+}
+function currentProfileSnapshot(){ const s=structuredClone(db.settings); delete s.nextQuoteNumber; delete s.nextInvoiceNumber; return s; }
+function selectedProfile(){ return db.profiles.find(p=>p.id===document.getElementById('profileSelect')?.value)||null; }
+function saveProfileAs(){
+  const name=prompt('Profile name (e.g. Domestic, Commercial):'); if(!name||!name.trim())return;
+  const p={id:uid('prof'),name:name.trim(),settings:currentProfileSnapshot()};
+  db.profiles.push(p); renderProfiles();
+  const sel=document.getElementById('profileSelect'); if(sel)sel.value=p.id;
+  scheduleSave();
+}
+function applyProfile(){
+  const p=selectedProfile(); if(!p){alert('No profile selected.');return;}
+  if(!confirm(`Apply "${p.name}"? This replaces business details, rates and defaults used for new quotations. Existing quotations are not changed.`))return;
+  const keep={nextQuoteNumber:db.settings.nextQuoteNumber,nextInvoiceNumber:db.settings.nextInvoiceNumber};
+  db.settings={...structuredClone(p.settings),...keep}; db.activeProfileId=p.id;
+  db=normaliseDB(db); renderAll(); renderProfiles();
+  const sel=document.getElementById('profileSelect'); if(sel)sel.value=p.id;
+  scheduleSave();
+}
+function updateProfile(){
+  const p=selectedProfile(); if(!p){alert('No profile selected.');return;}
+  if(!confirm(`Overwrite "${p.name}" with the current setup?`))return;
+  p.settings=currentProfileSnapshot(); scheduleSave();
+}
+function deleteProfile(){
+  const p=selectedProfile(); if(!p)return;
+  if(!confirm(`Delete profile "${p.name}"? Saved quotations are not affected.`))return;
+  db.profiles=db.profiles.filter(x=>x.id!==p.id); if(db.activeProfileId===p.id)db.activeProfileId=''; renderProfiles(); scheduleSave();
+}
+function exportProfile(){
+  const p=selectedProfile(); if(!p){alert('No profile selected.');return;}
+  const blob=new Blob([JSON.stringify({type:'paintquote-profile',version:1,profile:{name:p.name,settings:p.settings}},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='paintquote-profile-'+p.name.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function importProfile(file){
+  if(!file)return; const r=new FileReader();
+  r.onload=()=>{ try{
+    const x=JSON.parse(r.result);
+    if(x?.type!=='paintquote-profile'||!x.profile?.settings)throw new Error('bad');
+    db.profiles.push({id:uid('prof'),name:String(x.profile.name||'Imported profile'),settings:x.profile.settings});
+    renderProfiles(); scheduleSave(); alert('Profile imported. Select it and press Apply to use it.');
+  }catch(e){ alert('The selected file is not a valid PaintQuote profile.'); } };
+  r.readAsText(file);
 }
 
 function showTab(name){
@@ -868,11 +1225,14 @@ function showTab(name){
 function bindStaticInputs(){
   document.addEventListener('input',e=>{
     const q=currentQuote();
-    if(e.target.dataset.job){const f=e.target.dataset.job;q.job[f]=e.target.value;if(f==='validUntil')q.job.validUntilManual=true;if(f==='quoteDate'&&!q.job.validUntilManual){q.job.validUntil=addDays(e.target.value,db.settings.validDays);const ex=document.getElementById('validUntil');if(ex)ex.value=q.job.validUntil;}renderQuoteSelector();calculate();}
+    if(e.target.dataset.job){const f=e.target.dataset.job;q.job[f]=e.target.value;if(f==='validUntil')q.job.validUntilManual=true;if(f==='quoteDate'&&!q.job.validUntilManual){q.job.validUntil=addDays(e.target.value,quoteSetup(q).validDays);const ex=document.getElementById('validUntil');if(ex)ex.value=q.job.validUntil;}renderQuoteSelector();calculate();}
     else if(e.target.dataset.jobcost){q.jobCosts[e.target.dataset.jobcost]=num(e.target.value);calculate();}
     else if(e.target.dataset.pricing){q.pricing[e.target.dataset.pricing]=num(e.target.value);calculate();}
     else if(e.target.dataset.pricingText){q.pricing[e.target.dataset.pricingText]=e.target.value;updateDepositControls();calculate();}
-    else if(e.target.dataset.setting){db.settings[e.target.dataset.setting]=['businessName','abn','phone','email','address'].includes(e.target.dataset.setting)?e.target.value:num(e.target.value);calculate();}
+    else if(e.target.dataset.invoice){const f=e.target.dataset.invoice;q.invoice=q.invoice||{};q.invoice[f]=f==='paidToDate'?num(e.target.value):e.target.value;validationMode='invoice';calculate();}
+    else if(e.target.dataset.invoiceText){q.invoice=q.invoice||{};q.invoice[e.target.dataset.invoiceText]=e.target.value;validationMode='invoice';calculate();}
+    else if(e.target.dataset.quick){q.quick=q.quick||{};q.quick[e.target.dataset.quick]=e.target.dataset.quick==='description'?e.target.value:num(e.target.value);calculate();}
+    else if(e.target.dataset.setting){db.settings[e.target.dataset.setting]=['businessName','abn','phone','email','address','paymentInstructions'].includes(e.target.dataset.setting)?e.target.value:num(e.target.value);calculate();}
     else if(e.target.dataset.rate){db.settings.rates[e.target.dataset.rate]=num(e.target.value);calculate();}
     else if(e.target.dataset.prepHours){db.settings.prepRates[e.target.dataset.prepHours].hoursPerUnit=num(e.target.value);calculate();}
     else if(e.target.dataset.prepMaterial){db.settings.prepRates[e.target.dataset.prepMaterial].materialPerUnit=num(e.target.value);calculate();}
