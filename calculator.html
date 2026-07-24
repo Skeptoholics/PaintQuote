@@ -133,6 +133,11 @@
   .inline-actions{display:flex;gap:7px;flex-wrap:wrap}
   .divider{height:1px;background:var(--line);margin:12px 0}
   .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  .quote-date-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+  .assist-panel{margin-top:10px;border:1px dashed var(--line);border-radius:9px;padding:10px;background:var(--soft)}
+  .assist-panel .inline-actions{margin-top:8px}
+  .assist-panel input[type=file]{width:100%;font-size:12px}
+  .workflow-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
 
   .btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
   .val-float{position:fixed;left:0;right:0;bottom:76px;z-index:39;padding:0 16px;display:none}
@@ -166,6 +171,9 @@
   }
   @media(max-width:480px){
     main{padding:10px}section,.panel{padding:12px}.grid2,.grid3,.grid4{grid-template-columns:1fr}
+    .quote-date-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .quote-date-grid .quote-number-field{grid-column:1/-1}
+    .quote-date-grid input[type=date]{min-height:38px;padding:7px 6px;font-size:12px}
     .header-inner{display:block}.header-tools{max-width:none;margin-top:8px;justify-content:flex-start}.quote-select{flex:1;max-width:none}
     .compact-grid{grid-template-columns:repeat(2,minmax(70px,1fr))}.product-grid{grid-template-columns:repeat(2,minmax(80px,1fr))}
     .room-top{align-items:flex-start}.room-actions{flex-direction:column}.summary-total{font-size:19px}
@@ -227,20 +235,52 @@
   <div id="tabQuote" class="tab-panel active">
   <section>
     <div class="section-head"><h2>Quotation details</h2><span id="quoteStatusPill" class="pill">Draft</span></div>
-    <div class="grid3">
-      <div class="field"><label for="quoteNumber">Quote number</label><input id="quoteNumber" type="text" data-job="quoteNumber"></div>
+    <div class="quote-date-grid">
+      <div class="field quote-number-field"><label for="quoteNumber">Quote number</label><input id="quoteNumber" type="text" data-job="quoteNumber"></div>
       <div class="field"><label for="quoteDate">Quote date</label><input id="quoteDate" type="date" data-job="quoteDate"></div>
       <div class="field"><label for="validUntil">Valid until</label><input id="validUntil" type="date" data-job="validUntil"></div>
     </div>
-    <div class="grid2" style="margin-top:10px">
-      <div class="field"><label for="quoteStatus">Quote status</label><select id="quoteStatus" onchange="setQuoteStatus(this.value)"><option value="draft">Draft — not yet given to client</option><option value="given">Given to client</option><option value="accepted">Accepted</option><option value="declined">Declined</option></select><div id="statusHistory" class="status-history"></div></div>
-      <div class="field"><label for="quoteMode">Quote creation mode</label><select id="quoteMode" onchange="setQuoteMode(this.value)"><option value="measured">Measured quote — rooms and surfaces</option><option value="quick">Quick quote — lump-sum inputs</option></select><div class="hint"><button type="button" class="btn small-btn" onclick="updateQuoteFromCurrentProfile()">Update this quote to current profile</button></div></div>
+  </section>
+
+  <section>
+    <h2>Quote setup</h2>
+    <div class="grid2">
+      <div class="field">
+        <label for="creationMethod">Creation method</label>
+        <select id="creationMethod" onchange="setCreationMethod(this.value)">
+          <option value="manual">Manual</option>
+          <option value="photo">Photo Assist</option>
+          <option value="lidar">LiDAR / Room Scan</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="quotePresentation">Quotation format</label>
+        <select id="quotePresentation" onchange="setPresentation(this.value)">
+          <option value="simple">Simple — scope and total price</option>
+          <option value="standard">Standard — labour, materials and total</option>
+          <option value="detailed">Detailed — full room and surface breakdown</option>
+        </select>
+      </div>
+    </div>
+    <div id="photoAssistPanel" class="assist-panel hidden">
+      <strong>Photo Assist</strong>
+      <p class="hint">Upload clear photos of each room or work area. Photo analysis will be connected to the quoting engine in the next build stage.</p>
+      <input id="photoAssistFiles" type="file" accept="image/*" multiple>
+    </div>
+    <div id="lidarAssistPanel" class="assist-panel hidden">
+      <strong>LiDAR / Room Scan</strong>
+      <p class="hint">Import a supported room scan or measurement file. Room-scan processing will be connected in the next build stage.</p>
+      <input id="lidarAssistFile" type="file" accept=".json,.usdz,.zip,application/json">
     </div>
     <div class="grid2" style="margin-top:10px">
-      <div class="field"><label for="quotePresentation">Quotation detail level</label><select id="quotePresentation" onchange="setPresentation(this.value)"><option value="detailed">Detailed — full scope per room</option><option value="simple">Simple — summary and total only</option></select></div>
       <div class="field"><label>Profile frozen into quote</label><input id="quoteProfileName" type="text" disabled></div>
+      <div class="field" style="align-self:end"><button type="button" class="btn" style="width:100%" onclick="updateQuoteFromCurrentProfile()">Update this quote to current profile</button></div>
     </div>
-    <div class="grid2" style="margin-top:10px">
+  </section>
+
+  <section>
+    <h2>Client information</h2>
+    <div class="grid2">
       <div class="field"><label for="clientName">Client name</label><input id="clientName" type="text" data-job="clientName" placeholder="Jane Smith"></div>
       <div class="field"><label for="clientPhone">Client phone</label><input id="clientPhone" type="tel" data-job="clientPhone" placeholder="0412 345 678"></div>
     </div>
@@ -321,6 +361,23 @@
       <div><label for="exclusions">Exclusions</label><textarea id="exclusions" data-job="exclusions"></textarea></div>
     </div>
     <div style="margin-top:10px"><label for="quoteTerms">Terms shown on the quotation</label><textarea id="quoteTerms" data-job="terms"></textarea></div>
+  </section>
+
+  <section id="quoteWorkflowSection">
+    <h2>Quote workflow</h2>
+    <div class="workflow-grid">
+      <div class="field">
+        <label for="quoteStatus">Current status</label>
+        <select id="quoteStatus" onchange="setQuoteStatus(this.value)">
+          <option value="draft">Draft — being prepared</option>
+          <option value="given">Given to client</option>
+          <option value="accepted">Accepted</option>
+          <option value="declined">Declined</option>
+        </select>
+        <div id="statusHistory" class="status-history"></div>
+      </div>
+    </div>
+    <p class="hint">Keep the quotation as Draft while preparing it. Sending or sharing it can mark it as Given to client.</p>
   </section>
 
   <section>
@@ -556,7 +613,7 @@ function createQuote(){
   if(db?.settings) db.settings.nextQuoteNumber=n+1;
   const qDate=dateISO();
   return {
-    id:uid('quote'),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),status:'draft',statusDates:{},presentation:'detailed',mode:'measured',quick:{description:'',labourHours:0,materialsCost:0,otherCost:0,otherCharge:0},setupSnapshot:makeSetupSnapshot(),invoice:{number:'',date:'',dueDate:'',tier:'summary',paidToDate:0,status:'draft',statusDates:{},description:''},
+    id:uid('quote'),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),status:'draft',statusDates:{},presentation:'simple',creationMethod:'manual',mode:'measured',quick:{description:'',labourHours:0,materialsCost:0,otherCost:0,otherCharge:0},setupSnapshot:makeSetupSnapshot(),invoice:{number:'',date:'',dueDate:'',tier:'summary',paidToDate:0,status:'draft',statusDates:{},description:''},
     job:{quoteNumber:'Q-'+String(n).padStart(4,'0'),quoteDate:qDate,validUntil:addDays(qDate,db?.settings?.validDays||30),clientName:'',clientPhone:'',clientEmail:'',address:'',startDate:'',finishDate:'',notes:'',inclusions:'All surfaces will be prepared and coated as described in this quotation. Colours are subject to client confirmation before purchase.',exclusions:'Repairs or work not specifically listed are excluded. Hidden defects, asbestos, structural movement and moisture ingress are excluded unless stated.',terms:'Any deposit shown in this quotation is payable before commencement, with the balance payable on completion. Variations require approval and may change the price and completion date.'},
     rooms:[newRoom('Room 1',products)],products,
     jobCosts:{setupHours:1,cleanupHours:1,travelHours:0,travelKm:0,sundries:25,waste:0,parking:0,equipment:0,other:[]},
@@ -577,7 +634,8 @@ function normaliseDB(data){
 function normaliseQuote(q,settings=db?.settings,activeProfileId=db?.activeProfileId,profiles=db?.profiles){
   q.status=['draft','given','accepted','declined'].includes(String(q.status||'').toLowerCase())?String(q.status).toLowerCase():'draft';
   q.statusDates=q.statusDates&&typeof q.statusDates==='object'?q.statusDates:{};
-  q.presentation=q.presentation==='simple'?'simple':'detailed';
+  q.presentation=['simple','standard','detailed'].includes(q.presentation)?q.presentation:'simple';
+  q.creationMethod=['manual','photo','lidar'].includes(q.creationMethod)?q.creationMethod:'manual';
   q.mode=q.mode==='quick'?'quick':'measured';
   q.quick={description:'',labourHours:0,materialsCost:0,otherCost:0,otherCharge:0,...(q.quick||{})};
   q.setupSnapshot=normaliseSetupSnapshot(q.setupSnapshot,settings,activeProfileId,profiles);
@@ -664,11 +722,12 @@ function renderStaticFields(){
   document.querySelectorAll('[data-invoice-text]').forEach(el=>el.value=q.invoice?.[el.dataset.invoiceText]??(el.dataset.invoiceText==='status'?'draft':'summary'));
   document.querySelectorAll('[data-quick]').forEach(el=>el.value=q.quick?.[el.dataset.quick]??'');
   const st=document.getElementById('quoteStatus'); if(st)st.value=q.status||'draft';
-  const pr=document.getElementById('quotePresentation'); if(pr)pr.value=q.presentation||'detailed';
+  const pr=document.getElementById('quotePresentation'); if(pr)pr.value=q.presentation||'simple';
+  const cm=document.getElementById('creationMethod'); if(cm)cm.value=q.creationMethod||'manual';
   renderStatusHistory(); renderInvoiceStatusHistory();
-  const qm=document.getElementById('quoteMode'); if(qm)qm.value=q.mode||'measured';
   const qpn=document.getElementById('quoteProfileName'); if(qpn)qpn.value=q.setupSnapshot?.profileName||'Current setup';
   updateModeVisibility();
+  updateAssistVisibility();
 }
 function renderSettings(){
   document.getElementById('rateSettings').innerHTML=RATE_FIELDS.map(([key,label])=>`<div class="field"><label>${esc(label)}</label><input type="number" min="0.1" step="1" data-rate="${esc(key)}" value="${num(db.settings.rates[key])}"></div>`).join('');
@@ -985,7 +1044,8 @@ function objectScopeText(o){
 function renderPreview(c){
   const q=currentQuote(),active=q.rooms.filter(r=>r.objects.some(o=>objectArea(o)>0||Object.values(o.prep||{}).some(p=>p.on)));
   const rooms=q.mode==='quick'?`<div class="scope-room"><strong>Scope of work</strong><div>${esc(q.quick.description||'').replaceAll('\n','<br>')}</div></div>`:q.presentation==='simple'?active.map(r=>`<div class="scope-room"><strong>${esc(r.name)}</strong><div>${r.objects.reduce((s,o)=>s+objectArea(o),0).toFixed(1)} m² across ${r.objects.filter(o=>objectArea(o)>0).length} surface${r.objects.filter(o=>objectArea(o)>0).length===1?'':'s'}.</div></div>`).join(''):active.map(r=>`<div class="scope-room"><strong>${esc(r.name)}</strong><ul class="scope-list">${r.objects.filter(o=>objectArea(o)>0||Object.values(o.prep||{}).some(p=>p.on)).map(o=>`<li>${esc(objectScopeText(o))}</li>`).join('')}</ul>${r.notes?`<div class="small" style="margin-top:4px">${esc(r.notes)}</div>`:''}</div>`).join('');
-  document.getElementById('quotePreview').innerHTML=`<h3>${esc(q.job.quoteNumber||'Quotation')}</h3><div class="muted">${esc(q.job.clientName||'Client not entered')} · ${esc(q.job.address||'Job address not entered')}</div>${rooms||'<p class="muted">No measured scope entered.</p>'}<div class="breakdown-row total"><span>${esc(totalLabel(q))}</span><span>${money(c.total)}</span></div>${c.depositAmount>0?`<div class="breakdown-row"><span>Deposit required</span><strong>${money(c.depositAmount)}</strong></div><div class="breakdown-row"><span>Balance remaining</span><strong>${money(c.balanceDue)}</strong></div>`:''}`;
+  const standardBreakdown=q.presentation==='standard'?`<div class="breakdown-row"><span>Labour</span><strong>${money(c.labourSell)}</strong></div><div class="breakdown-row"><span>Materials and other charges</span><strong>${money(Math.max(0,c.subtotalEx-c.labourSell))}</strong></div>`:'';
+  document.getElementById('quotePreview').innerHTML=`<h3>${esc(q.job.quoteNumber||'Quotation')}</h3><div class="muted">${esc(q.job.clientName||'Client not entered')} · ${esc(q.job.address||'Job address not entered')}</div>${rooms||'<p class="muted">No measured scope entered.</p>'}${standardBreakdown}<div class="breakdown-row total"><span>${esc(totalLabel(q))}</span><span>${money(c.total)}</span></div>${c.depositAmount>0?`<div class="breakdown-row"><span>Deposit required</span><strong>${money(c.depositAmount)}</strong></div><div class="breakdown-row"><span>Balance remaining</span><strong>${money(c.balanceDue)}</strong></div>`:''}`;
 }
 function renderPrintView(c){
   const q=currentQuote(),s=quoteSetup(q);
@@ -1000,7 +1060,7 @@ function renderPrintView(c){
     <h2 style="font-size:13pt;margin:0 0 8px">Scope of work</h2>${roomHtml||'<p>No measured scope entered.</p>'}
     ${q.job.inclusions?`<div class="print-box" style="margin-top:14px"><h2>Inclusions and assumptions</h2>${esc(q.job.inclusions).replaceAll('\n','<br>')}</div>`:''}
     ${q.job.exclusions?`<div class="print-box" style="margin-top:9px"><h2>Exclusions</h2>${esc(q.job.exclusions).replaceAll('\n','<br>')}</div>`:''}
-    <div class="print-price"><div><span>Subtotal excluding GST</span><strong>${money(c.subtotalEx)}</strong></div>${q.pricing.gstEnabled?`<div><span>GST</span><strong>${money(c.gst)}</strong></div>`:''}<div class="grand"><span>${esc(totalLabel(q))}</span><span>${money(c.total)}</span></div>${c.depositAmount>0?`<div><span>Deposit required</span><strong>${money(c.depositAmount)}</strong></div><div><span>Balance remaining</span><strong>${money(c.balanceDue)}</strong></div>`:''}</div>
+    <div class="print-price">${q.presentation==='standard'?`<div><span>Labour</span><strong>${money(c.labourSell)}</strong></div><div><span>Materials and other charges</span><strong>${money(Math.max(0,c.subtotalEx-c.labourSell))}</strong></div>`:''}<div><span>Subtotal excluding GST</span><strong>${money(c.subtotalEx)}</strong></div>${q.pricing.gstEnabled?`<div><span>GST</span><strong>${money(c.gst)}</strong></div>`:''}<div class="grand"><span>${esc(totalLabel(q))}</span><span>${money(c.total)}</span></div>${c.depositAmount>0?`<div><span>Deposit required</span><strong>${money(c.depositAmount)}</strong></div><div><span>Balance remaining</span><strong>${money(c.balanceDue)}</strong></div>`:''}</div>
     <div class="print-acceptance"><h2>Acceptance</h2><div>I accept this quotation and authorise the work described above, subject to the stated terms, inclusions and exclusions.</div><div class="signature-grid"><div><div class="signature-line">Client name</div><div class="signature-line">Signature</div></div><div><div class="signature-line">Date</div><div class="signature-line">Quotation number: ${esc(q.job.quoteNumber||'')}</div></div></div><div style="font-size:8.5pt;margin-top:10px">Acceptance may also be confirmed in writing by email.</div></div>
     <div class="print-terms"><strong>Terms</strong><br>${esc(q.job.terms||'').replaceAll('\n','<br>')}</div>
     <div class="print-footer">${q.mode==='quick'?'This quotation is based on the described scope and assumptions above.':'This quotation is based on the visible condition and measured scope at the time of inspection.'} Variations require approval and may affect price and timing.</div>
@@ -1056,6 +1116,16 @@ function updateModeVisibility(){
   document.getElementById('quickQuoteSection')?.classList.toggle('hidden',!quick);
 }
 function setQuoteMode(v){ currentQuote().mode=v==='quick'?'quick':'measured'; updateModeVisibility(); calculate(); }
+function updateAssistVisibility(){
+  const method=currentQuote().creationMethod||'manual';
+  document.getElementById('photoAssistPanel')?.classList.toggle('hidden',method!=='photo');
+  document.getElementById('lidarAssistPanel')?.classList.toggle('hidden',method!=='lidar');
+}
+function setCreationMethod(v){
+  currentQuote().creationMethod=['photo','lidar'].includes(v)?v:'manual';
+  updateAssistVisibility();
+  scheduleSave();
+}
 function updateQuoteFromCurrentProfile(){
   const q=currentQuote(); if(!confirm('Replace the profile settings frozen into this quote with the current setup? The quote total may change.'))return;
   q.setupSnapshot=makeSetupSnapshot(); renderStaticFields(); calculate(); scheduleSave();
@@ -1066,7 +1136,7 @@ function setQuoteStatus(v){
   const el=document.getElementById('quoteStatus'); if(el)el.value=v;
   renderQuoteSelector(); renderStatusHistory(); calculate();
 }
-function setPresentation(v){ currentQuote().presentation=v==='simple'?'simple':'detailed'; calculate(); }
+function setPresentation(v){ currentQuote().presentation=['simple','standard','detailed'].includes(v)?v:'simple'; calculate(); }
 function offerStatusUpdate(){
   const q=currentQuote();
   if(q.status==='draft'&&confirm('Record this quotation as given to the client?'))setQuoteStatus('given');
