@@ -96,6 +96,12 @@
   .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .chip{border:1px solid var(--accent);color:var(--accent);background:#fff;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:700}
   .room-total{font-size:11px;color:var(--muted);border-top:1px dashed var(--line);padding-top:7px;margin-top:8px}
+  .room-photo-tools{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0;align-items:center}
+  .room-photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px;margin:8px 0}
+  .room-photo{position:relative;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;aspect-ratio:4/3}
+  .room-photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .room-photo button{position:absolute;top:4px;right:4px;width:26px;height:26px;border:0;border-radius:999px;background:rgba(32,33,31,.86);color:#fff;font-weight:800;line-height:1}
+  .photo-count{font-size:11px;color:var(--muted)}
   .product-card{border:1px solid var(--line);border-radius:10px;background:var(--soft);padding:10px;margin-bottom:9px}
   .product-head{display:flex;gap:8px;align-items:center;margin-bottom:7px}
   .product-head strong{flex:1}
@@ -264,8 +270,7 @@
     </div>
     <div id="photoAssistPanel" class="assist-panel hidden">
       <strong>Photo Assist</strong>
-      <p class="hint">Upload clear photos of each room or work area. Photo analysis will be connected to the quoting engine in the next build stage.</p>
-      <input id="photoAssistFiles" type="file" accept="image/*" multiple>
+      <p class="hint">Add photos inside each room using Take photo or Choose photos. Photo analysis will be connected to the quoting engine in the next build stage.</p>
     </div>
     <div id="lidarAssistPanel" class="assist-panel hidden">
       <strong>LiDAR / Room Scan</strong>
@@ -595,7 +600,7 @@ function newObject(kind,products){
   return {id:uid('obj'),kind,label:'',d1:K.d1Default,d2:K.d2Default,count:1,sides:K.sidesDefault,deduct:0,finishProductId:finish?.id||'',coats:2,primerProductId:'',primerCoats:0,prepOpen:false,prep:newPrepState()};
 }
 function newRoom(name,products){
-  return {id:uid('room'),name:name||'Room',accessAllowance:0,notes:'',objects:[newObject('ceiling',products),newObject('wall',products)]};
+  return {id:uid('room'),name:name||'Room',accessAllowance:0,notes:'',photos:[],objects:[newObject('ceiling',products),newObject('wall',products)]};
 }
 function makeSetupSnapshot(settings=db?.settings,activeProfileId=db?.activeProfileId,profiles=db?.profiles){
   const defaults=defaultSettings(),s=settings||defaults;
@@ -647,7 +652,7 @@ function normaliseQuote(q,settings=db?.settings,activeProfileId=db?.activeProfil
   q.products=Array.isArray(q.products)?q.products:defaultProducts();
   q.rooms=Array.isArray(q.rooms)?q.rooms:[];
   q.rooms.forEach(r=>{
-    r.accessAllowance=num(r.accessAllowance); r.objects=Array.isArray(r.objects)?r.objects:[];
+    r.accessAllowance=num(r.accessAllowance); r.photos=Array.isArray(r.photos)?r.photos:[]; r.objects=Array.isArray(r.objects)?r.objects:[];
     r.objects.forEach(o=>{ o.prepOpen=!!o.prepOpen; o.prep={...newPrepState(),...(o.prep||{})}; Object.keys(PREP_DEFS).forEach(k=>o.prep[k]={on:!!o.prep[k]?.on,qty:num(o.prep[k]?.qty),fullArea:!!o.prep[k]?.fullArea}); });
   });
   q.jobCosts={setupHours:1,cleanupHours:1,travelHours:0,travelKm:0,sundries:0,waste:0,parking:0,equipment:0,other:[],...(q.jobCosts||{})};
@@ -684,7 +689,7 @@ function migrateLegacy(){
     });
     if(!q.products.length)q.products=defaultProducts();
     const oldKindMap={wall:'wall',ceiling:'ceiling',door:'door',frame:'doorFrame',window:'windowFrame'};
-    q.rooms=old.rooms.map((r,ri)=>({id:uid('room'),name:r.name||('Room '+(ri+1)),accessAllowance:clamp(num(r.furnPct)/2,0,100),notes:r.notes||'',objects:(r.objects||[]).map(o=>{
+    q.rooms=old.rooms.map((r,ri)=>({id:uid('room'),name:r.name||('Room '+(ri+1)),accessAllowance:clamp(num(r.furnPct)/2,0,100),notes:r.notes||'',photos:[],objects:(r.objects||[]).map(o=>{
       const kind=oldKindMap[o.kind]||'other'; const K=KIND_DEFS[kind]; const cat=K.finishCategory==='wall'?'wallFinal':K.finishCategory==='ceiling'?'ceilingFinal':kind==='door'?'doorPaint':kind==='doorFrame'?'doorFrame':kind==='windowFrame'?'windowFrame':'wallFinal';
       const finish=(productIndex[cat]||[])[Math.max(0,Math.round(num(o.type))-1)]||q.products.find(p=>p.category===K.finishCategory)?.id||'';
       const primer=(productIndex.primer||[])[Math.max(0,Math.round(num(o.prim))-1)]||'';
@@ -748,12 +753,72 @@ function renderRooms(){
         <div class="field"><label>Access / obstruction allowance (%)</label><input type="number" min="0" max="200" step="10" value="${num(r.accessAllowance)}" oninput="updateRoom('${r.id}','accessAllowance',this.value)"><div class="hint">0 = clear; 50 adds 25% labour; 100 adds 50%.</div></div>
         <div class="field"><label>Room notes</label><input type="text" value="${esc(r.notes)}" oninput="updateRoom('${r.id}','notes',this.value)" placeholder="Water damage, occupied room, access limits"></div>
       </div>
+      <div class="room-photo-tools">
+        <button type="button" class="btn small-btn" onclick="openRoomCamera('${r.id}')">Take photo</button>
+        <button type="button" class="btn small-btn" onclick="openRoomLibrary('${r.id}')">Choose photos</button>
+        <span class="photo-count">${r.photos.length} photo${r.photos.length===1?'':'s'} attached</span>
+        <input id="roomCamera_${r.id}" type="file" accept="image/*" capture="environment" class="sr-only" onchange="addRoomPhotos('${r.id}',this.files);this.value=''">
+        <input id="roomLibrary_${r.id}" type="file" accept="image/*" multiple class="sr-only" onchange="addRoomPhotos('${r.id}',this.files);this.value=''">
+      </div>
+      ${r.photos.length?`<div class="room-photo-grid">${r.photos.map(p=>`<div class="room-photo"><img src="${p.dataUrl}" alt="${esc(r.name)} photo"><button type="button" aria-label="Remove photo" onclick="removeRoomPhoto('${r.id}','${p.id}')">×</button></div>`).join('')}</div>`:''}
       ${r.objects.map(o=>renderObject(r,o)).join('')}
       <div class="chips">${KIND_ORDER.map(k=>`<button type="button" class="chip" onclick="addObject('${r.id}','${k}')">+ ${esc(KIND_DEFS[k].label)}</button>`).join('')}</div>
       <div class="room-total" id="roomTotal_${r.id}">Room total: <strong>${totalArea.toFixed(1)} m²</strong> across ${r.objects.length} paintable object${r.objects.length===1?'':'s'}.</div>
     </div>`;
   }).join('');
 }
+
+function openRoomCamera(roomId){
+  document.getElementById('roomCamera_'+roomId)?.click();
+}
+function openRoomLibrary(roomId){
+  document.getElementById('roomLibrary_'+roomId)?.click();
+}
+async function addRoomPhotos(roomId,fileList){
+  const room=currentQuote().rooms.find(r=>r.id===roomId);
+  if(!room||!fileList?.length)return;
+  const files=[...fileList].filter(f=>f.type.startsWith('image/'));
+  for(const file of files){
+    try{
+      const dataUrl=await compressRoomPhoto(file);
+      room.photos.push({id:uid('photo'),name:file.name||'Room photo',createdAt:new Date().toISOString(),dataUrl});
+    }catch(e){
+      alert('One photo could not be added.');
+    }
+  }
+  renderRooms();
+  scheduleSave();
+}
+function compressRoomPhoto(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=reject;
+    reader.onload=()=>{
+      const img=new Image();
+      img.onerror=reject;
+      img.onload=()=>{
+        const max=1280;
+        const scale=Math.min(1,max/Math.max(img.width,img.height));
+        const width=Math.max(1,Math.round(img.width*scale));
+        const height=Math.max(1,Math.round(img.height*scale));
+        const canvas=document.createElement('canvas');
+        canvas.width=width; canvas.height=height;
+        canvas.getContext('2d').drawImage(img,0,0,width,height);
+        resolve(canvas.toDataURL('image/jpeg',.72));
+      };
+      img.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function removeRoomPhoto(roomId,photoId){
+  const room=currentQuote().rooms.find(r=>r.id===roomId);
+  if(!room)return;
+  room.photos=room.photos.filter(p=>p.id!==photoId);
+  renderRooms();
+  scheduleSave();
+}
+
 function renderObject(room,o){
   const K=KIND_DEFS[o.kind]||KIND_DEFS.other;
   const area=objectArea(o);
